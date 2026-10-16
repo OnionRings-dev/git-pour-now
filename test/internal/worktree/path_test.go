@@ -6,26 +6,26 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/worktree"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/worktree"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
-// setupInitializedRepo creates a repository with git-flow initialized to its
+// setupInitializedRepo creates a repository with git-pour initialized to its
 // defaults, so the loaded configuration carries the topic branch types that
 // {{ topicType }} and {{ branchName }} expand against.
 func setupInitializedRepo(t *testing.T) string {
 	t.Helper()
 	dir := testutil.SetupTestRepo(t)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		testutil.CleanupTestRepo(t, dir)
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	return dir
 }
 
-// openConfigured opens a repo handle for dir and loads its git-flow config.
+// openConfigured opens a repo handle for dir and loads its git-pour config.
 func openConfigured(t *testing.T, dir string) (*git.Repo, *config.Config) {
 	t.Helper()
 	repo, err := git.Open(dir)
@@ -39,18 +39,18 @@ func openConfigured(t *testing.T, dir string) (*git.Repo, *config.Config) {
 	return repo, cfg
 }
 
-// setTemplate writes gitflow.worktreePath into the repository's git config.
+// setTemplate writes gitpour.worktreePath into the repository's git config.
 func setTemplate(t *testing.T, dir string, template string) {
 	t.Helper()
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", template); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", template); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 }
 
 // TestComputePathDefaultTemplate verifies the default template resolves to an
 // absolute sibling of the repository.
 // Steps:
-// 1. Creates a repository with git-flow defaults and no gitflow.worktreePath
+// 1. Creates a repository with git-pour defaults and no gitpour.worktreePath
 // 2. Opens a repo handle and loads the configuration
 // 3. Calls worktree.ComputePath for feature/user-auth
 // 4. Verifies the result is <repoParent>/<repo>-worktrees/feature/user-auth
@@ -74,9 +74,9 @@ func TestComputePathDefaultTemplate(t *testing.T) {
 
 // TestComputePathExpandsTilde verifies a leading ~ expands to the home directory.
 // Steps:
-// 1. Creates a repository with git-flow defaults
+// 1. Creates a repository with git-pour defaults
 // 2. Overrides HOME for the test process (so no t.Parallel)
-// 3. Sets gitflow.worktreePath to '~/wt/{{ branch }}'
+// 3. Sets gitpour.worktreePath to '~/wt/{{ branch }}'
 // 4. Verifies ComputePath returns <HOME>/wt/feature/x
 func TestComputePathExpandsTilde(t *testing.T) {
 	dir := setupInitializedRepo(t)
@@ -101,9 +101,9 @@ func TestComputePathExpandsTilde(t *testing.T) {
 // TestComputePathExpandsBareTilde verifies a template that is nothing but '~'
 // resolves to the home directory itself, the boundary of the '~/…' form above.
 // Steps:
-// 1. Creates a repository with git-flow defaults
+// 1. Creates a repository with git-pour defaults
 // 2. Overrides HOME for the test process (so no t.Parallel)
-// 3. Sets gitflow.worktreePath to '~'
+// 3. Sets gitpour.worktreePath to '~'
 // 4. Verifies ComputePath returns <HOME>
 func TestComputePathExpandsBareTilde(t *testing.T) {
 	dir := setupInitializedRepo(t)
@@ -130,9 +130,9 @@ func TestComputePathExpandsBareTilde(t *testing.T) {
 // path rather than expanding. The Windows half of that rule — where '~\wt' DOES
 // expand — cannot be exercised here, since CI runs ubuntu-latest only.
 // Steps:
-// 1. Creates a repository with git-flow defaults, skipping on Windows
+// 1. Creates a repository with git-pour defaults, skipping on Windows
 // 2. Overrides HOME for the test process (so no t.Parallel)
-// 3. Sets gitflow.worktreePath to a backslash-separated '~\wt'
+// 3. Sets gitpour.worktreePath to a backslash-separated '~\wt'
 // 4. Verifies the result is rooted in the repository, not in HOME
 func TestComputePathBackslashTildeIsLiteralOnUnix(t *testing.T) {
 	if runtime.GOOS == "windows" {
@@ -160,7 +160,7 @@ func TestComputePathBackslashTildeIsLiteralOnUnix(t *testing.T) {
 // TestComputePathUnspacedPlaceholdersMatchSpaced verifies both brace forms expand
 // identically.
 // Steps:
-// 1. Creates a repository with git-flow defaults
+// 1. Creates a repository with git-pour defaults
 // 2. Computes the path with the spaced template '../wt/{{ topicType }}/{{ branch }}'
 // 3. Computes the path with the unspaced template '../wt/{{topicType}}/{{branch}}'
 // 4. Verifies the two results are byte-identical
@@ -191,8 +191,8 @@ func TestComputePathUnspacedPlaceholdersMatchSpaced(t *testing.T) {
 // TestComputePathAbsoluteTemplateUsedAsIs verifies an absolute template is not
 // re-rooted against the main worktree.
 // Steps:
-// 1. Creates a repository with git-flow defaults
-// 2. Sets gitflow.worktreePath to an absolute template
+// 1. Creates a repository with git-pour defaults
+// 2. Sets gitpour.worktreePath to an absolute template
 // 3. Calls ComputePath for feature/x
 // 4. Verifies the result is the template's own root, not a path under the repository
 func TestComputePathAbsoluteTemplateUsedAsIs(t *testing.T) {
@@ -219,8 +219,8 @@ func TestComputePathAbsoluteTemplateUsedAsIs(t *testing.T) {
 // template resolves against the MAIN worktree root even when the command runs
 // inside a linked worktree.
 // Steps:
-// 1. Creates a repository with git-flow defaults and a linked worktree on wt-branch
-// 2. Sets gitflow.worktreePath to the relative template '../wt/{{ branch }}'
+// 1. Creates a repository with git-pour defaults and a linked worktree on wt-branch
+// 2. Sets gitpour.worktreePath to the relative template '../wt/{{ branch }}'
 // 3. Opens a repo handle INSIDE the linked worktree and calls ComputePath
 // 4. Verifies the result is relative to the main worktree root, not the linked one
 func TestComputePathRelativeTemplateResolvesAgainstMainWorkTree(t *testing.T) {
@@ -255,7 +255,7 @@ func TestComputePathRelativeTemplateResolvesAgainstMainWorkTree(t *testing.T) {
 // TestComputePathNestedBranchProducesNestedDirs verifies a slashed branch name
 // yields nested directories using host separators.
 // Steps:
-// 1. Creates a repository with git-flow defaults
+// 1. Creates a repository with git-pour defaults
 // 2. Calls ComputePath for feature/user-auth with the default template
 // 3. Verifies the result ends with the host-separated "feature/user-auth" pair
 // 4. Verifies the result is absolute
@@ -281,7 +281,7 @@ func TestComputePathNestedBranchProducesNestedDirs(t *testing.T) {
 
 // TestComputePathCreatesNothing verifies path computation has no side effects.
 // Steps:
-// 1. Creates a repository with git-flow defaults
+// 1. Creates a repository with git-pour defaults
 // 2. Calls ComputePath for feature/x
 // 3. Verifies the returned path does not exist
 // 4. Verifies its parent directory does not exist either

@@ -1,27 +1,31 @@
-# Git-flow Hook Examples
+# Git-pour Hook Examples
 
-This directory contains example hook and filter scripts for git-flow-next. Copy the scripts you want to use to your repository's `.git/hooks/` directory and make them executable.
+This directory contains example hook and filter scripts for git-pour-now. Copy the scripts you want to use to your repository's `.git/hooks/` directory and make them executable.
+
+Release/hotfix branch examples require the explicit `--preset=classic`
+compatibility workflow. The default workflow prepares prereleases with the
+`prerelease` topic type and creates release tags through `git pour release`.
 
 ## Installation
 
 ```bash
 # Copy a hook to your repository
-cp contrib/hooks/pre-flow-release-start /path/to/repo/.git/hooks/
+cp contrib/hooks/pre-pour-release-start /path/to/repo/.git/hooks/
 
 # Make it executable
-chmod +x /path/to/repo/.git/hooks/pre-flow-release-start
+chmod +x /path/to/repo/.git/hooks/pre-pour-release-start
 ```
 
 ## Available Examples
 
 ### Filters
 
-Filters transform values during git-flow operations:
+Filters transform values during git-pour operations:
 
 | Script | Description |
 |--------|-------------|
-| `filter-flow-release-start-version` | Validates and normalizes version numbers (adds 'v' prefix) |
-| `filter-flow-release-finish-tag-message` | Appends changelog to tag messages |
+| `filter-pour-release-start-version` | Validates and normalizes version numbers (adds 'v' prefix) |
+| `filter-pour-release-finish-tag-message` | Appends changelog to tag messages |
 
 ### Hooks
 
@@ -29,9 +33,9 @@ Hooks execute before (pre) or after (post) operations:
 
 | Script | Description |
 |--------|-------------|
-| `pre-flow-feature-start` | Validates feature branch naming conventions |
-| `pre-flow-release-start` | Checks for uncommitted changes and remote sync |
-| `post-flow-release-finish` | Shows next steps and can trigger notifications |
+| `pre-pour-feature-start` | Validates feature branch naming conventions |
+| `pre-pour-release-start` | Checks for uncommitted changes and remote sync |
+| `post-pour-release-finish` | Shows next steps and can trigger notifications |
 
 ## Customization
 
@@ -52,7 +56,7 @@ These are starting points - modify them to fit your workflow:
 
 **Filters:**
 ```
-filter-flow-{type}-{action}-{target}
+filter-pour-{type}-{action}-{target}
   type: release, hotfix
   action: start, finish
   target: version, tag-message
@@ -60,7 +64,7 @@ filter-flow-{type}-{action}-{target}
 
 **Hooks:**
 ```
-{pre,post}-flow-{type}-{action}
+{pre,post}-pour-{type}-{action}
   pre/post: when to run
   type: feature, release, hotfix, support
   action: start, finish, publish, track, delete
@@ -91,12 +95,12 @@ cp contrib/hooks/* .githooks/
 git config core.hooksPath .githooks
 
 # Option 2: Create symbolic links
-ln -s ../../.githooks/pre-flow-release-start .git/hooks/
+ln -s ../../.githooks/pre-pour-release-start .git/hooks/
 ```
 
 ## Documentation
 
-For more details, see `docs/gitflow-hooks.7.md` or run:
+For more details, see `docs/gitpour-hooks.7.md` or run:
 ```bash
-git flow hooks --help
+git pour hooks --help
 ```

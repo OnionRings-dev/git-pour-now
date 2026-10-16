@@ -22,7 +22,7 @@ Fetch review comments from a PR (Copilot, human, or any reviewer), evaluate each
 
 Fetch all review data in parallel:
 
-- PR details: `mcp__github__get_pull_request` (owner: `gittower`, repo: `git-flow-next`)
+- PR details: `mcp__github__get_pull_request` (owner: `OnionRings-dev`, repo: `git-pour-now`)
 - Reviews: `mcp__github__get_pull_request_reviews`
 - Inline comments: `mcp__github__get_pull_request_comments`
 
@@ -185,12 +185,12 @@ After confirmation:
 1. Push to the remote branch
 2. Update the PR description if drafted:
    ```bash
-   gh api repos/gittower/git-flow-next/pulls/<number> -X PATCH -f body="<updated body>"
+   gh api repos/OnionRings-dev/git-pour-now/pulls/<number> -X PATCH -f body="<updated body>"
    ```
 3. Post the replies (verify each body against the [posting checklist](../_shared/POSTING_CHECKLIST.md) first — the PR-description PATCH and inline replies go through `gh api`, so no hook reminder fires):
    - **Inline thread replies** — reply to each inline diff comment on its own thread:
      ```bash
-     gh api repos/gittower/git-flow-next/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
+     gh api repos/OnionRings-dev/git-pour-now/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
      ```
    - **Combined general comment** — if any general feedback was collected, post the single quoted-and-answered comment via `mcp__github__add_issue_comment`
 4. **Resolve the handled inline threads.** A REST reply does *not* resolve the thread — resolution is a GraphQL mutation keyed by the thread's node ID (not the comment ID). Map each handled comment to its thread, then resolve it.
@@ -206,7 +206,7 @@ After confirmation:
          }
        }
      }
-   }' -f owner=gittower -f repo=git-flow-next -F pr=<number>
+   }' -f owner=OnionRings-dev -f repo=git-pour-now -F pr=<number>
    ```
    Then resolve each thread we replied to with a verdict (accept, dismiss, or partial):
    ```bash

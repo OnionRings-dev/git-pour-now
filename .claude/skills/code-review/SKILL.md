@@ -84,7 +84,7 @@ Specifies what to review. Can be:
 3. **Detect and Get Changes**
 
    For **auto-detect mode**:
-   - Determine the main branch: run `git config gitflow.branch.main.name` (fallback to `main`)
+   - Determine the main branch: run `git config gitpour.branch.main.name` (fallback to `main`)
    - Detect new commits: run `git log <main>..HEAD --oneline`
    - If no new commits exist, inform the user and stop
    - Get the diff for those commits: `git diff <main>...HEAD`

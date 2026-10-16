@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// startWorktreeIntent is what 'git flow <type> start's three worktree flags
+// startWorktreeIntent is what 'git pour <type> start's three worktree flags
 // resolved to.
 //
 // These flags are the ONE order-sensitive group in this CLI. Every other
@@ -24,7 +24,7 @@ import (
 type startWorktreeIntent struct {
 	// create is nil until one of the three flags is seen, so a command line
 	// that mentions none of them still falls through to the branch type's
-	// gitflow.branch.<type>.worktree default.
+	// gitpour.branch.<type>.worktree default.
 	create *bool
 	// path is the last --worktree-path value, empty when the flag was absent.
 	path string

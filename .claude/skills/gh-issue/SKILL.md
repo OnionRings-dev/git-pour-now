@@ -7,7 +7,7 @@ allowed-tools: Read, Grep, Glob, mcp__github__create_issue, mcp__github__list_is
 
 # Create GitHub Issue
 
-Create a new GitHub issue for the gittower/git-flow-next repository.
+Create a new GitHub issue for the OnionRings-dev/git-pour-now repository.
 
 ## Instructions
 
@@ -25,7 +25,7 @@ Create a new GitHub issue for the gittower/git-flow-next repository.
    - Determine type and apply `bug` or `enhancement` label per ISSUE_GUIDELINES.md
    - Write title and body following ISSUE_GUIDELINES.md conventions
    - Verify the body against the [posting checklist](../_shared/POSTING_CHECKLIST.md) before creating
-   - Use `mcp__github__create_issue` to create on gittower/git-flow-next
+   - Use `mcp__github__create_issue` to create on OnionRings-dev/git-pour-now
 
 5. **Report Result**
    - Show the created issue URL

@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/OnionRings-dev/git-pour-now/version"
 
 	"github.com/spf13/cobra"
 )
 
 // Version information
 var (
-	Version   = "2.1.0"
+	Version   = version.Version
 	BuildDate = "unknown"
 	GitCommit = "unknown"
 )
@@ -17,12 +18,12 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show version information",
 	Args:  cobra.NoArgs,
-	Long:  `Display version information for git-flow-next.`,
+	Long:  `Display version information for git-pour-now.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Version number first, then a parenthesized edition marker: the same
 		// shape git-flow-avh uses ("1.12.3 (AVH Edition)"), so tooling that
 		// parses the first whitespace-separated token works unchanged.
-		fmt.Printf("%s (git-flow-next)\n", Version)
+		fmt.Printf("%s (git-pour-now)\n", Version)
 		if BuildDate != "unknown" {
 			fmt.Printf("Build date: %s\n", BuildDate)
 		}

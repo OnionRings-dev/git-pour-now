@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // worktreeExitCode returns the process exit code carried by a testutil.ExitError,
@@ -43,19 +43,19 @@ func computedWorktreePath(t *testing.T, dir string, branch string) string {
 	return filepath.Join(filepath.Dir(root), filepath.Base(root)+"-worktrees", filepath.FromSlash(branch))
 }
 
-// initWorktreeRepo creates a temporary repository with git-flow initialized to
+// initWorktreeRepo creates a temporary repository with git-pour initialized to
 // its defaults.
 func initWorktreeRepo(t *testing.T) string {
 	t.Helper()
 	dir := testutil.SetupTestRepo(t)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		testutil.CleanupTestRepo(t, dir)
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	return dir
 }
 
-// addWorktree runs 'git flow worktree add <branch>' and returns the computed path
+// addWorktree runs 'git pour worktree add <branch>' and returns the computed path
 // the worktree was created at.
 func addWorktree(t *testing.T, dir string, branch string) string {
 	t.Helper()
@@ -75,7 +75,7 @@ func createFreeBranch(t *testing.T, dir string, branch string) {
 }
 
 // cdFilePath creates an empty file in a temporary directory and returns its path,
-// for use as GIT_FLOW_CD_FILE. Zero length is the pre-state every navigation
+// for use as GIT_POUR_CD_FILE. Zero length is the pre-state every navigation
 // assertion compares against.
 func cdFilePath(t *testing.T) string {
 	t.Helper()
@@ -86,9 +86,9 @@ func cdFilePath(t *testing.T) string {
 	return path
 }
 
-// cdEnv builds the subprocess environment that points GIT_FLOW_CD_FILE at path.
+// cdEnv builds the subprocess environment that points GIT_POUR_CD_FILE at path.
 func cdEnv(path string) []string {
-	return []string{"GIT_FLOW_CD_FILE=" + path}
+	return []string{"GIT_POUR_CD_FILE=" + path}
 }
 
 // readCDFile returns the trimmed content of the navigation destination file.
@@ -114,7 +114,7 @@ func assertCDFileEmpty(t *testing.T, path string) {
 	}
 }
 
-// worktreeRows splits 'git flow worktree list' output into its non-empty rows.
+// worktreeRows splits 'git pour worktree list' output into its non-empty rows.
 func worktreeRows(output string) []string {
 	var rows []string
 	for _, line := range strings.Split(output, "\n") {
@@ -142,9 +142,9 @@ func gitWorktreeList(t *testing.T, dir string) string {
 // TestWorktreePathDefaultTemplate covers scenario 1: the default template
 // resolves to an absolute sibling directory of the repository.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a feature/user-auth branch
-// 2. Leaves gitflow.worktreePath unset
-// 3. Runs 'git flow worktree path feature/user-auth'
+// 1. Sets up a repository with git-pour defaults and a feature/user-auth branch
+// 2. Leaves gitpour.worktreePath unset
+// 3. Runs 'git pour worktree path feature/user-auth'
 // 4. Verifies stdout is exactly <repoParent>/<repo>-worktrees/feature/user-auth
 func TestWorktreePathDefaultTemplate(t *testing.T) {
 	t.Parallel()
@@ -166,9 +166,9 @@ func TestWorktreePathDefaultTemplate(t *testing.T) {
 // TestWorktreePathTildeTemplateWithBranchName covers scenario 2: a ~-rooted
 // template expands to the home directory and {{ branchName }} drops the prefix.
 // Steps:
-// 1. Sets gitflow.worktreePath to '~/wt/{{ branchName }}' (camelCase key on purpose)
+// 1. Sets gitpour.worktreePath to '~/wt/{{ branchName }}' (camelCase key on purpose)
 // 2. Creates branch feature/user-auth
-// 3. Runs 'git flow worktree path feature/user-auth' with HOME overridden
+// 3. Runs 'git pour worktree path feature/user-auth' with HOME overridden
 // 4. Verifies the output is <HOME>/wt/user-auth, compared against the raw HOME value
 func TestWorktreePathTildeTemplateWithBranchName(t *testing.T) {
 	t.Parallel()
@@ -176,8 +176,8 @@ func TestWorktreePathTildeTemplateWithBranchName(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	createFreeBranch(t, dir, "feature/user-auth")
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "~/wt/{{ branchName }}"); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "~/wt/{{ branchName }}"); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 
 	home := t.TempDir()
@@ -197,8 +197,8 @@ func TestWorktreePathTildeTemplateWithBranchName(t *testing.T) {
 // TestWorktreePathTopicTypeAndUnspacedForms covers scenario 3: {{ topicType }}
 // expands to the topic branch type and unspaced placeholders behave identically.
 // Steps:
-// 1. Sets gitflow.worktreePath to '../wt/{{topicType}}/{{ branch }}'
-// 2. Runs 'git flow worktree path feature/user-auth'
+// 1. Sets gitpour.worktreePath to '../wt/{{topicType}}/{{ branch }}'
+// 2. Runs 'git pour worktree path feature/user-auth'
 // 3. Verifies the result is <repoParent>/wt/feature/feature/user-auth
 // 4. Repeats with the spaced/unspaced forms swapped and requires identical output
 func TestWorktreePathTopicTypeAndUnspacedForms(t *testing.T) {
@@ -207,8 +207,8 @@ func TestWorktreePathTopicTypeAndUnspacedForms(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	createFreeBranch(t, dir, "feature/user-auth")
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "../wt/{{topicType}}/{{ branch }}"); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "../wt/{{topicType}}/{{ branch }}"); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 
 	unspaced, err := testutil.RunGitFlow(t, dir, "worktree", "path", "feature/user-auth")
@@ -222,8 +222,8 @@ func TestWorktreePathTopicTypeAndUnspacedForms(t *testing.T) {
 		t.Errorf("Expected path %q, got %q", want, got)
 	}
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "../wt/{{ topicType }}/{{branch}}"); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "../wt/{{ topicType }}/{{branch}}"); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 	spaced, err := testutil.RunGitFlow(t, dir, "worktree", "path", "feature/user-auth")
 	if err != nil {
@@ -238,7 +238,7 @@ func TestWorktreePathTopicTypeAndUnspacedForms(t *testing.T) {
 // only, and creates nothing.
 // Steps:
 // 1. Sets up a repository with a feature/x branch and no worktree
-// 2. Runs 'git flow worktree path feature/x'
+// 2. Runs 'git pour worktree path feature/x'
 // 3. Verifies the printed path and its parent do not exist
 // 4. Verifies git worktree list shows only the main worktree and no marker was written
 func TestWorktreePathHasNoSideEffects(t *testing.T) {
@@ -263,17 +263,17 @@ func TestWorktreePathHasNoSideEffects(t *testing.T) {
 	if rows := strings.Count(strings.TrimSpace(gitWorktreeList(t, dir)), "\n"); rows != 0 {
 		t.Errorf("Expected only the main worktree, got: %s", gitWorktreeList(t, dir))
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected no managed marker after 'worktree path'")
 	}
 }
 
 // TestWorktreePathEmptyTemplateFallsBackToDefault verifies an empty
-// gitflow.worktreePath falls back to the default template rather than resolving
+// gitpour.worktreePath falls back to the default template rather than resolving
 // to the main worktree root.
 // Steps:
-// 1. Sets gitflow.worktreePath to the empty string
-// 2. Runs 'git flow worktree path feature/x'
+// 1. Sets gitpour.worktreePath to the empty string
+// 2. Runs 'git pour worktree path feature/x'
 // 3. Verifies the output equals the default-template result
 func TestWorktreePathEmptyTemplateFallsBackToDefault(t *testing.T) {
 	t.Parallel()
@@ -281,8 +281,8 @@ func TestWorktreePathEmptyTemplateFallsBackToDefault(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	createFreeBranch(t, dir, "feature/x")
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", ""); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", ""); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "worktree", "path", "feature/x")
@@ -299,16 +299,16 @@ func TestWorktreePathEmptyTemplateFallsBackToDefault(t *testing.T) {
 // TestWorktreePathNonTopicBranchCollapsesSeparator verifies that an empty
 // {{ topicType }} expansion collapses the separator it leaves behind.
 // Steps:
-// 1. Sets gitflow.worktreePath to '../wt/{{ topicType }}/{{ branch }}'
-// 2. Runs 'git flow worktree path main' (main is not a topic branch)
+// 1. Sets gitpour.worktreePath to '../wt/{{ topicType }}/{{ branch }}'
+// 2. Runs 'git pour worktree path main' (main is not a topic branch)
 // 3. Verifies the result is <repoParent>/wt/main with no doubled separator
 func TestWorktreePathNonTopicBranchCollapsesSeparator(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "../wt/{{ topicType }}/{{ branch }}"); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "../wt/{{ topicType }}/{{ branch }}"); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "worktree", "path", "main")
@@ -327,10 +327,10 @@ func TestWorktreePathNonTopicBranchCollapsesSeparator(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 // TestWorktreePathRequiresInitialization verifies 'worktree path' refuses to run
-// in a repository where git-flow was never initialized.
+// in a repository where git-pour was never initialized.
 // Steps:
-// 1. Sets up a plain git repository without running 'git flow init'
-// 2. Runs 'git flow worktree path main'
+// 1. Sets up a plain git repository without running 'git pour init'
+// 2. Runs 'git pour worktree path main'
 // 3. Verifies exit code 1 and a not-initialized message
 func TestWorktreePathRequiresInitialization(t *testing.T) {
 	t.Parallel()
@@ -349,10 +349,10 @@ func TestWorktreePathRequiresInitialization(t *testing.T) {
 // TestWorktreeAddRequiresInitialization verifies 'worktree add' refuses to run in
 // an uninitialized repository and mutates nothing.
 // Steps:
-// 1. Sets up a plain git repository with a feature/x branch, no 'git flow init'
-// 2. Runs 'git flow worktree add feature/x'
+// 1. Sets up a plain git repository with a feature/x branch, no 'git pour init'
+// 2. Runs 'git pour worktree add feature/x'
 // 3. Verifies exit code 1
-// 4. Verifies no worktree was created and no gitflow.worktree.* key was written
+// 4. Verifies no worktree was created and no gitpour.worktree.* key was written
 func TestWorktreeAddRequiresInitialization(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -367,16 +367,16 @@ func TestWorktreeAddRequiresInitialization(t *testing.T) {
 	if _, err := os.Stat(worktreeRootFor(dir)); !os.IsNotExist(err) {
 		t.Errorf("Expected no worktree root at %q", worktreeRootFor(dir))
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
-		t.Error("Expected no gitflow.worktree.* key to be written")
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
+		t.Error("Expected no gitpour.worktree.* key to be written")
 	}
 }
 
 // TestWorktreeRemoveRequiresInitialization verifies 'worktree remove' refuses to
 // run in an uninitialized repository.
 // Steps:
-// 1. Sets up a plain git repository with a feature/x branch, no 'git flow init'
-// 2. Runs 'git flow worktree remove feature/x'
+// 1. Sets up a plain git repository with a feature/x branch, no 'git pour init'
+// 2. Runs 'git pour worktree remove feature/x'
 // 3. Verifies exit code 1 and a not-initialized message
 func TestWorktreeRemoveRequiresInitialization(t *testing.T) {
 	t.Parallel()
@@ -396,8 +396,8 @@ func TestWorktreeRemoveRequiresInitialization(t *testing.T) {
 // TestWorktreeListRequiresInitialization verifies 'worktree list' refuses to run
 // in an uninitialized repository.
 // Steps:
-// 1. Sets up a plain git repository without running 'git flow init'
-// 2. Runs 'git flow worktree list'
+// 1. Sets up a plain git repository without running 'git pour init'
+// 2. Runs 'git pour worktree list'
 // 3. Verifies exit code 1 and a not-initialized message
 func TestWorktreeListRequiresInitialization(t *testing.T) {
 	t.Parallel()
@@ -417,7 +417,7 @@ func TestWorktreeListRequiresInitialization(t *testing.T) {
 // run in an uninitialized repository and leaves stale admin entries alone.
 // Steps:
 // 1. Sets up a plain git repository, adds a worktree by hand and deletes its directory
-// 2. Runs 'git flow worktree prune'
+// 2. Runs 'git pour worktree prune'
 // 3. Verifies exit code 1
 // 4. Verifies the stale admin entry is still listed by git worktree list
 func TestWorktreePruneRequiresInitialization(t *testing.T) {
@@ -450,7 +450,7 @@ func TestWorktreePruneRequiresInitialization(t *testing.T) {
 // the computed path.
 // Steps:
 // 1. Sets up a repository and creates feature/x without checking it out
-// 2. Runs 'git flow worktree add feature/x'
+// 2. Runs 'git pour worktree add feature/x'
 // 3. Verifies the computed (nested) path exists and contains a .git file
 // 4. Verifies git worktree list reports the path with [feature/x]
 func TestWorktreeAddCreatesWorktree(t *testing.T) {
@@ -483,8 +483,8 @@ func TestWorktreeAddCreatesWorktree(t *testing.T) {
 // TestWorktreeAddWritesManagedMarker covers scenario 5: add records provenance.
 // Steps:
 // 1. Sets up a repository with a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x'
-// 3. Verifies gitflow.worktree.feature/x.managed is true in local config
+// 2. Runs 'git pour worktree add feature/x'
+// 3. Verifies gitpour.worktree.feature/x.managed is true in local config
 func TestWorktreeAddWritesManagedMarker(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -494,15 +494,15 @@ func TestWorktreeAddWritesManagedMarker(t *testing.T) {
 
 	addWorktree(t, dir, "feature/x")
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/x.managed"); v != "true" {
-		t.Errorf("Expected gitflow.worktree.feature/x.managed=true, got %q", v)
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/x.managed"); v != "true" {
+		t.Errorf("Expected gitpour.worktree.feature/x.managed=true, got %q", v)
 	}
 }
 
 // TestWorktreeAddWithCustomPath covers scenario 6: --path overrides the template.
 // Steps:
 // 1. Sets up a repository with a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x --path ./wt-custom-add'
+// 2. Runs 'git pour worktree add feature/x --path ./wt-custom-add'
 // 3. Verifies the worktree exists at the custom path and not at the computed path
 // 4. Verifies the provenance marker is written the same way
 func TestWorktreeAddWithCustomPath(t *testing.T) {
@@ -524,15 +524,15 @@ func TestWorktreeAddWithCustomPath(t *testing.T) {
 	if _, err := os.Stat(computedWorktreePath(t, dir, "feature/x")); !os.IsNotExist(err) {
 		t.Error("Expected the computed template path not to be used when --path is given")
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/x.managed"); v != "true" {
-		t.Errorf("Expected gitflow.worktree.feature/x.managed=true, got %q", v)
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/x.managed"); v != "true" {
+		t.Errorf("Expected gitpour.worktree.feature/x.managed=true, got %q", v)
 	}
 }
 
 // TestWorktreeAddNonExistentBranch covers scenario 7: add refuses an unknown branch.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow worktree add feature/nope'
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour worktree add feature/nope'
 // 3. Verifies exit code 5 and an error naming the branch
 // 4. Verifies nothing was created and no marker was written
 func TestWorktreeAddNonExistentBranch(t *testing.T) {
@@ -551,8 +551,8 @@ func TestWorktreeAddNonExistentBranch(t *testing.T) {
 	if _, err := os.Stat(computedWorktreePath(t, dir, "feature/nope")); !os.IsNotExist(err) {
 		t.Error("Expected no worktree directory to be created")
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
-		t.Error("Expected no gitflow.worktree.* key to be written")
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
+		t.Error("Expected no gitpour.worktree.* key to be written")
 	}
 }
 
@@ -560,7 +560,7 @@ func TestWorktreeAddNonExistentBranch(t *testing.T) {
 // worktree for the branch already exists.
 // Steps:
 // 1. Sets up a repository and adds a worktree for feature/x
-// 2. Runs 'git flow worktree add feature/x' a second time
+// 2. Runs 'git pour worktree add feature/x' a second time
 // 3. Verifies exit code 4 and a message naming the branch and the existing path
 // 4. Verifies the first worktree is untouched and no worktree was added
 func TestWorktreeAddWhenWorktreeAlreadyExists(t *testing.T) {
@@ -592,7 +592,7 @@ func TestWorktreeAddWhenWorktreeAlreadyExists(t *testing.T) {
 // target path is an unrelated directory.
 // Steps:
 // 1. Creates the computed path as a plain directory containing a file
-// 2. Runs 'git flow worktree add feature/x'
+// 2. Runs 'git pour worktree add feature/x'
 // 3. Verifies exit code 6 and a message naming the occupied path
 // 4. Verifies the directory contents are unchanged, no worktree registered, no marker
 func TestWorktreeAddTargetPathOccupied(t *testing.T) {
@@ -625,8 +625,8 @@ func TestWorktreeAddTargetPathOccupied(t *testing.T) {
 	if strings.Contains(gitWorktreeList(t, dir), "feature/x") {
 		t.Error("Expected no worktree to be registered for feature/x")
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
-		t.Error("Expected no gitflow.worktree.* key to be written")
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
+		t.Error("Expected no gitpour.worktree.* key to be written")
 	}
 }
 
@@ -637,7 +637,7 @@ func TestWorktreeAddTargetPathOccupied(t *testing.T) {
 // since the occupancy test above uses a non-empty directory.
 // Steps:
 // 1. Pre-creates the computed path as an empty directory
-// 2. Runs 'git flow worktree add feature/x'
+// 2. Runs 'git pour worktree add feature/x'
 // 3. Verifies exit code 0 and that the worktree was registered at that path
 // 4. Verifies the provenance marker was written like any other add
 func TestWorktreeAddIntoExistingEmptyDirectorySucceeds(t *testing.T) {
@@ -662,16 +662,16 @@ func TestWorktreeAddIntoExistingEmptyDirectorySucceeds(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(wtPath, ".git")); err != nil {
 		t.Errorf("Expected the worktree to be checked out into the existing directory: %v", err)
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/x.managed"); v != "true" {
-		t.Errorf("Expected gitflow.worktree.feature/x.managed=true, got %q", v)
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/x.managed"); v != "true" {
+		t.Errorf("Expected gitpour.worktree.feature/x.managed=true, got %q", v)
 	}
 }
 
 // TestWorktreeAddBranchCheckedOutInMainWorktree covers scenario 10: add refuses a
 // branch that is checked out in the main worktree.
 // Steps:
-// 1. Runs 'git flow feature start x', leaving feature/x checked out in the main worktree
-// 2. Runs 'git flow worktree add feature/x'
+// 1. Runs 'git pour feature start x', leaving feature/x checked out in the main worktree
+// 2. Runs 'git pour worktree add feature/x'
 // 3. Verifies exit code 6 and a message naming the main worktree
 // 4. Verifies no directory was left behind and no marker was written
 func TestWorktreeAddBranchCheckedOutInMainWorktree(t *testing.T) {
@@ -694,8 +694,8 @@ func TestWorktreeAddBranchCheckedOutInMainWorktree(t *testing.T) {
 	if _, err := os.Stat(computedWorktreePath(t, dir, "feature/x")); !os.IsNotExist(err) {
 		t.Error("Expected no partial worktree directory to be left behind")
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
-		t.Error("Expected no gitflow.worktree.* key to be written")
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
+		t.Error("Expected no gitpour.worktree.* key to be written")
 	}
 }
 
@@ -703,7 +703,7 @@ func TestWorktreeAddBranchCheckedOutInMainWorktree(t *testing.T) {
 // --path resolves against the invocation directory, not the main worktree root.
 // Steps:
 // 1. Creates subdirectory <repo>/sub and a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x --path ../custom' from <repo>/sub
+// 2. Runs 'git pour worktree add feature/x --path ../custom' from <repo>/sub
 // 3. Verifies the worktree lands at <repo>/custom
 // 4. Verifies it did NOT land at <repoParent>/custom
 func TestWorktreeAddRelativePathResolvesAgainstInvocationDir(t *testing.T) {
@@ -741,8 +741,8 @@ func TestWorktreeAddRelativePathResolvesAgainstInvocationDir(t *testing.T) {
 
 // TestWorktreeRemoveCleanWorktree covers scenario 11: remove drops a clean worktree.
 // Steps:
-// 1. Adds a worktree for feature/x through git-flow (marker present)
-// 2. Runs 'git flow worktree remove feature/x'
+// 1. Adds a worktree for feature/x through git-pour (marker present)
+// 2. Runs 'git pour worktree remove feature/x'
 // 3. Verifies the directory and admin entry are gone and the marker is cleared
 // 4. Verifies the branch feature/x still exists
 func TestWorktreeRemoveCleanWorktree(t *testing.T) {
@@ -764,7 +764,7 @@ func TestWorktreeRemoveCleanWorktree(t *testing.T) {
 	if strings.Contains(gitWorktreeList(t, dir), wtPath) {
 		t.Error("Expected the admin entry to be gone")
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected the managed marker to be cleared")
 	}
 	if !testutil.BranchExists(t, dir, "feature/x") {
@@ -776,7 +776,7 @@ func TestWorktreeRemoveCleanWorktree(t *testing.T) {
 // a worktree with modified tracked files.
 // Steps:
 // 1. Adds a worktree for feature/x and modifies a tracked file inside it
-// 2. Runs 'git flow worktree remove feature/x'
+// 2. Runs 'git pour worktree remove feature/x'
 // 3. Verifies exit code 6 and a message mentioning --force
 // 4. Verifies the directory, the modification, and the marker all survive
 func TestWorktreeRemoveRefusesUncommittedChanges(t *testing.T) {
@@ -802,7 +802,7 @@ func TestWorktreeRemoveRefusesUncommittedChanges(t *testing.T) {
 	if err != nil || string(content) != "modified" {
 		t.Errorf("Expected the modification to survive, got %q (%v)", string(content), err)
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/x.managed"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/x.managed"); v != "true" {
 		t.Errorf("Expected the marker to survive a refusal, got %q", v)
 	}
 }
@@ -811,7 +811,7 @@ func TestWorktreeRemoveRefusesUncommittedChanges(t *testing.T) {
 // removes a worktree with modified tracked files.
 // Steps:
 // 1. Adds a worktree for feature/x and modifies a tracked file inside it
-// 2. Runs 'git flow worktree remove feature/x --force'
+// 2. Runs 'git pour worktree remove feature/x --force'
 // 3. Verifies exit code 0 and that the directory is gone
 // 4. Verifies the marker is cleared and the branch is retained
 func TestWorktreeRemoveForceWithUncommittedChanges(t *testing.T) {
@@ -833,7 +833,7 @@ func TestWorktreeRemoveForceWithUncommittedChanges(t *testing.T) {
 	if _, err := os.Stat(wtPath); !os.IsNotExist(err) {
 		t.Errorf("Expected worktree directory %q to be gone", wtPath)
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected the managed marker to be cleared")
 	}
 	if !testutil.BranchExists(t, dir, "feature/x") {
@@ -845,7 +845,7 @@ func TestWorktreeRemoveForceWithUncommittedChanges(t *testing.T) {
 // covers untracked files, not just tracked modifications.
 // Steps:
 // 1. Adds a worktree for feature/x and writes a new untracked file inside it
-// 2. Runs 'git flow worktree remove feature/x'
+// 2. Runs 'git pour worktree remove feature/x'
 // 3. Verifies exit code 6 and a refusal message
 // 4. Verifies the worktree and the untracked file survive
 func TestWorktreeRemoveRefusesUntrackedFiles(t *testing.T) {
@@ -877,7 +877,7 @@ func TestWorktreeRemoveRefusesUntrackedFiles(t *testing.T) {
 // a worktree that only holds untracked files.
 // Steps:
 // 1. Adds a worktree for feature/x and writes a new untracked file inside it
-// 2. Runs 'git flow worktree remove feature/x --force'
+// 2. Runs 'git pour worktree remove feature/x --force'
 // 3. Verifies exit code 0 and that the directory is gone
 // 4. Verifies the marker is cleared
 func TestWorktreeRemoveForceWithUntrackedFiles(t *testing.T) {
@@ -899,7 +899,7 @@ func TestWorktreeRemoveForceWithUntrackedFiles(t *testing.T) {
 	if _, err := os.Stat(wtPath); !os.IsNotExist(err) {
 		t.Errorf("Expected worktree directory %q to be gone", wtPath)
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected the managed marker to be cleared")
 	}
 }
@@ -908,7 +908,7 @@ func TestWorktreeRemoveForceWithUntrackedFiles(t *testing.T) {
 // provenance for an explicitly named target.
 // Steps:
 // 1. Creates a worktree for feature/x with plain 'git worktree add' (no marker)
-// 2. Runs 'git flow worktree remove feature/x'
+// 2. Runs 'git pour worktree remove feature/x'
 // 3. Verifies exit code 0 and that the worktree is gone
 // 4. Verifies the branch is retained
 func TestWorktreeRemoveUnmanagedWorktree(t *testing.T) {
@@ -938,7 +938,7 @@ func TestWorktreeRemoveUnmanagedWorktree(t *testing.T) {
 // branch has no worktree.
 // Steps:
 // 1. Creates branch feature/x with no worktree anywhere
-// 2. Runs 'git flow worktree remove feature/x'
+// 2. Runs 'git pour worktree remove feature/x'
 // 3. Verifies exit code 5 and a "no worktree" message
 // 4. Verifies the branch is untouched
 func TestWorktreeRemoveWithoutWorktree(t *testing.T) {
@@ -963,8 +963,8 @@ func TestWorktreeRemoveWithoutWorktree(t *testing.T) {
 // never removed, and that refusal beats the "nothing to remove" path.
 // Steps:
 //  1. Sets up a repository and checks out main in the main worktree
-//     ('git flow init' leaves develop checked out, so this is explicit)
-//  2. Runs 'git flow worktree remove main'
+//     ('git pour init' leaves develop checked out, so this is explicit)
+//  2. Runs 'git pour worktree remove main'
 //  3. Verifies exit code 6 and a message about the main worktree
 //  4. Verifies the repository directory still exists and is a worktree
 func TestWorktreeRemoveRefusesMainWorktree(t *testing.T) {
@@ -994,7 +994,7 @@ func TestWorktreeRemoveRefusesMainWorktree(t *testing.T) {
 // entry whose directory was deleted by hand — a missing directory counts as clean.
 // Steps:
 // 1. Adds a worktree for feature/x, then deletes its directory with os.RemoveAll
-// 2. Runs 'git flow worktree remove feature/x' without --force
+// 2. Runs 'git pour worktree remove feature/x' without --force
 // 3. Verifies exit code 0 and that the admin entry is gone
 // 4. Verifies the marker is cleared and the branch is retained
 func TestWorktreeRemoveStaleEntry(t *testing.T) {
@@ -1016,7 +1016,7 @@ func TestWorktreeRemoveStaleEntry(t *testing.T) {
 	if strings.Contains(gitWorktreeList(t, dir), wtPath) {
 		t.Error("Expected the stale admin entry to be gone")
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected the managed marker to be cleared")
 	}
 	if !testutil.BranchExists(t, dir, "feature/x") {
@@ -1027,8 +1027,8 @@ func TestWorktreeRemoveStaleEntry(t *testing.T) {
 // TestWorktreeRemoveNoCDFlagLeavesFileEmpty verifies --no-cd suppresses the
 // navigation write even when removing the worktree the command runs in.
 // Steps:
-// 1. Adds a worktree for feature/x and creates an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow worktree remove feature/x --no-cd' from inside that worktree
+// 1. Adds a worktree for feature/x and creates an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour worktree remove feature/x --no-cd' from inside that worktree
 // 3. Verifies exit code 0 and that the worktree is removed
 // 4. Verifies the CD file is still zero-length
 func TestWorktreeRemoveNoCDFlagLeavesFileEmpty(t *testing.T) {
@@ -1057,8 +1057,8 @@ func TestWorktreeRemoveNoCDFlagLeavesFileEmpty(t *testing.T) {
 // TestWorktreeListShowsLinkedWorktrees covers scenario 17: list shows every
 // linked worktree and excludes the main one.
 // Steps:
-// 1. Adds worktrees for feature/a and feature/b through git-flow
-// 2. Runs 'git flow worktree list'
+// 1. Adds worktrees for feature/a and feature/b through git-pour
+// 2. Runs 'git pour worktree list'
 // 3. Verifies exactly two rows, each carrying its branch and absolute path
 // 4. Verifies no row is the main worktree (neither its path nor its branch)
 func TestWorktreeListShowsLinkedWorktrees(t *testing.T) {
@@ -1111,9 +1111,9 @@ func TestWorktreeListShowsLinkedWorktrees(t *testing.T) {
 // TestWorktreeListTagsUnmanagedWorktree covers scenario 18: provenance comes from
 // the marker only, never from the path shape.
 // Steps:
-// 1. Adds feature/a through git-flow (marker written)
+// 1. Adds feature/a through git-pour (marker written)
 // 2. Adds feature/b by hand at the path the template WOULD compute (no marker)
-// 3. Runs 'git flow worktree list'
+// 3. Runs 'git pour worktree list'
 // 4. Verifies the feature/b row is tagged (unmanaged) and the feature/a row is not
 func TestWorktreeListTagsUnmanagedWorktree(t *testing.T) {
 	t.Parallel()
@@ -1149,7 +1149,7 @@ func TestWorktreeListTagsUnmanagedWorktree(t *testing.T) {
 		switch fields[0] {
 		case "feature/a":
 			if strings.Contains(row, "(unmanaged)") {
-				t.Errorf("Expected the git-flow-created worktree to carry no tag, got %q", row)
+				t.Errorf("Expected the git-pour-created worktree to carry no tag, got %q", row)
 			}
 		case "feature/b":
 			if !strings.HasSuffix(row, "(unmanaged)") {
@@ -1164,14 +1164,14 @@ func TestWorktreeListTagsUnmanagedWorktree(t *testing.T) {
 // TestWorktreeListIgnoresGlobalScopedMarker verifies the provenance marker is
 // read from LOCAL config only, the scope it is written to and cleared in. A
 // marker that exists only in global config must not make a hand-made worktree
-// report as git-flow's: clearing only touches local scope, so such a marker could
+// report as git-pour's: clearing only touches local scope, so such a marker could
 // never be removed and the cleanup commands would delete the user's own worktree.
 // Steps:
 // 1. Isolates the global config to a temp file so the real global config is untouched
 // 2. Creates a worktree for feature/b by hand, so no local marker exists
-// 3. Writes gitflow.worktree.feature/b.managed=true in the GLOBAL scope only
-// 4. Verifies no gitflow.worktree.* key exists in local config
-// 5. Runs 'git flow worktree list' and verifies the row is still tagged (unmanaged)
+// 3. Writes gitpour.worktree.feature/b.managed=true in the GLOBAL scope only
+// 4. Verifies no gitpour.worktree.* key exists in local config
+// 5. Runs 'git pour worktree list' and verifies the row is still tagged (unmanaged)
 func TestWorktreeListIgnoresGlobalScopedMarker(t *testing.T) {
 	t.Parallel()
 	// The override is passed through each subprocess env (not the test process
@@ -1188,11 +1188,11 @@ func TestWorktreeListIgnoresGlobalScopedMarker(t *testing.T) {
 		t.Fatalf("git worktree add failed: %v\nOutput: %s", err, out)
 	}
 
-	if out, err := testutil.RunGitWithEnv(t, dir, env, "config", "--global", "gitflow.worktree.feature/b.managed", "true"); err != nil {
+	if out, err := testutil.RunGitWithEnv(t, dir, env, "config", "--global", "gitpour.worktree.feature/b.managed", "true"); err != nil {
 		t.Fatalf("Failed to write the global marker: %v\nOutput: %s", err, out)
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
-		t.Fatal("Expected no gitflow.worktree.* key in local config")
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
+		t.Fatal("Expected no gitpour.worktree.* key in local config")
 	}
 
 	output, err := testutil.RunGitFlowWithEnv(t, dir, env, "worktree", "list")
@@ -1213,7 +1213,7 @@ func TestWorktreeListIgnoresGlobalScopedMarker(t *testing.T) {
 // listed, with (detached) in the branch column.
 // Steps:
 // 1. Adds a worktree for feature/x and detaches its HEAD
-// 2. Runs 'git flow worktree list'
+// 2. Runs 'git pour worktree list'
 // 3. Verifies the worktree is still listed with its path unchanged
 // 4. Verifies its branch column reads (detached)
 func TestWorktreeListShowsDetachedWorktree(t *testing.T) {
@@ -1250,9 +1250,9 @@ func TestWorktreeListShowsDetachedWorktree(t *testing.T) {
 // as-is until prune runs.
 // Steps:
 // 1. Adds a worktree for feature/x, then deletes its directory
-// 2. Runs 'git flow worktree list' and verifies the entry is still shown
-// 3. Runs 'git flow worktree prune'
-// 4. Runs 'git flow worktree list' again and verifies the entry is gone
+// 2. Runs 'git pour worktree list' and verifies the entry is still shown
+// 3. Runs 'git pour worktree prune'
+// 4. Runs 'git pour worktree list' again and verifies the entry is gone
 func TestWorktreeListShowsStaleWorktreeUntilPrune(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -1288,8 +1288,8 @@ func TestWorktreeListShowsStaleWorktreeUntilPrune(t *testing.T) {
 
 // TestWorktreeListWithNoLinkedWorktrees verifies the empty listing message.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and no linked worktrees
-// 2. Runs 'git flow worktree list'
+// 1. Sets up a repository with git-pour defaults and no linked worktrees
+// 2. Runs 'git pour worktree list'
 // 3. Verifies exit code 0
 // 4. Verifies the single line 'No linked worktrees found'
 func TestWorktreeListWithNoLinkedWorktrees(t *testing.T) {
@@ -1312,15 +1312,15 @@ func TestWorktreeListWithNoLinkedWorktrees(t *testing.T) {
 // of how many worktrees are listed.
 //
 // GIT_TRACE is pointed at a FILE, never set to 1: the value 1 writes to stderr,
-// which would fold trace lines into the output of git-flow's CombinedOutput call
+// which would fold trace lines into the output of git-pour's CombinedOutput call
 // sites.
 //
-// The per-row check counts traced lines containing the literal "gitflow.worktree."
+// The per-row check counts traced lines containing the literal "gitpour.worktree."
 // — the bulk read passes the key pattern with the dots escaped
-// (gitflow\.worktree\.), so only a per-branch 'git config --get' can match.
+// (gitpour\.worktree\.), so only a per-branch 'git config --get' can match.
 // Steps:
-// 1. Creates five worktrees through git-flow and one by hand, so both tagged and untagged rows exist
-// 2. Runs 'git flow worktree list' with GIT_TRACE pointed at a file
+// 1. Creates five worktrees through git-pour and one by hand, so both tagged and untagged rows exist
+// 2. Runs 'git pour worktree list' with GIT_TRACE pointed at a file
 // 3. Counts the traced git invocations by kind
 // 4. Verifies one worktree listing, one bulk marker read and no per-branch marker read
 func TestWorktreeListUsesBulkMarkerRead(t *testing.T) {
@@ -1362,7 +1362,7 @@ func TestWorktreeListUsesBulkMarkerRead(t *testing.T) {
 	}{
 		{"worktree listings", []string{"git worktree list"}, 1},
 		{"bulk marker reads", []string{"--get-regexp", "managed"}, 1},
-		{"per-branch marker reads", []string{"gitflow.worktree."}, 0},
+		{"per-branch marker reads", []string{"gitpour.worktree."}, 0},
 	}
 	for _, check := range checks {
 		if got := countTraceLines(lines, check.substrings...); got != check.want {
@@ -1373,12 +1373,12 @@ func TestWorktreeListUsesBulkMarkerRead(t *testing.T) {
 
 // TestWorktreeListAbortsWhenMarkerListFails verifies a failed bulk marker read
 // aborts instead of degrading. Degrading would tag every row "(unmanaged)",
-// including git-flow's own worktrees — a lie in the direction that decides what
+// including git-pour's own worktrees — a lie in the direction that decides what
 // the cleanup commands may delete.
 // Steps:
-// 1. Adds a worktree for feature/x through git-flow, so a provenance marker genuinely exists
+// 1. Adds a worktree for feature/x through git-pour, so a provenance marker genuinely exists
 // 2. Puts a git shim on PATH that fails the bulk marker read with exit 128
-// 3. Runs 'git flow worktree list'
+// 3. Runs 'git pour worktree list'
 // 4. Verifies exit 3, an error on stderr, and no '(unmanaged)' tag on stdout
 func TestWorktreeListAbortsWhenMarkerListFails(t *testing.T) {
 	t.Parallel()
@@ -1388,7 +1388,7 @@ func TestWorktreeListAbortsWhenMarkerListFails(t *testing.T) {
 	createFreeBranch(t, dir, "feature/x")
 	addWorktree(t, dir, "feature/x")
 
-	env := failingGitShim(t, `config --local --null --get-regexp ^gitflow\.worktree\..*\.managed$`)
+	env := failingGitShim(t, `config --local --null --get-regexp ^gitpour\.worktree\..*\.managed$`)
 
 	stdout, stderr, err := testutil.RunGitFlowStreamsWithEnv(t, dir, env, "worktree", "list")
 	if code := worktreeExitCode(err); code != 3 {
@@ -1410,8 +1410,8 @@ func TestWorktreeListAbortsWhenMarkerListFails(t *testing.T) {
 // stale admin entry and its marker, and only its marker.
 // Steps:
 // 1. Adds worktrees for feature/x and feature/keep, then deletes feature/x's directory
-// 2. Runs 'git flow worktree prune'
-// 3. Verifies the stale entry and gitflow.worktree.feature/x.managed are gone
+// 2. Runs 'git pour worktree prune'
+// 3. Verifies the stale entry and gitpour.worktree.feature/x.managed are gone
 // 4. Verifies the live worktree's marker is still present
 func TestWorktreePruneRemovesStaleEntryAndMarker(t *testing.T) {
 	t.Parallel()
@@ -1435,10 +1435,10 @@ func TestWorktreePruneRemovesStaleEntryAndMarker(t *testing.T) {
 	if strings.Contains(gitWorktreeList(t, dir), wtPath) {
 		t.Error("Expected the stale admin entry to be pruned")
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected the stale marker to be swept")
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/keep.managed"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/keep.managed"); v != "true" {
 		t.Errorf("Expected the live worktree's marker to survive, got %q", v)
 	}
 }
@@ -1447,7 +1447,7 @@ func TestWorktreePruneRemovesStaleEntryAndMarker(t *testing.T) {
 // branch: a live-but-detached worktree keeps its directory and loses its marker.
 // Steps:
 // 1. Adds a worktree for feature/x and detaches its HEAD
-// 2. Runs 'git flow worktree prune'
+// 2. Runs 'git pour worktree prune'
 // 3. Verifies the directory and admin entry survive but the marker is dropped
 // 4. Verifies 'worktree list' now reports the row as (detached) … (unmanaged)
 func TestWorktreePruneDropsMarkerAfterDetach(t *testing.T) {
@@ -1472,7 +1472,7 @@ func TestWorktreePruneDropsMarkerAfterDetach(t *testing.T) {
 	if !strings.Contains(gitWorktreeList(t, dir), wtPath) {
 		t.Error("Expected the live admin entry to survive prune")
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.worktree.feature/x.managed") {
+	if testutil.GitConfigExists(t, dir, "gitpour.worktree.feature/x.managed") {
 		t.Error("Expected the marker of a branch with no live worktree to be dropped")
 	}
 
@@ -1490,13 +1490,13 @@ func TestWorktreePruneDropsMarkerAfterDetach(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// Group H — the GIT_FLOW_CD_FILE navigation channel
+// Group H — the GIT_POUR_CD_FILE navigation channel
 // ---------------------------------------------------------------------------
 
 // TestWorktreeAddWritesCDFile covers scenario 23: add hands back the new path.
 // Steps:
-// 1. Creates an empty GIT_FLOW_CD_FILE and a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x' with the variable set
+// 1. Creates an empty GIT_POUR_CD_FILE and a free feature/x branch
+// 2. Runs 'git pour worktree add feature/x' with the variable set
 // 3. Verifies exit code 0
 // 4. Verifies the file holds the absolute path of the created worktree
 func TestWorktreeAddWritesCDFile(t *testing.T) {
@@ -1524,7 +1524,7 @@ func TestWorktreeAddWritesCDFile(t *testing.T) {
 // The tip is the third line as of #174 (SC-2): shell-init now exists, so both
 // commands that navigate point at it in the one state where it helps.
 // Steps:
-// 1. Runs 'git flow worktree add feature/x' with GIT_FLOW_CD_FILE explicitly empty
+// 1. Runs 'git pour worktree add feature/x' with GIT_POUR_CD_FILE explicitly empty
 // 2. Verifies stdout equals exactly the confirmation, cd hint and tip lines, proving no machine-readable protocol line rides along
 // 3. Verifies stderr is empty, so nothing was diverted there either
 func TestWorktreeAddWithoutCDFileEnv(t *testing.T) {
@@ -1542,7 +1542,7 @@ func TestWorktreeAddWithoutCDFileEnv(t *testing.T) {
 	wtPath := computedWorktreePath(t, dir, "feature/x")
 	want := "Created worktree for branch 'feature/x' at " + wtPath + "\n" +
 		"To switch to it: cd " + wtPath + "\n" +
-		"Tip: run 'git flow shell-init <shell>' for automatic directory switching\n"
+		"Tip: run 'git pour shell-init <shell>' for automatic directory switching\n"
 	if stdout != want {
 		t.Errorf("Expected stdout %q, got %q", want, stdout)
 	}
@@ -1555,7 +1555,7 @@ func TestWorktreeAddWithoutCDFileEnv(t *testing.T) {
 // and nothing else.
 // Steps:
 // 1. Creates a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x --quiet' with GIT_FLOW_CD_FILE unset, the only state where the tip would print
+// 2. Runs 'git pour worktree add feature/x --quiet' with GIT_POUR_CD_FILE unset, the only state where the tip would print
 // 3. Verifies exit code 0 and that stdout equals exactly the confirmation and cd hint lines
 // 4. Verifies the worktree was created and stderr is empty
 func TestWorktreeAddQuietSuppressesShellInitTip(t *testing.T) {
@@ -1587,8 +1587,8 @@ func TestWorktreeAddQuietSuppressesShellInitTip(t *testing.T) {
 // TestWorktreeAddSuppressesTipWhenCDFileSet covers SC-2: with the channel in use
 // the wrapper is plainly installed already, so the tip is pointless.
 // Steps:
-// 1. Creates an empty GIT_FLOW_CD_FILE and a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x' with the variable set
+// 1. Creates an empty GIT_POUR_CD_FILE and a free feature/x branch
+// 2. Runs 'git pour worktree add feature/x' with the variable set
 // 3. Verifies exit code 0 and that stdout carries no Tip line
 // 4. Verifies the CD file holds the new worktree path
 func TestWorktreeAddSuppressesTipWhenCDFileSet(t *testing.T) {
@@ -1616,8 +1616,8 @@ func TestWorktreeAddSuppressesTipWhenCDFileSet(t *testing.T) {
 // TestWorktreeAddNoCDFlagLeavesFileEmpty covers scenario 25: --no-cd suppresses
 // the write even when the variable is set.
 // Steps:
-// 1. Creates an empty GIT_FLOW_CD_FILE and a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x --no-cd' with the variable set
+// 1. Creates an empty GIT_POUR_CD_FILE and a free feature/x branch
+// 2. Runs 'git pour worktree add feature/x --no-cd' with the variable set
 // 3. Verifies exit code 0 and that the worktree was created
 // 4. Verifies the CD file is still zero-length
 func TestWorktreeAddNoCDFlagLeavesFileEmpty(t *testing.T) {
@@ -1641,8 +1641,8 @@ func TestWorktreeAddNoCDFlagLeavesFileEmpty(t *testing.T) {
 // TestWorktreeAddCustomPathWritesCDFile covers scenario 26: --path wins in the
 // navigation channel too.
 // Steps:
-// 1. Creates an empty GIT_FLOW_CD_FILE and a free feature/x branch
-// 2. Runs 'git flow worktree add feature/x --path ./wt-custom-cd' with the variable set
+// 1. Creates an empty GIT_POUR_CD_FILE and a free feature/x branch
+// 2. Runs 'git pour worktree add feature/x --path ./wt-custom-cd' with the variable set
 // 3. Verifies the file holds the absolute form of the custom path
 // 4. Verifies it does not hold the computed template path
 func TestWorktreeAddCustomPathWritesCDFile(t *testing.T) {
@@ -1671,8 +1671,8 @@ func TestWorktreeAddCustomPathWritesCDFile(t *testing.T) {
 // TestWorktreeAddFailureLeavesCDFileEmpty covers scenario 27: a failed add writes
 // nothing and reports on stderr.
 // Steps:
-// 1. Creates an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow worktree add feature/nope' for a branch that does not exist
+// 1. Creates an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour worktree add feature/nope' for a branch that does not exist
 // 3. Verifies exit code 5, an error on stderr, and empty stdout
 // 4. Verifies the CD file is still zero-length
 func TestWorktreeAddFailureLeavesCDFileEmpty(t *testing.T) {
@@ -1698,8 +1698,8 @@ func TestWorktreeAddFailureLeavesCDFileEmpty(t *testing.T) {
 // TestWorktreeRemoveFromInsideWritesMainWorktreePath covers scenario 28: removing
 // the worktree the user is standing in hands back the main worktree.
 // Steps:
-// 1. Adds a worktree for feature/x and creates an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow worktree remove feature/x' from inside that worktree
+// 1. Adds a worktree for feature/x and creates an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour worktree remove feature/x' from inside that worktree
 // 3. Verifies exit code 0 and that the worktree is gone
 // 4. Verifies the CD file holds the main worktree root
 func TestWorktreeRemoveFromInsideWritesMainWorktreePath(t *testing.T) {
@@ -1729,8 +1729,8 @@ func TestWorktreeRemoveFromInsideWritesMainWorktreePath(t *testing.T) {
 // TestWorktreeRemoveFromOutsideLeavesCDFileEmpty covers scenario 29: removing a
 // worktree the user is not inside writes nothing.
 // Steps:
-// 1. Adds a worktree for feature/x and creates an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow worktree remove feature/x' from the main worktree
+// 1. Adds a worktree for feature/x and creates an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour worktree remove feature/x' from the main worktree
 // 3. Verifies exit code 0 and that the worktree is removed
 // 4. Verifies the CD file is still zero-length
 func TestWorktreeRemoveFromOutsideLeavesCDFileEmpty(t *testing.T) {
@@ -1756,7 +1756,7 @@ func TestWorktreeRemoveFromOutsideLeavesCDFileEmpty(t *testing.T) {
 // removal writes no destination, even from inside the target.
 // Steps:
 // 1. Adds a worktree for feature/x and modifies a tracked file inside it
-// 2. Runs 'git flow worktree remove feature/x' from inside it, variable set
+// 2. Runs 'git pour worktree remove feature/x' from inside it, variable set
 // 3. Verifies exit code 6 and that the worktree still exists
 // 4. Verifies the CD file is still zero-length
 func TestWorktreeRemoveRefusedLeavesCDFileEmpty(t *testing.T) {
@@ -1785,8 +1785,8 @@ func TestWorktreeRemoveRefusedLeavesCDFileEmpty(t *testing.T) {
 // TestWorktreeAddWithUnwritableCDFileWarns covers scenario 31: an unwritable
 // destination warns but does not fail the operation.
 // Steps:
-// 1. Points GIT_FLOW_CD_FILE at an existing DIRECTORY, which can never be written as a file
-// 2. Runs 'git flow worktree add feature/x'
+// 1. Points GIT_POUR_CD_FILE at an existing DIRECTORY, which can never be written as a file
+// 2. Runs 'git pour worktree add feature/x'
 // 3. Verifies exit code 0, the worktree exists, and the marker is written
 // 4. Verifies stderr carries a Warning naming the destination and stdout still carries the hint
 func TestWorktreeAddWithUnwritableCDFileWarns(t *testing.T) {
@@ -1809,7 +1809,7 @@ func TestWorktreeAddWithUnwritableCDFileWarns(t *testing.T) {
 	if info, err := os.Stat(wtPath); err != nil || !info.IsDir() {
 		t.Fatalf("Expected the worktree to be created: %v", err)
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/x.managed"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/x.managed"); v != "true" {
 		t.Errorf("Expected the marker to be written, got %q", v)
 	}
 	if !strings.Contains(stderr, "Warning:") || !strings.Contains(stderr, destination) {
@@ -1826,12 +1826,12 @@ func TestWorktreeAddWithUnwritableCDFileWarns(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 // TestWorktreeMarkerNotCopiedToSharedConfig verifies the provenance marker is
-// machine-local: it never reaches .gitflow, never reads as drift, and is never
+// machine-local: it never reaches .gitpour, never reads as drift, and is never
 // deleted by a sync.
 // Steps:
-// 1. Runs 'git flow init --shared --defaults' and adds a worktree for feature/x
-// 2. Verifies .gitflow carries no worktree. line and 'config status' exits 0
-// 3. Runs 'git flow config sync'
+// 1. Runs 'git pour init --shared --defaults' and adds a worktree for feature/x
+// 2. Verifies .gitpour carries no worktree. line and 'config status' exits 0
+// 3. Runs 'git pour config sync'
 // 4. Verifies the local marker survived and 'config status' still exits 0
 func TestWorktreeMarkerNotCopiedToSharedConfig(t *testing.T) {
 	t.Parallel()
@@ -1843,13 +1843,13 @@ func TestWorktreeMarkerNotCopiedToSharedConfig(t *testing.T) {
 
 	shared, err := os.ReadFile(testutil.SharedConfigPath(dir))
 	if err != nil {
-		t.Fatalf("Failed to read .gitflow: %v", err)
+		t.Fatalf("Failed to read .gitpour: %v", err)
 	}
 	if strings.Contains(string(shared), "worktree.") {
-		t.Errorf("Expected no worktree marker in .gitflow, got:\n%s", string(shared))
+		t.Errorf("Expected no worktree marker in .gitpour, got:\n%s", string(shared))
 	}
 
-	// A wrongly shared-managed marker present locally but absent from .gitflow
+	// A wrongly shared-managed marker present locally but absent from .gitpour
 	// reads as drift — this is what catches a missing carve-out.
 	if out, err := testutil.RunGitFlow(t, dir, "config", "status"); err != nil {
 		t.Fatalf("Expected 'config status' to report no drift, got %v\nOutput: %s", err, out)
@@ -1859,9 +1859,9 @@ func TestWorktreeMarkerNotCopiedToSharedConfig(t *testing.T) {
 		t.Fatalf("config sync failed: %v\nOutput: %s", err, out)
 	}
 
-	// sync removes local shared-managed keys absent from .gitflow, so a broken
+	// sync removes local shared-managed keys absent from .gitpour, so a broken
 	// carve-out destroys the marker here rather than publishing it.
-	if v := testutil.GitConfigValue(t, dir, "gitflow.worktree.feature/x.managed"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.worktree.feature/x.managed"); v != "true" {
 		t.Errorf("Expected the marker to survive 'config sync', got %q", v)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "config", "status"); err != nil {

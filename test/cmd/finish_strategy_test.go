@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishWithRebaseFlag tests that the --rebase flag works correctly.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with commits
 // 3. Makes changes in develop branch
 // 4. Finishes the feature branch with --rebase flag
@@ -20,10 +20,10 @@ func TestFinishWithRebaseFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -85,7 +85,7 @@ func TestFinishWithRebaseFlag(t *testing.T) {
 
 // TestFinishWithSquashFlag tests that the --squash flag works correctly.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with multiple commits
 // 3. Finishes the feature branch with --squash flag
 // 4. Verifies the commits were squashed into a single commit
@@ -95,10 +95,10 @@ func TestFinishWithSquashFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -165,7 +165,7 @@ func TestFinishWithSquashFlag(t *testing.T) {
 
 // TestFinishWithNoFFFlag tests that the --no-ff flag works correctly.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with commits
 // 3. Finishes the feature branch with --no-ff flag
 // 4. Verifies a merge commit was created even for fast-forward case
@@ -175,10 +175,10 @@ func TestFinishWithNoFFFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -230,7 +230,7 @@ func TestFinishWithNoFFFlag(t *testing.T) {
 
 // TestMergeStrategyFlagOverridesConfig tests that command-line flags override configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Sets configuration to use merge strategy
 // 3. Creates a feature branch
 // 4. Finishes with --rebase flag to override config
@@ -241,20 +241,20 @@ func TestMergeStrategyFlagOverridesConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set configuration to use merge strategy for features
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "merge")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "merge")
 	if err != nil {
 		t.Fatalf("Failed to set upstream strategy config: %v", err)
 	}
 
 	// Verify the config was set
-	strategy, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature.upstreamstrategy")
+	strategy, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature.upstreamstrategy")
 	if err != nil {
 		t.Fatalf("Failed to get upstream strategy config: %v", err)
 	}
@@ -303,7 +303,7 @@ func TestMergeStrategyFlagOverridesConfig(t *testing.T) {
 
 // TestFinishWithSquashMessageFlag tests that the --squash-message flag customizes the commit message.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with multiple commits
 // 3. Finishes the feature branch with --squash and --squash-message flags
 // 4. Verifies the custom commit message was used
@@ -313,10 +313,10 @@ func TestFinishWithSquashMessageFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -377,7 +377,7 @@ func TestFinishWithSquashMessageFlag(t *testing.T) {
 
 // TestSquashMessageIgnoredWithoutSquashStrategy tests that --squash-message is ignored when not using squash strategy.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with commits
 // 3. Finishes with --squash-message but WITHOUT --squash flag
 // 4. Verifies the commit message is NOT the custom squash message (uses merge commit message instead)
@@ -387,10 +387,10 @@ func TestSquashMessageIgnoredWithoutSquashStrategy(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -447,7 +447,7 @@ func TestSquashMessageIgnoredWithoutSquashStrategy(t *testing.T) {
 
 // TestSquashMessagePreservedAfterConflict tests that --squash-message is preserved in merge state after conflict.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with conflicting changes
 // 3. Attempts to finish with --squash --squash-message (causes conflict)
 // 4. Resolves conflict and continues WITHOUT --squash-message
@@ -458,10 +458,10 @@ func TestSquashMessagePreservedAfterConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create conflicting content in develop
@@ -539,7 +539,7 @@ func TestSquashMessagePreservedAfterConflict(t *testing.T) {
 
 // TestSquashMessageOverrideOnContinue tests that --squash-message can be overridden on continue.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch with conflicting changes
 // 3. Attempts to finish with --squash --squash-message (causes conflict)
 // 4. Resolves conflict and continues WITH a different --squash-message
@@ -550,10 +550,10 @@ func TestSquashMessageOverrideOnContinue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create conflicting content in develop
@@ -623,7 +623,7 @@ func TestSquashMessageOverrideOnContinue(t *testing.T) {
 
 // TestFinishFeatureBranchWithMergeMessage tests that a custom merge message is used for the upstream merge.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch and adds a commit
 // 3. Finishes the feature branch with --merge-message "feat: custom merge message"
 // 4. Verifies the merge commit message matches the custom message
@@ -634,10 +634,10 @@ func TestFinishFeatureBranchWithMergeMessage(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -707,7 +707,7 @@ func TestFinishFeatureBranchWithMergeMessage(t *testing.T) {
 
 // TestFinishReleaseBranchWithUpdateMessage tests that a custom update message is used for child branch updates.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a release branch and adds a commit
 // 3. Finishes the release branch with --update-message "chore: sync develop from main"
 // 4. Verifies the release merges into main successfully
@@ -718,10 +718,10 @@ func TestFinishReleaseBranchWithUpdateMessage(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to release branch
@@ -781,7 +781,7 @@ func TestFinishReleaseBranchWithUpdateMessage(t *testing.T) {
 
 // TestFinishWithMergeMessagePersistsThroughConflict tests that custom message survives --continue.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch with changes
 // 3. Creates conflicting changes on develop
 // 4. Attempts to finish the feature with --merge-message "custom: merge"
@@ -795,10 +795,10 @@ func TestFinishWithMergeMessagePersistsThroughConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create conflicting content in develop
@@ -872,7 +872,7 @@ func TestFinishWithMergeMessagePersistsThroughConflict(t *testing.T) {
 
 // TestFinishWithMergeMessageUsedAfterRebaseStrategy tests message is used for final merge after rebase.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch with commits
 // 3. Adds commits to develop to make rebase meaningful
 // 4. Finishes with --rebase --merge-message "custom: rebase merge"
@@ -883,10 +883,10 @@ func TestFinishWithMergeMessageUsedAfterRebaseStrategy(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -952,7 +952,7 @@ func TestFinishWithMergeMessageUsedAfterRebaseStrategy(t *testing.T) {
 
 // TestFinishWithoutMergeMessageUsesDefault tests that default message is used when flag is omitted.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates and finishes a feature branch without --merge-message (using --no-ff to force merge commit)
 // 3. Verifies the merge commit uses the default "Merge branch 'feature/...' into develop" format
 func TestFinishWithoutMergeMessageUsesDefault(t *testing.T) {
@@ -961,10 +961,10 @@ func TestFinishWithoutMergeMessageUsesDefault(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -1025,7 +1025,7 @@ func TestFinishWithoutMergeMessageUsesDefault(t *testing.T) {
 
 // TestFinishMergeMessageStatePersistence tests that messages are correctly saved in state file.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch with conflicting changes
 // 3. Runs finish with --merge-message and --update-message
 // 4. Verifies the merge state file contains both messages
@@ -1036,10 +1036,10 @@ func TestFinishMergeMessageStatePersistence(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create conflicting content in develop
@@ -1100,7 +1100,7 @@ func TestFinishMergeMessageStatePersistence(t *testing.T) {
 
 // TestMergeStrategyConfigUsedByDefault tests that branch configuration is used when no flags are provided.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Sets configuration to use rebase strategy
 // 3. Creates a feature branch
 // 4. Finishes without any flags
@@ -1111,14 +1111,14 @@ func TestMergeStrategyConfigUsedByDefault(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set configuration to use rebase strategy for features
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "rebase")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "rebase")
 	if err != nil {
 		t.Fatalf("Failed to set upstream strategy config: %v", err)
 	}
@@ -1182,7 +1182,7 @@ func TestMergeStrategyConfigUsedByDefault(t *testing.T) {
 
 // TestFinishWithMergeMessagePlaceholders tests that placeholders in --merge-message are expanded correctly.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch and adds a commit
 // 3. Finishes with --merge-message "Merge %b into %p" (uses placeholders)
 // 4. Verifies the merge commit message has expanded placeholders
@@ -1192,10 +1192,10 @@ func TestFinishWithMergeMessagePlaceholders(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -1255,7 +1255,7 @@ func TestFinishWithMergeMessagePlaceholders(t *testing.T) {
 
 // TestFinishWithUpdateMessagePlaceholders tests that placeholders in --update-message are expanded correctly.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a release branch and adds a commit
 // 3. Finishes with --update-message "chore: sync %b from %p" (uses placeholders)
 // 4. Verifies the develop update commit message has expanded placeholders
@@ -1265,10 +1265,10 @@ func TestFinishWithUpdateMessagePlaceholders(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to release branch
@@ -1315,7 +1315,7 @@ func TestFinishWithUpdateMessagePlaceholders(t *testing.T) {
 
 // TestFinishMessagePlaceholderEscaping tests that %% produces a literal percent sign.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch and adds a commit
 // 3. Finishes with --merge-message "100%% complete: %b" (escaped percent)
 // 4. Verifies the merge commit message has literal % and expanded %b
@@ -1325,10 +1325,10 @@ func TestFinishMessagePlaceholderEscaping(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch
@@ -1389,8 +1389,8 @@ func TestFinishMessagePlaceholderEscaping(t *testing.T) {
 
 // TestFinishWithMergeMessageFromConfig tests that merge message from git config is used.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Configures gitflow.feature.finish.mergeMessage with placeholder "chore: merge %b into %p"
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Configures gitpour.feature.finish.mergeMessage with placeholder "chore: merge %b into %p"
 // 3. Creates a feature branch and adds a commit
 // 4. Adds a commit to develop to ensure non-fast-forward merge
 // 5. Finishes the feature branch without --merge-message flag
@@ -1402,14 +1402,14 @@ func TestFinishWithMergeMessageFromConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Configure merge message in git config (Layer 2)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.mergemessage", "chore: merge %b into %p")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.mergemessage", "chore: merge %b into %p")
 	if err != nil {
 		t.Fatalf("Failed to configure mergemessage: %v", err)
 	}
@@ -1471,8 +1471,8 @@ func TestFinishWithMergeMessageFromConfig(t *testing.T) {
 
 // TestFinishMergeMessageCLIOverridesConfig tests that CLI flag overrides git config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Configures gitflow.feature.finish.mergeMessage to "config: message"
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Configures gitpour.feature.finish.mergeMessage to "config: message"
 // 3. Creates a feature branch and adds a commit
 // 4. Adds a commit to develop to ensure non-fast-forward merge
 // 5. Finishes the feature branch WITH --merge-message "cli: override"
@@ -1483,14 +1483,14 @@ func TestFinishMergeMessageCLIOverridesConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Configure merge message in git config (Layer 2)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.mergemessage", "config: message")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.mergemessage", "config: message")
 	if err != nil {
 		t.Fatalf("Failed to configure mergemessage: %v", err)
 	}
@@ -1547,8 +1547,8 @@ func TestFinishMergeMessageCLIOverridesConfig(t *testing.T) {
 
 // TestFinishWithUpdateMessageFromConfig tests that update message from git config is used.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Configures gitflow.release.finish.updateMessage with "chore: sync %b from main"
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Configures gitpour.release.finish.updateMessage with "chore: sync %b from main"
 // 3. Creates a release branch and adds a commit
 // 4. Finishes the release branch without --update-message flag
 // 5. Verifies the develop update merge commit uses the configured message
@@ -1558,14 +1558,14 @@ func TestFinishWithUpdateMessageFromConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Configure update message in git config (Layer 2)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.release.finish.updatemessage", "chore: sync %b from main")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.release.finish.updatemessage", "chore: sync %b from main")
 	if err != nil {
 		t.Fatalf("Failed to configure updatemessage: %v", err)
 	}
@@ -1614,8 +1614,8 @@ func TestFinishWithUpdateMessageFromConfig(t *testing.T) {
 
 // TestFinishUpdateMessageCLIOverridesConfig tests that CLI flag overrides git config for update message.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Configures gitflow.release.finish.updateMessage to "config: update"
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Configures gitpour.release.finish.updateMessage to "config: update"
 // 3. Creates a release branch and adds a commit
 // 4. Finishes the release branch WITH --update-message "cli: update override"
 // 5. Verifies the develop update uses the CLI message, not config
@@ -1625,14 +1625,14 @@ func TestFinishUpdateMessageCLIOverridesConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Configure update message in git config (Layer 2)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.release.finish.updatemessage", "config: update")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.release.finish.updatemessage", "config: update")
 	if err != nil {
 		t.Fatalf("Failed to configure updatemessage: %v", err)
 	}
@@ -1678,11 +1678,11 @@ func TestFinishUpdateMessageCLIOverridesConfig(t *testing.T) {
 	}
 }
 
-// TestMergeStrategyConfigYesEnablesRebase tests that gitflow.feature.finish.rebase=yes
+// TestMergeStrategyConfigYesEnablesRebase tests that gitpour.feature.finish.rebase=yes
 // selects the rebase strategy, matching git-config's truthy "yes" spelling.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.feature.finish.rebase=yes (Layer-1 default is merge)
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.feature.finish.rebase=yes (Layer-1 default is merge)
 // 3. Creates a feature branch with a commit
 // 4. Adds a commit on develop
 // 5. Finishes without any flags
@@ -1692,12 +1692,12 @@ func TestMergeStrategyConfigYesEnablesRebase(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.rebase", "yes"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.rebase", "yes"); err != nil {
 		t.Fatalf("Failed to set rebase config: %v", err)
 	}
 
@@ -1749,9 +1749,9 @@ func TestMergeStrategyConfigYesEnablesRebase(t *testing.T) {
 // the positive rebase key does not flip a Layer-1 rebase strategy back to merge.
 // The positive key is one-directional by design; no-rebase is the way to disable it.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.branch.feature.upstreamstrategy=rebase (Layer 1)
-// 3. Sets gitflow.feature.finish.rebase=off (Layer 2, falsy positive key)
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.branch.feature.upstreamstrategy=rebase (Layer 1)
+// 3. Sets gitpour.feature.finish.rebase=off (Layer 2, falsy positive key)
 // 4. Creates a feature branch with a commit and adds a commit on develop
 // 5. Finishes without any flags
 // 6. Verifies the rebase strategy is still used
@@ -1760,15 +1760,15 @@ func TestMergeStrategyFalsyPositiveKeyDoesNotDisableRebase(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "rebase"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "rebase"); err != nil {
 		t.Fatalf("Failed to set upstream strategy config: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.rebase", "off"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.rebase", "off"); err != nil {
 		t.Fatalf("Failed to set rebase config: %v", err)
 	}
 

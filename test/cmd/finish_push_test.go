@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // Push output format asserted throughout these tests (from the spec examples):
@@ -31,7 +31,7 @@ func setupSingleTrackWithRemote(t *testing.T) (string, string) {
 
 	if _, err := testutil.RunGitFlow(t, dir, "init", "--preset=github"); err != nil {
 		testutil.CleanupTestRepo(t, dir)
-		t.Fatalf("Failed to initialize git-flow github preset: %v", err)
+		t.Fatalf("Failed to initialize git-pour github preset: %v", err)
 	}
 
 	remoteDir, err := testutil.AddRemote(t, dir, "origin", false)
@@ -57,7 +57,7 @@ func setupSingleTrackNoRemote(t *testing.T) string {
 
 	if _, err := testutil.RunGitFlow(t, dir, "init", "--preset=github"); err != nil {
 		testutil.CleanupTestRepo(t, dir)
-		t.Fatalf("Failed to initialize git-flow github preset: %v", err)
+		t.Fatalf("Failed to initialize git-pour github preset: %v", err)
 	}
 
 	return dir
@@ -86,7 +86,7 @@ func createTopicCommit(t *testing.T, dir, branchType, name, file, content string
 // Steps:
 // 1. Sets up a single-track (github preset) repo with origin tracking main
 // 2. Creates feature branch 'login' with one commit
-// 3. Runs 'git flow feature finish login --no-fetch' (no push flag, no config)
+// 3. Runs 'git pour feature finish login --no-fetch' (no push flag, no config)
 // 4. Verifies exit 0 and that main is ahead of origin (not pushed)
 // 5. Verifies output contains no "Pushing to remote" header
 func TestFinishPushDefaultDoesNotPush(t *testing.T) {
@@ -115,7 +115,7 @@ func TestFinishPushDefaultDoesNotPush(t *testing.T) {
 // Steps:
 // 1. Sets up a single-track repo with origin tracking main
 // 2. Creates feature branch 'login' with one commit
-// 3. Runs 'git flow feature finish login --push --no-fetch'
+// 3. Runs 'git pour feature finish login --push --no-fetch'
 // 4. Verifies exit 0 and main up to date with origin (pushed)
 // 5. Verifies output shows the push header and the main push line
 // 6. Verifies the finished topic branch is NOT pushed to origin
@@ -157,7 +157,7 @@ func TestFinishPushSingleTrackFeature(t *testing.T) {
 // Steps:
 // 1. Sets up a classic repo (main + develop tracked) with origin
 // 2. Creates release branch '1.0.0' with one commit
-// 3. Runs 'git flow release finish 1.0.0 --push --no-fetch'
+// 3. Runs 'git pour release finish 1.0.0 --push --no-fetch'
 // 4. Verifies exit 0 and that main and develop are up to date with origin
 // 5. Verifies the release tag 1.0.0 exists on origin
 // 6. Verifies output shows main, develop, and tag push lines
@@ -194,13 +194,13 @@ func TestFinishPushClassicReleaseBranchesAndTag(t *testing.T) {
 	}
 }
 
-// TestFinishPushConfigEnablesPush tests that gitflow.feature.finish.push=true
+// TestFinishPushConfigEnablesPush tests that gitpour.feature.finish.push=true
 // triggers a push without any CLI flag.
 // Steps:
 // 1. Sets up a single-track repo with origin tracking main
-// 2. Sets gitflow.feature.finish.push=true
+// 2. Sets gitpour.feature.finish.push=true
 // 3. Creates feature branch 'login' with one commit
-// 4. Runs 'git flow feature finish login --no-fetch' (no push flag)
+// 4. Runs 'git pour feature finish login --no-fetch' (no push flag)
 // 5. Verifies exit 0 and main up to date with origin (config alone triggers push)
 // 6. Verifies output contains the main push line
 func TestFinishPushConfigEnablesPush(t *testing.T) {
@@ -209,7 +209,7 @@ func TestFinishPushConfigEnablesPush(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -229,12 +229,12 @@ func TestFinishPushConfigEnablesPush(t *testing.T) {
 }
 
 // TestFinishPushNoPushFlagOverridesConfig tests that --no-push overrides
-// gitflow.feature.finish.push=true.
+// gitpour.feature.finish.push=true.
 // Steps:
 // 1. Sets up a single-track repo with origin tracking main
-// 2. Sets gitflow.feature.finish.push=true
+// 2. Sets gitpour.feature.finish.push=true
 // 3. Creates feature branch 'login' with one commit
-// 4. Runs 'git flow feature finish login --no-push --no-fetch'
+// 4. Runs 'git pour feature finish login --no-push --no-fetch'
 // 5. Verifies exit 0 and main ahead of origin (nothing pushed)
 // 6. Verifies output contains no "Pushing to remote" header
 func TestFinishPushNoPushFlagOverridesConfig(t *testing.T) {
@@ -243,7 +243,7 @@ func TestFinishPushNoPushFlagOverridesConfig(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -267,7 +267,7 @@ func TestFinishPushNoPushFlagOverridesConfig(t *testing.T) {
 // Steps:
 // 1. Sets up a classic repo with origin
 // 2. Creates release branch '1.0.0' with one commit
-// 3. Runs 'git flow release finish 1.0.0 --push --no-pushtag --no-fetch'
+// 3. Runs 'git pour release finish 1.0.0 --push --no-pushtag --no-fetch'
 // 4. Verifies exit 0 and main and develop up to date with origin
 // 5. Verifies tag 1.0.0 is NOT on origin
 // 6. Verifies output shows branch lines but no (tag) line
@@ -306,7 +306,7 @@ func TestFinishPushBranchesNotTag(t *testing.T) {
 // Steps:
 // 1. Sets up a classic repo with origin
 // 2. Creates release branch '1.0.0' with one commit
-// 3. Runs 'git flow release finish 1.0.0 --pushtag --no-fetch' (no --push)
+// 3. Runs 'git pour release finish 1.0.0 --pushtag --no-fetch' (no --push)
 // 4. Verifies exit 0 and tag 1.0.0 exists on origin
 // 5. Verifies main and develop are ahead of origin (branches not pushed)
 // 6. Verifies output shows the tag line but no branch push lines
@@ -344,9 +344,9 @@ func TestFinishPushTagOnlyViaFlag(t *testing.T) {
 // but pushtag=false on a classic release.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=true and gitflow.release.finish.pushtag=false
+// 2. Sets gitpour.release.finish.push=true and gitpour.release.finish.pushtag=false
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch' (no flags)
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch' (no flags)
 // 5. Verifies exit 0 and main and develop up to date with origin
 // 6. Verifies tag 1.0.0 is NOT on origin (tag suppressed)
 func TestFinishPushConfigBranchesTagSuppressed(t *testing.T) {
@@ -355,10 +355,10 @@ func TestFinishPushConfigBranchesTagSuppressed(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.pushtag", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.pushtag", "false"); err != nil {
 		t.Fatalf("Failed to configure pushtag: %v", err)
 	}
 
@@ -380,13 +380,13 @@ func TestFinishPushConfigBranchesTagSuppressed(t *testing.T) {
 	}
 }
 
-// TestFinishPushConfigTagOnly tests that gitflow.release.finish.pushtag=true alone
+// TestFinishPushConfigTagOnly tests that gitpour.release.finish.pushtag=true alone
 // pushes the tag but not branches.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.pushtag=true (no push config, no flags)
+// 2. Sets gitpour.release.finish.pushtag=true (no push config, no flags)
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch'
 // 5. Verifies exit 0 and tag 1.0.0 exists on origin
 // 6. Verifies main and develop are ahead of origin (branches not pushed)
 func TestFinishPushConfigTagOnly(t *testing.T) {
@@ -395,7 +395,7 @@ func TestFinishPushConfigTagOnly(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.pushtag", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.pushtag", "true"); err != nil {
 		t.Fatalf("Failed to configure pushtag: %v", err)
 	}
 
@@ -418,12 +418,12 @@ func TestFinishPushConfigTagOnly(t *testing.T) {
 }
 
 // TestFinishPushTagFlagOverridesConfigFalse tests that --pushtag overrides
-// gitflow.release.finish.pushtag=false without implying --push.
+// gitpour.release.finish.pushtag=false without implying --push.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.pushtag=false
+// 2. Sets gitpour.release.finish.pushtag=false
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --pushtag --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --pushtag --no-fetch'
 // 5. Verifies exit 0 and tag 1.0.0 exists on origin (flag overrides config)
 // 6. Verifies main and develop are ahead of origin (--pushtag alone does not imply --push)
 func TestFinishPushTagFlagOverridesConfigFalse(t *testing.T) {
@@ -432,7 +432,7 @@ func TestFinishPushTagFlagOverridesConfigFalse(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.pushtag", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.pushtag", "false"); err != nil {
 		t.Fatalf("Failed to configure pushtag: %v", err)
 	}
 
@@ -455,12 +455,12 @@ func TestFinishPushTagFlagOverridesConfigFalse(t *testing.T) {
 }
 
 // TestFinishPushNoPushSuppressesInheritedTag tests that --no-push suppresses the
-// inherited tag push even when gitflow.release.finish.push=true.
+// inherited tag push even when gitpour.release.finish.push=true.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=true
+// 2. Sets gitpour.release.finish.push=true
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-push --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-push --no-fetch'
 // 5. Verifies exit 0, main and develop ahead of origin, and tag 1.0.0 NOT on origin
 func TestFinishPushNoPushSuppressesInheritedTag(t *testing.T) {
 	t.Parallel()
@@ -468,7 +468,7 @@ func TestFinishPushNoPushSuppressesInheritedTag(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -495,7 +495,7 @@ func TestFinishPushNoPushSuppressesInheritedTag(t *testing.T) {
 // Steps:
 // 1. Sets up a single-track repo with origin tracking main
 // 2. Creates feature branch 'login' with one commit
-// 3. Runs 'git flow feature finish login --push --pushtag --no-fetch'
+// 3. Runs 'git pour feature finish login --push --pushtag --no-fetch'
 // 4. Verifies exit 0 (no error over absent tag) and main up to date with origin
 // 5. Verifies output shows the main push line and no (tag) line
 func TestFinishPushTagNoopWhenNoTag(t *testing.T) {
@@ -527,7 +527,7 @@ func TestFinishPushTagNoopWhenNoTag(t *testing.T) {
 // Steps:
 // 1. Sets up a classic repo with origin
 // 2. Creates hotfix branch '1.0.1' with one commit
-// 3. Runs 'git flow hotfix finish 1.0.1 --push --no-fetch'
+// 3. Runs 'git pour hotfix finish 1.0.1 --push --no-fetch'
 // 4. Verifies exit 0 and main and develop up to date with origin
 // 5. Verifies hotfix tag 1.0.1 exists on origin
 func TestFinishPushClassicHotfix(t *testing.T) {
@@ -559,7 +559,7 @@ func TestFinishPushClassicHotfix(t *testing.T) {
 // does not.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.feature.finish.push=true and gitflow.hotfix.finish.push=false
+// 2. Sets gitpour.feature.finish.push=true and gitpour.hotfix.finish.push=false
 // 3. Creates feature branch 'x' (-> develop) with one commit and finishes it
 // 4. Verifies develop up to date with origin (feature target pushed)
 // 5. Creates hotfix branch '1.0.1' (-> main) with one commit and finishes it
@@ -571,10 +571,10 @@ func TestFinishPushPerBranchTypeIndependence(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure feature push: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.hotfix.finish.push", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.hotfix.finish.push", "false"); err != nil {
 		t.Fatalf("Failed to configure hotfix push: %v", err)
 	}
 
@@ -613,7 +613,7 @@ func TestFinishPushPerBranchTypeIndependence(t *testing.T) {
 // Steps:
 // 1. Sets up a single-track repo with NO remote
 // 2. Creates feature branch 'login' with one commit
-// 3. Runs 'git flow feature finish login --push'
+// 3. Runs 'git pour feature finish login --push'
 // 4. Verifies exit 0 and the finish completes (feature branch deleted, main has merge)
 // 5. Verifies output notes the push was skipped and contains no hard error
 func TestFinishPushNoRemoteSkips(t *testing.T) {
@@ -647,11 +647,11 @@ func TestFinishPushNoRemoteSkips(t *testing.T) {
 // TestFinishPushRunsAfterContinue tests that push (enabled via config) runs at the
 // end of a resumed finish and does not run during the conflicted initial stage.
 // Steps:
-// 1. Sets up a classic repo with origin and gitflow.release.finish.push=true
+// 1. Sets up a classic repo with origin and gitpour.release.finish.push=true
 // 2. Creates release branch '1.0.0' with conflicting content against main
-// 3. Runs 'git flow release finish 1.0.0 --no-fetch' which conflicts
+// 3. Runs 'git pour release finish 1.0.0 --no-fetch' which conflicts
 // 4. Verifies conflict state, that nothing was pushed, and no push header
-// 5. Resolves the conflict and runs 'git flow release finish --continue 1.0.0'
+// 5. Resolves the conflict and runs 'git pour release finish --continue 1.0.0'
 // 6. Verifies exit 0, main and develop up to date with origin, and tag 1.0.0 on origin
 func TestFinishPushRunsAfterContinue(t *testing.T) {
 	t.Parallel()
@@ -659,7 +659,7 @@ func TestFinishPushRunsAfterContinue(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -755,7 +755,7 @@ func TestFinishPushRunsAfterContinue(t *testing.T) {
 // 1. Sets up a single-track repo with origin tracking main
 // 2. Creates feature branch 'login' with one commit locally, before any divergence (so start's default fetch does not refresh origin/main)
 // 3. Diverges origin/main by pushing a commit from a second clone, leaving the local tracking ref stale (so the parent-sync-check sees main in sync)
-// 4. Runs 'git flow feature finish login --push --no-fetch' (the stale tracking ref lets finish merge locally so only the real push is rejected)
+// 4. Runs 'git pour feature finish login --push --no-fetch' (the stale tracking ref lets finish merge locally so only the real push is rejected)
 // 5. Verifies non-zero exit and the error reports the rejected push (not the preflight)
 // 6. Verifies the local finish is complete (feature deleted, main has merge, no merge state)
 func TestFinishPushRejectedNonFastForward(t *testing.T) {
@@ -823,13 +823,13 @@ func TestFinishPushRejectedNonFastForward(t *testing.T) {
 	}
 }
 
-// TestFinishPushConfigPushInheritsTag tests that a bare gitflow.release.finish.push=true
+// TestFinishPushConfigPushInheritsTag tests that a bare gitpour.release.finish.push=true
 // (no pushtag key, no flags) pushes the created tag via the default-derivation path.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=true (no pushtag key)
+// 2. Sets gitpour.release.finish.push=true (no pushtag key)
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch'
 // 5. Verifies exit 0, main and develop up to date with origin, and tag 1.0.0 on origin
 func TestFinishPushConfigPushInheritsTag(t *testing.T) {
 	t.Parallel()
@@ -837,7 +837,7 @@ func TestFinishPushConfigPushInheritsTag(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -864,7 +864,7 @@ func TestFinishPushConfigPushInheritsTag(t *testing.T) {
 // Steps:
 // 1. Sets up a classic repo with origin
 // 2. Creates release branch '1.0.0' with one commit
-// 3. Runs 'git flow release finish 1.0.0 --push --no-fetch' and captures output
+// 3. Runs 'git pour release finish 1.0.0 --push --no-fetch' and captures output
 // 4. Verifies main push line precedes develop push line, which precedes the tag line
 // 5. Verifies the exact main push line appears exactly once (dedupe)
 func TestFinishPushOrderingParentThenChildren(t *testing.T) {
@@ -897,14 +897,14 @@ func TestFinishPushOrderingParentThenChildren(t *testing.T) {
 	}
 }
 
-// TestFinishPushShorthandForwardsFlag tests that the shorthand `git flow finish`
+// TestFinishPushShorthandForwardsFlag tests that the shorthand `git pour finish`
 // (operating on the current topic branch) honors the --push flag. Regression
 // guard: the shorthand originally registered the push flags but dropped them
-// when calling FinishCommand, so `git flow finish --push` silently did nothing.
+// when calling FinishCommand, so `git pour finish --push` silently did nothing.
 // Steps:
 // 1. Sets up a single-track repo with origin tracking main
 // 2. Creates feature branch 'login' with one commit (leaves it checked out)
-// 3. Runs the shorthand 'git flow finish --push --no-fetch' (no type/name)
+// 3. Runs the shorthand 'git pour finish --push --no-fetch' (no type/name)
 // 4. Verifies main is up to date with origin (the flag was forwarded)
 // 5. Verifies output shows the push header and the main push line
 func TestFinishPushShorthandForwardsFlag(t *testing.T) {
@@ -928,16 +928,16 @@ func TestFinishPushShorthandForwardsFlag(t *testing.T) {
 	}
 }
 
-// TestFinishFetchShorthandForwardsFlag tests that the shorthand `git flow finish`
+// TestFinishFetchShorthandForwardsFlag tests that the shorthand `git pour finish`
 // (operating on the current topic branch) honors the --fetch flag. Regression
 // guard: the shorthand registered the fetch flags but dropped them when calling
-// FinishCommand (passing nil), so `git flow finish --fetch` silently fell back to
+// FinishCommand (passing nil), so `git pour finish --fetch` silently fell back to
 // config/defaults instead of honoring the flag.
 // Steps:
 //  1. Sets up a single-track repo with origin tracking main
 //  2. Disables fetch via config so the default alone would not fetch
 //  3. Creates feature branch 'login' with one commit (leaves it checked out)
-//  4. Runs the shorthand 'git flow finish --fetch' (no type/name)
+//  4. Runs the shorthand 'git pour finish --fetch' (no type/name)
 //  5. Verifies the fetch message appears, proving the flag was forwarded and
 //     overrode the config
 func TestFinishFetchShorthandForwardsFlag(t *testing.T) {
@@ -948,7 +948,7 @@ func TestFinishFetchShorthandForwardsFlag(t *testing.T) {
 
 	// Disable fetch via config so a dropped --fetch flag would result in no fetch.
 	// The flag must override this config to prove it is forwarded.
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.fetch", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.fetch", "false"); err != nil {
 		t.Fatalf("Failed to configure fetch option: %v", err)
 	}
 
@@ -964,14 +964,14 @@ func TestFinishFetchShorthandForwardsFlag(t *testing.T) {
 	}
 }
 
-// TestFinishPushConfigYesEnablesPush tests that gitflow.release.finish.push=yes
+// TestFinishPushConfigYesEnablesPush tests that gitpour.release.finish.push=yes
 // enables the push, matching git-config's truthy "yes" spelling. This is the
 // exact repro from issue #182.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=yes
+// 2. Sets gitpour.release.finish.push=yes
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch' (no push flag)
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch' (no push flag)
 // 5. Verifies exit 0 and main and develop up to date with origin
 // 6. Verifies tag 1.0.0 exists on origin (derived from the resolved branch push)
 // 7. Verifies output contains the main, develop and tag push lines
@@ -981,7 +981,7 @@ func TestFinishPushConfigYesEnablesPush(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "yes"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "yes"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -1012,13 +1012,13 @@ func TestFinishPushConfigYesEnablesPush(t *testing.T) {
 	}
 }
 
-// TestFinishPushConfigFalseDoesNotPush tests that gitflow.release.finish.push=false
+// TestFinishPushConfigFalseDoesNotPush tests that gitpour.release.finish.push=false
 // still suppresses the push after boolean parsing changed.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=false
+// 2. Sets gitpour.release.finish.push=false
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch'
 // 5. Verifies exit 0 and main and develop ahead of origin (nothing pushed)
 // 6. Verifies tag 1.0.0 is NOT on origin and no push header appears
 func TestFinishPushConfigFalseDoesNotPush(t *testing.T) {
@@ -1027,7 +1027,7 @@ func TestFinishPushConfigFalseDoesNotPush(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "false"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -1052,13 +1052,13 @@ func TestFinishPushConfigFalseDoesNotPush(t *testing.T) {
 	}
 }
 
-// TestFinishPushConfigOffDoesNotPush tests that gitflow.release.finish.push=off
+// TestFinishPushConfigOffDoesNotPush tests that gitpour.release.finish.push=off
 // suppresses the push, matching git-config's falsy "off" spelling.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=off
+// 2. Sets gitpour.release.finish.push=off
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch'
 // 5. Verifies exit 0 and main and develop ahead of origin (nothing pushed)
 // 6. Verifies tag 1.0.0 is NOT on origin and no push header appears
 func TestFinishPushConfigOffDoesNotPush(t *testing.T) {
@@ -1067,7 +1067,7 @@ func TestFinishPushConfigOffDoesNotPush(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "off"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "off"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -1092,13 +1092,13 @@ func TestFinishPushConfigOffDoesNotPush(t *testing.T) {
 	}
 }
 
-// TestFinishPushTagConfigYesPushesTag tests that gitflow.release.finish.pushtag=yes
+// TestFinishPushTagConfigYesPushesTag tests that gitpour.release.finish.pushtag=yes
 // pushes the tag alongside the branches.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=true and gitflow.release.finish.pushtag=yes
+// 2. Sets gitpour.release.finish.push=true and gitpour.release.finish.pushtag=yes
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch'
 // 5. Verifies exit 0 and tag 1.0.0 exists on origin
 // 6. Verifies main and develop are up to date with origin
 func TestFinishPushTagConfigYesPushesTag(t *testing.T) {
@@ -1107,10 +1107,10 @@ func TestFinishPushTagConfigYesPushesTag(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.pushtag", "yes"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.pushtag", "yes"); err != nil {
 		t.Fatalf("Failed to configure pushtag: %v", err)
 	}
 
@@ -1133,12 +1133,12 @@ func TestFinishPushTagConfigYesPushesTag(t *testing.T) {
 }
 
 // TestFinishPushTagConfigOffSuppressesTag tests that an explicitly falsy
-// gitflow.release.finish.pushtag=off beats the push-derived default true.
+// gitpour.release.finish.pushtag=off beats the push-derived default true.
 // Steps:
 // 1. Sets up a classic repo with origin
-// 2. Sets gitflow.release.finish.push=true and gitflow.release.finish.pushtag=off
+// 2. Sets gitpour.release.finish.push=true and gitpour.release.finish.pushtag=off
 // 3. Creates release branch '1.0.0' with one commit
-// 4. Runs 'git flow release finish 1.0.0 --no-fetch'
+// 4. Runs 'git pour release finish 1.0.0 --no-fetch'
 // 5. Verifies exit 0 and main and develop up to date with origin (branches pushed)
 // 6. Verifies tag 1.0.0 is NOT on origin (the present-but-falsy key wins)
 func TestFinishPushTagConfigOffSuppressesTag(t *testing.T) {
@@ -1147,10 +1147,10 @@ func TestFinishPushTagConfigOffSuppressesTag(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.push", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.push", "true"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.pushtag", "off"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.pushtag", "off"); err != nil {
 		t.Fatalf("Failed to configure pushtag: %v", err)
 	}
 
@@ -1173,12 +1173,12 @@ func TestFinishPushTagConfigOffSuppressesTag(t *testing.T) {
 }
 
 // TestFinishPushConfigYesNoPushFlagOverrides tests that --no-push still beats a
-// truthy non-"true" spelling of gitflow.feature.finish.push.
+// truthy non-"true" spelling of gitpour.feature.finish.push.
 // Steps:
 // 1. Sets up a single-track repo with origin tracking main
-// 2. Sets gitflow.feature.finish.push=yes
+// 2. Sets gitpour.feature.finish.push=yes
 // 3. Creates feature branch 'login' with one commit
-// 4. Runs 'git flow feature finish login --no-push --no-fetch'
+// 4. Runs 'git pour feature finish login --no-push --no-fetch'
 // 5. Verifies exit 0 and main ahead of origin (nothing pushed)
 // 6. Verifies output contains no "Pushing to remote" header
 func TestFinishPushConfigYesNoPushFlagOverrides(t *testing.T) {
@@ -1187,7 +1187,7 @@ func TestFinishPushConfigYesNoPushFlagOverrides(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.push", "yes"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.push", "yes"); err != nil {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
@@ -1207,18 +1207,18 @@ func TestFinishPushConfigYesNoPushFlagOverrides(t *testing.T) {
 }
 
 // setupAVHRepoWithRemote creates a repository initialised with git-flow-avh
-// style config (gitflow.prefix.* keys, no gitflow.version) and a bare remote
+// style config (gitpour.prefix.* keys, no gitpour.version) and a bare remote
 // with main and develop pushed and tracked.
 //
 // This intentionally duplicates parts of testutil.SetupTestRepoWithRemote
-// because that helper runs "git flow init --defaults", which writes
-// gitflow.version and routes through Load() instead of ImportGitFlowAVHConfig.
-// An AVH-only repo must have no gitflow.version so the AVH import path is used.
+// because that helper runs "git pour init --defaults", which writes
+// gitpour.version and routes through Load() instead of ImportGitFlowAVHConfig.
+// An AVH-only repo must have no gitpour.version so the AVH import path is used.
 func setupAVHRepoWithRemote(t *testing.T) (string, string) {
 	t.Helper()
 	dir := testutil.SetupTestRepo(t)
 
-	// Set git-flow-avh config keys (no gitflow.version)
+	// Set git-flow-avh config keys (no gitpour.version)
 	avhKeys := map[string]string{
 		"gitflow.branch.master":  "main",
 		"gitflow.branch.develop": "develop",
@@ -1265,11 +1265,11 @@ func setupAVHRepoWithRemote(t *testing.T) (string, string) {
 }
 
 // TestFinishPushAVHRepoConfigEnablesPush verifies that Layer 2 command config
-// (gitflow.feature.finish.push=true) triggers a push in a repo initialised with
-// git-flow-avh style config (no gitflow.version).
+// (gitpour.feature.finish.push=true) triggers a push in a repo initialised with
+// git-flow-avh style config (no gitpour.version).
 // Steps:
 // 1. Sets up a repo with avh-style config and a remote tracking main and develop
-// 2. Sets gitflow.feature.finish.push=true
+// 2. Sets gitpour.feature.finish.push=true
 // 3. Creates feature branch with one commit
 // 4. Finishes the feature without --push flag
 // 5. Verifies develop is up to date with origin (config alone triggers push)

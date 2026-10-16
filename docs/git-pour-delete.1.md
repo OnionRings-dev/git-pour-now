@@ -1,14 +1,14 @@
-# GIT-FLOW-DELETE(1)
+# GIT-POUR-DELETE(1)
 
 ## NAME
 
-git-flow-delete - Delete topic branches
+git-pour-delete - Delete topic branches
 
 ## SYNOPSIS
 
-**git-flow** *topic* **delete** *name* [*options*]
+**git-pour** *topic* **delete** *name* [*options*]
 
-**git-flow delete** [*name*] [*options*]
+**git-pour delete** [*name*] [*options*]
 
 ## DESCRIPTION
 
@@ -22,7 +22,7 @@ The delete operation removes the specified topic branch from the local repositor
 : The topic branch type (feature, release, hotfix, support, or any configured custom type)
 
 *name*
-: Name of the topic branch to delete. When using the shorthand **git-flow delete**, if omitted, the current branch is used.
+: Name of the topic branch to delete. When using the shorthand **git-pour delete**, if omitted, the current branch is used.
 
 ## OPTIONS
 
@@ -46,15 +46,15 @@ The delete operation removes the specified topic branch from the local repositor
 
 ### Worktree Cleanup
 
-A branch checked out in a linked worktree cannot be deleted while it is checked out there, so delete frees the worktree first. What "freeing" means depends on who created it: git-flow removes the ones it created; a worktree created by hand (`git worktree add`) is kept, with its HEAD detached from the branch instead — the directory and every file in it, including uncommitted work, stay exactly as they were. Neither flag has a git config equivalent; both are CLI-only, like **git-flow-checkout**(1)'s **--worktree**.
+A branch checked out in a linked worktree cannot be deleted while it is checked out there, so delete frees the worktree first. What "freeing" means depends on who created it: git-pour removes the ones it created; a worktree created by hand (`git worktree add`) is kept, with its HEAD detached from the branch instead — the directory and every file in it, including uncommitted work, stay exactly as they were. Neither flag has a git config equivalent; both are CLI-only, like **git-pour-checkout**(1)'s **--worktree**.
 
 **--keep-worktree**
-: Keep the branch's worktree instead of removing it, even when git-flow created it. The directory survives on a detached HEAD, and the branch is still deleted. Has no additional effect on a worktree git-flow did not create, which is always detached rather than removed.
+: Keep the branch's worktree instead of removing it, even when git-pour created it. The directory survives on a detached HEAD, and the branch is still deleted. Has no additional effect on a worktree git-pour did not create, which is always detached rather than removed.
 
 **--force-worktree**, **-W**
-: Remove a git-flow-created worktree even if it has uncommitted or untracked changes, discarding them. Only applies to the removal path — detaching never needs it, since detaching changes no files. If the worktree has a merge, rebase, bisect, cherry-pick, or revert in progress, deletion is refused regardless of **--force-worktree**: an in-progress operation cannot be abandoned by either freeing path.
+: Remove a git-pour-created worktree even if it has uncommitted or untracked changes, discarding them. Only applies to the removal path — detaching never needs it, since detaching changes no files. If the worktree has a merge, rebase, bisect, cherry-pick, or revert in progress, deletion is refused regardless of **--force-worktree**: an in-progress operation cannot be abandoned by either freeing path.
 
-If you are standing inside the worktree being removed, the main worktree's path — not the one being removed — is written to **GIT_FLOW_CD_FILE** (see **git-flow-worktree**(1)) as the destination. Delete always offers the main worktree: unlike **finish**, which has a merge target of its own (the parent branch) and prefers that branch's worktree when it has one, delete has no such target to prefer instead. Detaching never navigates: the directory stays exactly where it is.
+If you are standing inside the worktree being removed, the main worktree's path — not the one being removed — is written to **GIT_POUR_CD_FILE** (see **git-pour-worktree**(1)) as the destination. Delete always offers the main worktree: unlike **finish**, which has a merge target of its own (the parent branch) and prefers that branch's worktree when it has one, delete has no such target to prefer instead. Detaching never navigates: the directory stays exactly where it is.
 
 A branch with no worktree, or one checked out in the main worktree, is unaffected by either flag.
 
@@ -74,60 +74,60 @@ Use **--force** to override safety checks when you're certain the branch should 
 
 Delete a feature branch:
 ```bash
-git flow feature delete user-authentication
+git pour feature delete user-authentication
 ```
 
 Delete current topic branch (shorthand):
 ```bash
-git flow delete
+git pour delete
 ```
 
 Delete with remote cleanup:
 ```bash
-git flow feature delete my-feature --remote
+git pour feature delete my-feature --remote
 ```
 
 ### Fetch Before Delete
 
 Fetch and fast-forward the parent branch before deleting, so Git can detect branches merged remotely (e.g., via a GitHub PR merge):
 ```bash
-git flow feature delete my-feature --fetch
+git pour feature delete my-feature --fetch
 ```
 
 ### Force Deletion
 
 Delete branch with unmerged changes:
 ```bash
-git flow feature delete experimental-feature --force
+git pour feature delete experimental-feature --force
 ```
 
 Delete current branch forcibly:
 ```bash
-git flow delete --force
+git pour delete --force
 ```
 
 ### Remote Management
 
 Delete a branch and its remote tracking branch:
 ```bash
-git flow feature delete completed-feature --remote
+git pour feature delete completed-feature --remote
 ```
 
 ### Worktree Cleanup
 
-Delete a branch with a git-flow-created worktree (the worktree is removed automatically):
+Delete a branch with a git-pour-created worktree (the worktree is removed automatically):
 ```bash
-git flow feature delete my-feature
+git pour feature delete my-feature
 ```
 
 Delete the branch but keep its worktree, detached:
 ```bash
-git flow feature delete my-feature --keep-worktree
+git pour feature delete my-feature --keep-worktree
 ```
 
-Delete a branch whose git-flow-created worktree has uncommitted changes:
+Delete a branch whose git-pour-created worktree has uncommitted changes:
 ```bash
-git flow feature delete my-feature --force-worktree
+git pour feature delete my-feature --force-worktree
 ```
 
 ## BRANCH NAME RESOLUTION
@@ -136,8 +136,8 @@ The delete command accepts branch names with or without prefixes:
 
 ```bash
 # These are equivalent:
-git flow feature delete user-auth
-git flow feature delete feature/user-auth
+git pour feature delete user-auth
+git pour feature delete feature/user-auth
 ```
 
 ## WORKFLOW INTEGRATION
@@ -145,20 +145,20 @@ git flow feature delete feature/user-auth
 ### After Finishing
 ```bash
 # Typical workflow - finish then clean up
-git flow feature finish my-feature
-git flow feature delete my-feature  # Clean up local branch
+git pour feature finish my-feature
+git pour feature delete my-feature  # Clean up local branch
 ```
 
 ### Abandoned Features
 ```bash
 # Delete abandoned work
-git flow feature delete abandoned-idea --force
+git pour feature delete abandoned-idea --force
 ```
 
 ### Remote Collaboration
 ```bash
 # Delete feature after team review
-git flow feature delete reviewed-feature --remote
+git pour feature delete reviewed-feature --remote
 ```
 
 ## CONFIGURATION
@@ -168,25 +168,25 @@ Delete behavior can be influenced by Git configuration:
 ### Force Delete Settings
 ```bash
 # Enable force delete by default for feature branches
-git config gitflow.feature.delete.force true
+git config gitpour.feature.delete.force true
 
 # Enable force delete for release branches
-git config gitflow.release.delete.force true
+git config gitpour.release.delete.force true
 
 # Enable force delete for hotfix branches
-git config gitflow.hotfix.delete.force true
+git config gitpour.hotfix.delete.force true
 ```
 
 ### Remote Deletion Settings
 ```bash
 # Enable remote deletion by default for feature branches
-git config gitflow.branch.feature.deleteRemote true
+git config gitpour.branch.feature.deleteRemote true
 ```
 
 ### Fetch Settings
 ```bash
 # Always fetch before deleting feature branches
-git config gitflow.feature.delete.fetch true
+git config gitpour.feature.delete.fetch true
 ```
 
 ## SAFETY CONSIDERATIONS
@@ -236,11 +236,11 @@ git checkout -b recovered-branch <commit-hash>
 : Cannot delete current branch (checkout another branch first)
 
 **6**
-: A validation error: the branch's git-flow-created worktree has uncommitted or untracked changes and `--force-worktree` was not given, or its worktree has a merge, rebase, bisect, cherry-pick, or revert in progress.
+: A validation error: the branch's git-pour-created worktree has uncommitted or untracked changes and `--force-worktree` was not given, or its worktree has a merge, rebase, bisect, cherry-pick, or revert in progress.
 
 ## SEE ALSO
 
-**git-flow**(1), **git-flow-finish**(1), **git-flow-list**(1), **git-flow-worktree**(1), **git-branch**(1), **git-push**(1)
+**git-pour**(1), **git-pour-finish**(1), **git-pour-list**(1), **git-pour-worktree**(1), **git-branch**(1), **git-push**(1)
 
 ## NOTES
 
@@ -249,4 +249,4 @@ git checkout -b recovered-branch <commit-hash>
 - Remote deletion requires push permissions to the remote repository
 - **--force** bypasses Git's safety checks - use with caution
 - Branch prefixes are automatically handled during name resolution
-- Consider using **git flow list** to see available branches before deletion
+- Consider using **git pour list** to see available branches before deletion

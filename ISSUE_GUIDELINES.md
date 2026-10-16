@@ -1,6 +1,6 @@
 # Issue Guidelines
 
-Standards for writing clear, useful GitHub issues in the git-flow-next project.
+Standards for writing clear, useful GitHub issues in the git-pour-now project.
 
 ## General Principles
 
@@ -53,7 +53,7 @@ Start with a brief summary paragraph, then use `###` sections as needed. Not eve
 <What happens instead>
 
 ### Environment
-- git-flow-next version:
+- git-pour-now version:
 - OS:
 - Git version:
 ```
@@ -94,16 +94,16 @@ A well-structured enhancement issue — brief intro, h3 sections, a priority tab
 >
 > ```bash
 > # Preview what finish will do
-> git flow feature finish my-feature --dry-run
+> git pour feature finish my-feature --dry-run
 >
 > # Short flag (follows Git conventions)
-> git flow release finish v1.0 -n
+> git pour release finish v1.0 -n
 > ```
 >
 > ### Example Output
 >
 > ```
-> Dry-run: git flow feature finish my-feature
+> Dry-run: git pour feature finish my-feature
 > Target: feature/my-feature
 > --------------------------------------------------
 >

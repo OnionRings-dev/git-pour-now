@@ -1,5 +1,12 @@
 # Git-Flow-Next Code Reference
 
+The default git-pour-now workflow uses `main`, `feature/`, and temporary
+`prerelease/<version>` branches. Stable tags are created on main; prerelease tags
+on the matching prerelease branch. No develop branch is created. Examples below
+using develop/release/hotfix belong to the explicit `--preset=classic` workflow.
+The test suite requests that preset explicitly for inherited GitFlow scenarios.
+
+
 Quick navigation guide to the codebase: file paths, key structs, configuration keys, and implementation flows. For conceptual design and architectural rationale, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Command Invocation Flow
@@ -21,7 +28,7 @@ cmd/topicbranch.go (Dynamic Registration)
 - Handle global flags (e.g., `--verbose`)
 
 ### 2. Dynamic Command Registration (`cmd/topicbranch.go:14-42`)
-- Load git-flow configuration on init
+- Load git-pour configuration on init
 - Discover topic branch types from config (feature, release, hotfix, etc.)
 - Dynamically register commands for each branch type
 
@@ -33,14 +40,14 @@ cmd/topicbranch.go (Dynamic Registration)
 ### 4. Configuration Resolution - 3-Layer Precedence (`internal/config/resolver.go`)
 ```
 Layer 1: Branch Type Definition    ← Layer 2: Command Config  ← Layer 3: CLI Flags
-gitflow.branch.<type>.*               gitflow.<type>.<cmd>.*     --flag overrides
+gitpour.branch.<type>.*               gitpour.<type>.<cmd>.*     --flag overrides
 (identity & process characteristics)  (operational settings)     (highest priority)
 ```
 Layer 1 defines *what the branch type is* (structural role + process characteristics like tagging).
 Layer 2 controls *how commands execute* (operational knobs). Not all options have a Layer 1 equivalent.
 
 ### 5. Validation (`cmd/start.go:31-54`)
-- Check git-flow initialization: `config.IsInitialized()`
+- Check git-pour initialization: `config.IsInitialized()`
 - Validate inputs (branch name, branch type exists)
 - Load full configuration: `config.LoadConfig()`
 
@@ -62,14 +69,14 @@ Layer 2 controls *how commands execute* (operational knobs). Not all options hav
 ## Key Internal Modules
 
 ### `internal/config/` - Configuration Management
-**Purpose**: Manages git-flow configuration (branch types, prefixes, merge strategies)
+**Purpose**: Manages git-pour configuration (branch types, prefixes, merge strategies)
 
 **Key files:**
 - `config.go` - Main Config struct, Load/Save, branch types, preset definitions (Classic, GitHub, GitLab), AVH import
 - `resolver.go` - 3-layer option resolution for finish command
 
 **Key responsibilities:**
-- Load/save configuration from Git config (`gitflow.*` keys)
+- Load/save configuration from Git config (`gitpour.*` keys)
 - Define branch types (base vs. topic) and their relationships
 - Import git-flow-avh compatibility
 - Provide default configurations and presets
@@ -101,7 +108,7 @@ Layer 2 controls *how commands execute* (operational knobs). Not all options hav
 **Purpose**: Structured error handling with specific exit codes
 
 **Error types:**
-- `NotInitializedError` (exit 1) - git-flow not initialized
+- `NotInitializedError` (exit 1) - git-pour not initialized
 - `InvalidBranchTypeError` (exit 2) - Unknown branch type
 - `GitError` (exit 3) - Generic Git operation failure
 - `BranchExistsError` (exit 4) - Branch already exists
@@ -122,14 +129,14 @@ Layer 2 controls *how commands execute* (operational knobs). Not all options hav
 - Child branches pending updates
 - Current child branch being processed
 
-**Stored in**: `.git/gitflow/state/merge.json`
+**Stored in**: `.git/gitpour/state/merge.json`
 
 **Used by**: Finish command for `--continue`/`--abort` operations across conflicts
 
 ---
 
 ### `internal/hooks/` - Client-Side Hooks
-**Purpose**: Run client-side hooks around git-flow operations (e.g. start/finish)
+**Purpose**: Run client-side hooks around git-pour operations (e.g. start/finish)
 
 **Key files:**
 - `hooks.go` - Hook runner and context construction
@@ -177,9 +184,9 @@ Layer 2 controls *how commands execute* (operational knobs). Not all options hav
 ### Static Commands
 | File | Purpose |
 |------|---------|
-| `init.go` | Initialize git-flow |
+| `init.go` | Initialize git-pour |
 | `config.go` | Manage configuration |
-| `overview.go` | Show git-flow status |
+| `overview.go` | Show git-pour status |
 | `worktree.go` | Manage worktrees by branch name (add/remove/list/prune/path) |
 | `version.go` | Display version |
 | `shorthand.go` | Quick commands (work on current branch) |
@@ -196,13 +203,13 @@ Steps: MERGE → CREATE_TAG → UPDATE_CHILDREN → DELETE_BRANCH
 
 ### Flow with Conflict Handling
 ```
-git flow feature finish my-feature --rebase
+git pour feature finish my-feature --rebase
     ↓
 1. Resolve options (3-layer precedence)
 2. STATE: MERGE
    → Checkout develop
    → Rebase feature/my-feature
-   → On conflict: save state to .git/gitflow/state/merge.json, exit
+   → On conflict: save state to .git/gitpour/state/merge.json, exit
 3. STATE: CREATE_TAG (if configured)
    → Create tag with prefix
 4. STATE: UPDATE_CHILDREN
@@ -216,9 +223,9 @@ git flow feature finish my-feature --rebase
 
 ### Continue After Conflict
 ```
-git flow feature finish --continue
+git pour feature finish --continue
     ↓
-1. Load state from .git/gitflow/state/merge.json
+1. Load state from .git/gitpour/state/merge.json
 2. Resume from saved step
 3. Continue state machine
 ```
@@ -228,19 +235,19 @@ git flow feature finish --continue
 ## Git Configuration Keys
 
 ```ini
-gitflow.version                           = "1.0"
-gitflow.branch.<name>.type                = "base|topic"
-gitflow.branch.<name>.parent              = parent branch
-gitflow.branch.<name>.prefix              = "feature/"
-gitflow.branch.<name>.upstreamStrategy    = "merge|rebase|squash"
-gitflow.branch.<name>.downstreamStrategy  = "merge|rebase"
-gitflow.branch.<name>.tag                 = "true|false"
-gitflow.branch.<name>.autoUpdate          = "true|false"
-gitflow.branch.<name>.worktree            = "true|false"  # topic types only
+gitpour.version                           = "1.0"
+gitpour.branch.<name>.type                = "base|topic"
+gitpour.branch.<name>.parent              = parent branch
+gitpour.branch.<name>.prefix              = "feature/"
+gitpour.branch.<name>.upstreamStrategy    = "merge|rebase|squash"
+gitpour.branch.<name>.downstreamStrategy  = "merge|rebase"
+gitpour.branch.<name>.tag                 = "true|false"
+gitpour.branch.<name>.autoUpdate          = "true|false"
+gitpour.branch.<name>.worktree            = "true|false"  # topic types only
 
-gitflow.<type>.start.fetch                = "true|false"
-gitflow.<type>.finish.keep                = "true|false"
-gitflow.<type>.finish.mergemessage        = "<message template>"
+gitpour.<type>.start.fetch                = "true|false"
+gitpour.<type>.finish.keep                = "true|false"
+gitpour.<type>.finish.mergemessage        = "<message template>"
 ```
 
 ### Branch Types
@@ -276,11 +283,11 @@ Commands → config.ResolveFinishOptions() → Three-layer precedence resolution
 1. New command → Add to `cmd/` and register in `root.go` or `topicbranch.go`
 2. New config option → Update `internal/config/config.go` and `resolver.go`
 3. New Git operation → Add to `internal/git/repo.go`
-4. New branch type → Configure via `gitflow.branch.<name>.*`
+4. New branch type → Configure via `gitpour.branch.<name>.*`
 
 ### To debug issues:
-1. State problems → Check `.git/gitflow/state/merge.json`
-2. Config issues → `git config --get-regexp gitflow`
+1. State problems → Check `.git/gitpour/state/merge.json`
+2. Config issues → `git config --get-regexp gitpour`
 3. Git operations → Trace through `internal/git/repo.go`
 4. Command flow → Start at `cmd/<command>.go`
 
@@ -314,17 +321,17 @@ Use `testutil.CreateTestRepo()` for integration tests with real Git operations.
 
 ### Start Command Flow
 ```
-git flow feature start my-feature
+git pour feature start my-feature
     ↓
 1. Load config → get feature.parent (develop)
 2. Determine startPoint → feature.startPoint or parent
-3. Fetch if configured → gitflow.feature.start.fetch
+3. Fetch if configured → gitpour.feature.start.fetch
 4. Create branch → git checkout -b feature/my-feature develop
 ```
 
 ### Finish Command Flow
 ```
-git flow feature finish my-feature
+git pour feature finish my-feature
     ↓
 1. Resolve options (defaults → config → flags)
 2. Merge feature/my-feature into develop

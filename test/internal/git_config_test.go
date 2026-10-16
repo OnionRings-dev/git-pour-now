@@ -3,8 +3,8 @@ package internal_test
 import (
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestGetConfigAllValues tests the GetConfigAllValues helper reads multi-value git config keys.
@@ -68,7 +68,7 @@ func TestGetConfigAllValues(t *testing.T) {
 // non-empty string would misread as absent.
 // Steps:
 // 1. Sets up a test repository
-// 2. Writes gitflow.test.empty with an empty value in local config
+// 2. Writes gitpour.test.empty with an empty value in local config
 // 3. Calls repo.GetConfigLocalIfSet for that key
 // 4. Verifies it returns an empty value, found=true and no error
 // 5. Calls repo.GetConfigLocalIfSet for an unset key
@@ -78,7 +78,7 @@ func TestGetConfigLocalIfSetDistinguishesUnsetFromEmpty(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.empty", ""); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.empty", ""); err != nil {
 		t.Fatalf("Failed to write the empty-valued key: %v\nOutput: %s", err, out)
 	}
 
@@ -87,7 +87,7 @@ func TestGetConfigLocalIfSetDistinguishesUnsetFromEmpty(t *testing.T) {
 		t.Fatalf("git.Open failed: %v", err)
 	}
 
-	value, found, err := repo.GetConfigLocalIfSet("gitflow.test.empty")
+	value, found, err := repo.GetConfigLocalIfSet("gitpour.test.empty")
 	if err != nil {
 		t.Fatalf("GetConfigLocalIfSet returned error for a present key: %v", err)
 	}
@@ -98,7 +98,7 @@ func TestGetConfigLocalIfSetDistinguishesUnsetFromEmpty(t *testing.T) {
 		t.Errorf("Expected an empty value, got %q", value)
 	}
 
-	value, found, err = repo.GetConfigLocalIfSet("gitflow.test.missing")
+	value, found, err = repo.GetConfigLocalIfSet("gitpour.test.missing")
 	if err != nil {
 		t.Fatalf("GetConfigLocalIfSet returned error for an unset key: %v", err)
 	}
@@ -114,15 +114,15 @@ func TestGetConfigLocalIfSetDistinguishesUnsetFromEmpty(t *testing.T) {
 // under the destination key and drops the source.
 // Steps:
 // 1. Sets up a test repository
-// 2. Writes gitflow.test.src=value in local config
-// 3. Calls repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst")
-// 4. Verifies no error, gitflow.test.dst is 'value' and gitflow.test.src is gone
+// 2. Writes gitpour.test.src=value in local config
+// 3. Calls repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst")
+// 4. Verifies no error, gitpour.test.dst is 'value' and gitpour.test.src is gone
 func TestMoveConfigLocalMovesValue(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.src", "value"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.src", "value"); err != nil {
 		t.Fatalf("Failed to write the source key: %v\nOutput: %s", err, out)
 	}
 
@@ -131,14 +131,14 @@ func TestMoveConfigLocalMovesValue(t *testing.T) {
 		t.Fatalf("git.Open failed: %v", err)
 	}
 
-	if err := repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst"); err != nil {
+	if err := repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst"); err != nil {
 		t.Fatalf("MoveConfigLocal returned error: %v", err)
 	}
 
-	if got := testutil.GitConfigValue(t, dir, "gitflow.test.dst"); got != "value" {
+	if got := testutil.GitConfigValue(t, dir, "gitpour.test.dst"); got != "value" {
 		t.Errorf("Expected the destination to be 'value', got %q", got)
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.test.src") {
+	if testutil.GitConfigExists(t, dir, "gitpour.test.src") {
 		t.Error("Expected the source key to be removed")
 	}
 }
@@ -148,16 +148,16 @@ func TestMoveConfigLocalMovesValue(t *testing.T) {
 // leaving a stale value behind.
 // Steps:
 // 1. Sets up a test repository
-// 2. Writes gitflow.test.dst=stale in local config, with no gitflow.test.src
-// 3. Calls repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst")
-// 4. Verifies no error and that gitflow.test.dst is gone
-// 5. Verifies gitflow.test.src is still absent
+// 2. Writes gitpour.test.dst=stale in local config, with no gitpour.test.src
+// 3. Calls repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst")
+// 4. Verifies no error and that gitpour.test.dst is gone
+// 5. Verifies gitpour.test.src is still absent
 func TestMoveConfigLocalAbsentSourceClearsDestination(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.dst", "stale"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.dst", "stale"); err != nil {
 		t.Fatalf("Failed to write the destination key: %v\nOutput: %s", err, out)
 	}
 
@@ -166,14 +166,14 @@ func TestMoveConfigLocalAbsentSourceClearsDestination(t *testing.T) {
 		t.Fatalf("git.Open failed: %v", err)
 	}
 
-	if err := repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst"); err != nil {
+	if err := repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst"); err != nil {
 		t.Fatalf("MoveConfigLocal returned error: %v", err)
 	}
 
-	if testutil.GitConfigExists(t, dir, "gitflow.test.dst") {
-		t.Errorf("Expected the stale destination to be removed, got %q", testutil.GitConfigValue(t, dir, "gitflow.test.dst"))
+	if testutil.GitConfigExists(t, dir, "gitpour.test.dst") {
+		t.Errorf("Expected the stale destination to be removed, got %q", testutil.GitConfigValue(t, dir, "gitpour.test.dst"))
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.test.src") {
+	if testutil.GitConfigExists(t, dir, "gitpour.test.src") {
 		t.Error("Expected the source key to stay absent")
 	}
 }
@@ -183,19 +183,19 @@ func TestMoveConfigLocalAbsentSourceClearsDestination(t *testing.T) {
 // remove the destination instead of overwriting it.
 // Steps:
 // 1. Sets up a test repository
-// 2. Writes gitflow.test.src with an empty value and gitflow.test.dst=stale
-// 3. Calls repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst")
-// 4. Verifies no error and that gitflow.test.dst exists with an empty value
-// 5. Verifies gitflow.test.src is gone
+// 2. Writes gitpour.test.src with an empty value and gitpour.test.dst=stale
+// 3. Calls repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst")
+// 4. Verifies no error and that gitpour.test.dst exists with an empty value
+// 5. Verifies gitpour.test.src is gone
 func TestMoveConfigLocalPreservesEmptySourceValue(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.src", ""); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.src", ""); err != nil {
 		t.Fatalf("Failed to write the empty-valued source key: %v\nOutput: %s", err, out)
 	}
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.dst", "stale"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.dst", "stale"); err != nil {
 		t.Fatalf("Failed to write the destination key: %v\nOutput: %s", err, out)
 	}
 
@@ -204,17 +204,17 @@ func TestMoveConfigLocalPreservesEmptySourceValue(t *testing.T) {
 		t.Fatalf("git.Open failed: %v", err)
 	}
 
-	if err := repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst"); err != nil {
+	if err := repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst"); err != nil {
 		t.Fatalf("MoveConfigLocal returned error: %v", err)
 	}
 
-	if !testutil.GitConfigExists(t, dir, "gitflow.test.dst") {
+	if !testutil.GitConfigExists(t, dir, "gitpour.test.dst") {
 		t.Error("Expected the destination to hold an empty value, not to be removed")
 	}
-	if got := testutil.GitConfigValue(t, dir, "gitflow.test.dst"); got != "" {
+	if got := testutil.GitConfigValue(t, dir, "gitpour.test.dst"); got != "" {
 		t.Errorf("Expected the destination value to be empty, got %q", got)
 	}
-	if testutil.GitConfigExists(t, dir, "gitflow.test.src") {
+	if testutil.GitConfigExists(t, dir, "gitpour.test.src") {
 		t.Error("Expected the source key to be removed")
 	}
 }
@@ -225,23 +225,23 @@ func TestMoveConfigLocalPreservesEmptySourceValue(t *testing.T) {
 // source value and overwrite the destination on the way to reporting the error.
 // Steps:
 // 1. Sets up a test repository
-// 2. Writes two values for gitflow.test.src and gitflow.test.dst=keep
-// 3. Calls repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst")
+// 2. Writes two values for gitpour.test.src and gitpour.test.dst=keep
+// 3. Calls repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst")
 // 4. Verifies a non-nil error is returned
-// 5. Verifies gitflow.test.src still carries both values in order
-// 6. Verifies gitflow.test.dst is still 'keep'
+// 5. Verifies gitpour.test.src still carries both values in order
+// 6. Verifies gitpour.test.dst is still 'keep'
 func TestMoveConfigLocalRefusesMultiValueSource(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "--add", "gitflow.test.src", "first"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "--add", "gitpour.test.src", "first"); err != nil {
 		t.Fatalf("Failed to add the first source value: %v\nOutput: %s", err, out)
 	}
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "--add", "gitflow.test.src", "second"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "--add", "gitpour.test.src", "second"); err != nil {
 		t.Fatalf("Failed to add the second source value: %v\nOutput: %s", err, out)
 	}
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.dst", "keep"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.dst", "keep"); err != nil {
 		t.Fatalf("Failed to write the destination key: %v\nOutput: %s", err, out)
 	}
 
@@ -250,15 +250,15 @@ func TestMoveConfigLocalRefusesMultiValueSource(t *testing.T) {
 		t.Fatalf("git.Open failed: %v", err)
 	}
 
-	if err := repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.dst"); err == nil {
+	if err := repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.dst"); err == nil {
 		t.Error("Expected MoveConfigLocal to refuse a multi-value source")
 	}
 
-	values := testutil.GitConfigAll(t, dir, "gitflow.test.src")
+	values := testutil.GitConfigAll(t, dir, "gitpour.test.src")
 	if len(values) != 2 || values[0] != "first" || values[1] != "second" {
 		t.Errorf("Expected the source to keep ['first', 'second'], got %v", values)
 	}
-	if got := testutil.GitConfigValue(t, dir, "gitflow.test.dst"); got != "keep" {
+	if got := testutil.GitConfigValue(t, dir, "gitpour.test.dst"); got != "keep" {
 		t.Errorf("Expected the destination to be untouched at 'keep', got %q", got)
 	}
 }
@@ -268,15 +268,15 @@ func TestMoveConfigLocalRefusesMultiValueSource(t *testing.T) {
 // it had just written.
 // Steps:
 // 1. Sets up a test repository
-// 2. Writes gitflow.test.src=value in local config
-// 3. Calls repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.src")
-// 4. Verifies no error and that gitflow.test.src is still 'value'
+// 2. Writes gitpour.test.src=value in local config
+// 3. Calls repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.src")
+// 4. Verifies no error and that gitpour.test.src is still 'value'
 func TestMoveConfigLocalSameKeyIsNoOp(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitflow.test.src", "value"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "--local", "gitpour.test.src", "value"); err != nil {
 		t.Fatalf("Failed to write the source key: %v\nOutput: %s", err, out)
 	}
 
@@ -285,11 +285,11 @@ func TestMoveConfigLocalSameKeyIsNoOp(t *testing.T) {
 		t.Fatalf("git.Open failed: %v", err)
 	}
 
-	if err := repo.MoveConfigLocal("gitflow.test.src", "gitflow.test.src"); err != nil {
+	if err := repo.MoveConfigLocal("gitpour.test.src", "gitpour.test.src"); err != nil {
 		t.Fatalf("MoveConfigLocal returned error: %v", err)
 	}
 
-	if got := testutil.GitConfigValue(t, dir, "gitflow.test.src"); got != "value" {
+	if got := testutil.GitConfigValue(t, dir, "gitpour.test.src"); got != "value" {
 		t.Errorf("Expected the value to survive a same-key move, got %q", got)
 	}
 }

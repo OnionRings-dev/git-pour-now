@@ -12,7 +12,7 @@ import (
 
 func init() {
 	// Disable Cobra's default completion command; we provide our own
-	// that adds git-subcommand integration for "git flow".
+	// that adds git-subcommand integration for "git pour".
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.AddCommand(completionCmd)
 }
@@ -38,24 +38,24 @@ var completionCmd = &cobra.Command{
 	},
 }
 
-const completionLong = `Generate shell completion scripts for git-flow.
+const completionLong = `Generate shell completion scripts for git-pour.
 
 For bash, zsh, and fish the generated scripts provide tab completion for
-both "git-flow" (direct) and "git flow" (git subcommand) invocation styles.
-PowerShell completion supports "git-flow" only.
+both "git-pour" (direct) and "git pour" (git subcommand) invocation styles.
+PowerShell completion supports "git-pour" only.
 
-For zsh, the "git flow" form works because zsh's built-in _git completion
+For zsh, the "git pour" form works because zsh's built-in _git completion
 dispatches to any _git-<name> function it finds in fpath.
 
 Bash:
 
-  source <(git flow completion bash)
+  source <(git pour completion bash)
 
   # To load completions for each session, execute once:
   # Linux:
-  git flow completion bash > /etc/bash_completion.d/git-flow
+  git pour completion bash > /etc/bash_completion.d/git-pour
   # macOS (Homebrew):
-  git flow completion bash > $(brew --prefix)/etc/bash_completion.d/git-flow
+  git pour completion bash > $(brew --prefix)/etc/bash_completion.d/git-pour
 
 Zsh:
 
@@ -64,29 +64,29 @@ Zsh:
   echo "autoload -U compinit; compinit" >> ~/.zshrc
 
   # To load completions for each session, execute once:
-  git flow completion zsh > "${fpath[1]}/_git-flow"
+  git pour completion zsh > "${fpath[1]}/_git-pour"
 
   # You will need to start a new shell for this setup to take effect.
 
 Fish:
 
-  git flow completion fish | source
+  git pour completion fish | source
 
   # To load completions for each session, execute once:
-  git flow completion fish > ~/.config/fish/completions/git-flow.fish
+  git pour completion fish > ~/.config/fish/completions/git-pour.fish
 
 PowerShell:
 
-  git flow completion powershell | Out-String | Invoke-Expression
+  git pour completion powershell | Out-String | Invoke-Expression
 
   # To load completions for every new session, add the output of
   # the above command to your PowerShell profile.
 `
 
-// genBashCompletion generates bash completion with a bridge for "git flow" usage.
+// genBashCompletion generates bash completion with a bridge for "git pour" usage.
 // Git's bash completion calls _git_<subcommand>() when completing "git <subcommand>",
-// so we append a _git_flow() function that remaps the completion context and
-// delegates to Cobra's __start_git-flow.
+// so we append a _git_pour() function that remaps the completion context and
+// delegates to Cobra's __start_git-pour.
 func genBashCompletion(w io.Writer) error {
 	if err := rootCmd.GenBashCompletionV2(w, true); err != nil {
 		return err
@@ -96,15 +96,15 @@ func genBashCompletion(w io.Writer) error {
 }
 
 const bashBridge = `
-# Bridge for "git flow" subcommand completion.
-# Git's bash completion calls _git_flow() when the user types "git flow <tab>".
-# This remaps the completion context so Cobra sees "git-flow ..." and delegates.
-_git_flow()
+# Bridge for "git pour" subcommand completion.
+# Git's bash completion calls _git_pour() when the user types "git pour <tab>".
+# This remaps the completion context so Cobra sees "git-pour ..." and delegates.
+_git_pour()
 {
-    # Rewrite "git flow" to "git-flow" so Cobra recognises the binary name.
+    # Rewrite "git pour" to "git-pour" so Cobra recognises the binary name.
     # Both forms are 8 characters, so COMP_POINT stays unchanged.
-    COMP_LINE="${COMP_LINE/git flow/git-flow}"
-    COMP_WORDS=("git-flow" "${COMP_WORDS[@]:2}")
+    COMP_LINE="${COMP_LINE/git pour/git-pour}"
+    COMP_WORDS=("git-pour" "${COMP_WORDS[@]:2}")
     ((COMP_CWORD--))
 
     # Reset compopt to match the defaults Cobra expects when compopt is available
@@ -114,43 +114,43 @@ _git_flow()
         compopt -o default +o nospace
     fi
 
-    __start_git-flow
+    __start_git-pour
 }
 `
 
-// genZshCompletion generates zsh completion with a bridge for "git flow" usage.
-// Zsh's _git dispatcher calls _git-flow() to complete "git flow <...>" and
-// shifts words so words[1] is "flow" (not "git-flow"). Cobra's generated body
+// genZshCompletion generates zsh completion with a bridge for "git pour" usage.
+// Zsh's _git dispatcher calls _git-pour() to complete "git pour <...>" and
+// shifts words so words[1] is "pour" (not "git-pour"). Cobra's generated body
 // uses "${words[1]} __complete ..." to invoke the binary, so without the
-// rewrite it would try to run a nonexistent command called "flow".
+// rewrite it would try to run a nonexistent command called "pour".
 func genZshCompletion(w io.Writer) error {
 	var buf bytes.Buffer
 	if err := rootCmd.GenZshCompletion(&buf); err != nil {
 		return err
 	}
-	const anchor = "_git-flow()\n{\n"
-	const replacement = `_git-flow()
+	const anchor = "_git-pour()\n{\n"
+	const replacement = `_git-pour()
 {
-    # Bridge for "git flow" subcommand: zsh's _git dispatcher shifts words so
-    # words[1] is "flow" when this function is invoked via "git flow ...".
-    # Rewrite it back to "git-flow" so the Cobra logic below invokes the
+    # Bridge for "git pour" subcommand: zsh's _git dispatcher shifts words so
+    # words[1] is "pour" when this function is invoked via "git pour ...".
+    # Rewrite it back to "git-pour" so the Cobra logic below invokes the
     # correct binary via __complete.
-    if [[ ${words[1]} == flow ]]; then
-        words[1]=git-flow
+    if [[ ${words[1]} == pour ]]; then
+        words[1]=git-pour
     fi
 
 `
 	output := strings.Replace(buf.String(), anchor, replacement, 1)
-	if !strings.Contains(output, "words[1]=git-flow") {
+	if !strings.Contains(output, "words[1]=git-pour") {
 		return fmt.Errorf("zsh completion: failed to inject git-subcommand bridge (Cobra output format may have changed)")
 	}
 	_, err := fmt.Fprint(w, output)
 	return err
 }
 
-// genFishCompletion generates fish completion with support for "git flow" usage.
+// genFishCompletion generates fish completion with support for "git pour" usage.
 // Fish has no automatic git-subcommand discovery, so we append registrations
-// that delegate to git-flow's __complete when the user types "git flow <tab>".
+// that delegate to git-pour's __complete when the user types "git pour <tab>".
 func genFishCompletion(w io.Writer) error {
 	if err := rootCmd.GenFishCompletion(w, true); err != nil {
 		return err
@@ -160,16 +160,16 @@ func genFishCompletion(w io.Writer) error {
 }
 
 const fishBridge = `
-# Bridge for "git flow" subcommand completion.
-# Registers completions for "git flow ..." by delegating to git-flow's
+# Bridge for "git pour" subcommand completion.
+# Registers completions for "git pour ..." by delegating to git-pour's
 # Cobra-generated __complete command.
-function __fish_git_flow_complete
+function __fish_git_pour_complete
     set -l tokens (commandline -opc)
     set -l current (commandline -ct)
-    # Skip "git" and "flow", pass the rest to git-flow __complete
+    # Skip "git" and "pour", pass the rest to git-pour __complete
     set -l args $tokens[3..-1]
 
-    set -l results (GIT_FLOW_ACTIVE_HELP=0 git-flow __complete $args $current 2>/dev/null)
+    set -l results (GIT_POUR_ACTIVE_HELP=0 git-pour __complete $args $current 2>/dev/null)
     if test (count $results) -eq 0
         return
     end
@@ -179,9 +179,9 @@ function __fish_git_flow_complete
     string join \n -- $results
 end
 
-# Register "flow" as a git subcommand
-complete -c git -f -n '__fish_use_subcommand' -a flow -d 'Manage branches with git-flow'
+# Register "pour" as a git subcommand
+complete -c git -f -n '__fish_use_subcommand' -a pour -d 'Manage branches with git-pour'
 
-# Delegate deeper completions to git-flow
-complete -c git -f -n '__fish_seen_subcommand_from flow' -a '(__fish_git_flow_complete)'
+# Delegate deeper completions to git-pour
+complete -c git -f -n '__fish_seen_subcommand_from pour' -a '(__fish_git_pour_complete)'
 `

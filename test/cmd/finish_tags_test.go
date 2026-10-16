@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishFeatureWithTag tests finishing a feature branch with the --tag flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Finishes the feature branch with --tag flag
@@ -24,10 +24,10 @@ func TestFinishFeatureWithTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -49,7 +49,7 @@ func TestFinishFeatureWithTag(t *testing.T) {
 
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run git-flow directly with exec.Command to get full control over arguments
+	// Run git-pour directly with exec.Command to get full control over arguments
 	cmd := exec.Command(gitFlowPath, "feature", "finish", "tagged-feature", "--tag")
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
@@ -73,7 +73,7 @@ func TestFinishFeatureWithTag(t *testing.T) {
 
 // TestFinishReleaseWithCustomTag tests finishing a release branch with custom tag prefix.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with custom tag prefix
+// 1. Sets up a test repository and initializes git-pour with custom tag prefix
 // 2. Creates a release branch
 // 3. Adds changes to the release branch
 // 4. Finishes the release branch
@@ -86,10 +86,10 @@ func TestFinishReleaseWithCustomTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a release branch
@@ -111,7 +111,7 @@ func TestFinishReleaseWithCustomTag(t *testing.T) {
 
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run git-flow directly
+	// Run git-pour directly
 	cmd := exec.Command(gitFlowPath, "release", "finish", "1.2.0", "--tagname", "v1.2.0-beta")
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
@@ -138,7 +138,7 @@ func TestFinishReleaseWithCustomTag(t *testing.T) {
 
 // TestFinishReleaseWithCustomMessage tests finishing a release branch with custom commit message.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a release branch
 // 3. Adds changes to the release branch
 // 4. Finishes the release branch with custom message
@@ -151,14 +151,14 @@ func TestFinishReleaseWithCustomMessage(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set tag prefix for release branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tagprefix", "v")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tagprefix", "v")
 	if err != nil {
 		t.Fatalf("Failed to set tag prefix: %v", err)
 	}
@@ -185,7 +185,7 @@ func TestFinishReleaseWithCustomMessage(t *testing.T) {
 
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run git-flow directly
+	// Run git-pour directly
 	cmd := exec.Command(gitFlowPath, "release", "finish", "1.3.0", "--message", customMessage)
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
@@ -209,7 +209,7 @@ func TestFinishReleaseWithCustomMessage(t *testing.T) {
 
 // TestFinishReleaseWithNoTag tests finishing a release branch without creating a tag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a release branch
 // 3. Adds changes to the release branch
 // 4. Finishes the release branch with no-tag flag
@@ -222,10 +222,10 @@ func TestFinishReleaseWithNoTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a release branch
@@ -247,7 +247,7 @@ func TestFinishReleaseWithNoTag(t *testing.T) {
 
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run git-flow directly
+	// Run git-pour directly
 	cmd := exec.Command(gitFlowPath, "release", "finish", "1.4.0", "--notag")
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
@@ -273,7 +273,7 @@ func TestFinishReleaseWithNoTag(t *testing.T) {
 // tag setting via 'config edit topic release --tag=false' must take effect at
 // finish, not just in the stored configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config edit topic release --tag=false'
 // 3. Creates a release branch and commits a file on it
 // 4. Runs 'release finish 1.0.0'
@@ -283,9 +283,9 @@ func TestFinishReleaseNoTagAfterConfigEditTagFalse(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	output, err = testutil.RunGitFlow(t, dir, "config", "edit", "topic", "release", "--tag=false")
@@ -322,7 +322,7 @@ func TestFinishReleaseNoTagAfterConfigEditTagFalse(t *testing.T) {
 
 // TestFinishReleaseWithMessageFile tests finishing a release branch using a message file.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a release branch
 // 3. Adds changes to the release branch
 // 4. Creates a message file
@@ -336,14 +336,14 @@ func TestFinishReleaseWithMessageFile(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set tag prefix for release branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tagprefix", "v")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tagprefix", "v")
 	if err != nil {
 		t.Fatalf("Failed to set tag prefix: %v", err)
 	}
@@ -375,7 +375,7 @@ func TestFinishReleaseWithMessageFile(t *testing.T) {
 
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run git-flow directly
+	// Run git-pour directly
 	cmd := exec.Command(gitFlowPath, "release", "finish", "1.5.0", "--messagefile", tagMessageFilePath)
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
@@ -418,7 +418,7 @@ func TestFinishReleaseWithMessageFile(t *testing.T) {
 
 // TestFinishReleaseWithConfigMessageFile tests finishing a release branch using a message file from config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Configures a default message file
 // 3. Creates a release branch
 // 4. Adds changes to the release branch
@@ -432,14 +432,14 @@ func TestFinishReleaseWithConfigMessageFile(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set tag prefix for release branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tagprefix", "v")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tagprefix", "v")
 	if err != nil {
 		t.Fatalf("Failed to set tag prefix: %v", err)
 	}
@@ -453,7 +453,7 @@ func TestFinishReleaseWithConfigMessageFile(t *testing.T) {
 	}
 
 	// Set the message file in git config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.release.finish.messagefile", tagMessageFilePath)
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.release.finish.messagefile", tagMessageFilePath)
 	if err != nil {
 		t.Fatalf("Failed to set message file config: %v", err)
 	}
@@ -503,7 +503,7 @@ func TestFinishReleaseWithConfigMessageFile(t *testing.T) {
 
 // TestFinishTagFromBranchConfig tests finishing a branch with tag configuration from branch config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Configures tag settings for a branch type
 // 3. Creates a branch of that type
 // 4. Adds changes to the branch
@@ -517,17 +517,17 @@ func TestFinishTagFromBranchConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Verify that release branches create tags by default (branch config)
-	configOutput, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.tag")
+	configOutput, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.tag")
 	if err == nil && configOutput == "false" {
 		// If it's already set to false, reset it to true
-		_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tag", "true")
+		_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tag", "true")
 		if err != nil {
 			t.Fatalf("Failed to reset tag config: %v", err)
 		}
@@ -571,7 +571,7 @@ func TestFinishTagFromBranchConfig(t *testing.T) {
 
 // TestFinishNotagFromCLI tests that the --no-tag flag overrides configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Configures tag creation for a branch type
 // 3. Creates a branch of that type
 // 4. Adds changes to the branch
@@ -585,20 +585,20 @@ func TestFinishNotagFromCLI(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Ensure release branches are configured to create tags (branch config)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tag", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tag", "true")
 	if err != nil {
 		t.Fatalf("Failed to set tag config: %v", err)
 	}
 
 	// Verify tag configuration is enabled
-	tagConfig, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.tag")
+	tagConfig, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.tag")
 	if err != nil || strings.TrimSpace(tagConfig) != "true" {
 		t.Fatalf("Failed to verify tag config is enabled: %v, got: %s", err, tagConfig)
 	}
@@ -648,7 +648,7 @@ func TestFinishNotagFromCLI(t *testing.T) {
 
 // TestFinishNotagFromConfig tests that tag configuration can be disabled.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Configures tag creation to be disabled for a branch type
 // 3. Creates a branch of that type
 // 4. Adds changes to the branch
@@ -662,31 +662,31 @@ func TestFinishNotagFromConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Ensure release branches are configured to create tags
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tag", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tag", "true")
 	if err != nil {
 		t.Fatalf("Failed to set tag config: %v", err)
 	}
 
 	// Set the finish.notag config to true
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.release.finish.notag", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.release.finish.notag", "true")
 	if err != nil {
 		t.Fatalf("Failed to set finish.notag config: %v", err)
 	}
 
 	// Verify configs are set correctly
-	tagConfig, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.tag")
+	tagConfig, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.tag")
 	if err != nil || strings.TrimSpace(tagConfig) != "true" {
 		t.Fatalf("Failed to verify branch tag config is enabled: %v, got: %s", err, tagConfig)
 	}
 
-	notagConfig, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.notag")
+	notagConfig, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.notag")
 	if err != nil || strings.TrimSpace(notagConfig) != "true" {
 		t.Fatalf("Failed to verify finish.notag config is enabled: %v, got: %s", err, notagConfig)
 	}
@@ -722,6 +722,6 @@ func TestFinishNotagFromConfig(t *testing.T) {
 	t.Logf("Tags: %s", tagList)
 
 	if strings.Contains(tagList, "2.2.0") {
-		t.Errorf("No tag should have been created when gitflow.release.finish.notag is true")
+		t.Errorf("No tag should have been created when gitpour.release.finish.notag is true")
 	}
 }

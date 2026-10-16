@@ -93,7 +93,7 @@ type MergeStrategyOptions struct {
 
 // ResolveFinishOptions resolves all finish command options using three-layer precedence:
 // Layer 1: Branch configuration defaults
-// Layer 2: Command-specific git config (gitflow.<branchtype>.finish.*)
+// Layer 2: Command-specific git config (gitpour.<branchtype>.finish.*)
 // Layer 3: Command-line arguments (highest priority)
 func ResolveFinishOptions(cfg *Config, branchType string, branchName string, tagOpts *TagOptions, retentionOpts *BranchRetentionOptions, mergeOpts *MergeStrategyOptions, fetch *bool, noVerify *bool, push *bool, pushTag *bool) *ResolvedFinishOptions {
 	branchConfig := cfg.Branches[branchType]
@@ -155,7 +155,7 @@ func resolveFinishShouldTag(cfg *Config, branchConfig BranchConfig, branchType s
 	shouldTag := branchConfig.Tag
 
 	// Layer 2: Command-specific config (notag inverts the default)
-	if notag := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.notag", branchType)); notag {
+	if notag := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.notag", branchType)); notag {
 		shouldTag = false
 	}
 
@@ -191,7 +191,7 @@ func resolveFinishShouldSign(cfg *Config, branchType string, tagOpts *TagOptions
 	shouldSign := false
 
 	// Layer 2: Check command-specific signing config
-	if sign := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.sign", branchType)); sign {
+	if sign := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.sign", branchType)); sign {
 		shouldSign = true
 	}
 
@@ -209,7 +209,7 @@ func resolveFinishSigningKey(cfg *Config, branchType string, tagOpts *TagOptions
 	signingKey := ""
 
 	// Layer 2: Check command-specific signing key
-	if key := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.finish.signingkey", branchType)); key != "" {
+	if key := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.finish.signingkey", branchType)); key != "" {
 		signingKey = key
 	}
 
@@ -242,7 +242,7 @@ func resolveFinishMessageFile(cfg *Config, branchType string, tagOpts *TagOption
 	messageFile := ""
 
 	// Layer 2: Check command-specific message file config
-	if file := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.finish.messagefile", branchType)); file != "" {
+	if file := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.finish.messagefile", branchType)); file != "" {
 		messageFile = file
 	}
 
@@ -260,7 +260,7 @@ func resolveFinishKeep(cfg *Config, branchType string, retentionOpts *BranchRete
 	keep := false
 
 	// Layer 2: Check command-specific config
-	if keepConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.keep", branchType)); keepConfig {
+	if keepConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.keep", branchType)); keepConfig {
 		keep = true
 	}
 
@@ -278,7 +278,7 @@ func resolveFinishKeepRemote(cfg *Config, branchType string, retentionOpts *Bran
 	keepRemote := false
 
 	// Layer 2: Check command-specific config
-	if keepRemoteConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.keepremote", branchType)); keepRemoteConfig {
+	if keepRemoteConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.keepremote", branchType)); keepRemoteConfig {
 		keepRemote = true
 	}
 
@@ -296,7 +296,7 @@ func resolveFinishKeepLocal(cfg *Config, branchType string, retentionOpts *Branc
 	keepLocal := false
 
 	// Layer 2: Check command-specific config
-	if keepLocalConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.keeplocal", branchType)); keepLocalConfig {
+	if keepLocalConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.keeplocal", branchType)); keepLocalConfig {
 		keepLocal = true
 	}
 
@@ -314,7 +314,7 @@ func resolveFinishForceDelete(cfg *Config, branchType string, retentionOpts *Bra
 	forceDelete := false
 
 	// Layer 2: Check command-specific config
-	if forceDeleteConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.force-delete", branchType)); forceDeleteConfig {
+	if forceDeleteConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.force-delete", branchType)); forceDeleteConfig {
 		forceDelete = true
 	}
 
@@ -343,7 +343,7 @@ func getCommandConfigString(cfg *Config, configKey string) string {
 
 // resolveMergeStrategy resolves merge strategy using three-layer precedence.
 // The command segment (e.g. "finish" or "integrate") selects the Layer-2
-// gitflow.<branchType>.<command>.* config namespace.
+// gitpour.<branchType>.<command>.* config namespace.
 //
 // The fast-forward setting is resolved as one tri-state (see resolveFFMode) and
 // returned as two derived booleans: noFF and requireFF. The ff-only value is read
@@ -382,11 +382,11 @@ func resolveFinishRebase(cfg *Config, branchType string, command string, baseStr
 	useRebase := baseStrategy == "rebase"
 
 	// Layer 2: Command-specific config
-	if rebaseConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.rebase", branchType, command)); rebaseConfig {
+	if rebaseConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.rebase", branchType, command)); rebaseConfig {
 		useRebase = true
 	}
 	// Check for explicit no-rebase config
-	if noRebaseConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.no-rebase", branchType, command)); noRebaseConfig {
+	if noRebaseConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.no-rebase", branchType, command)); noRebaseConfig {
 		useRebase = false
 	}
 
@@ -410,11 +410,11 @@ func resolveFinishSquash(cfg *Config, branchType string, command string, baseStr
 	useSquash := baseStrategy == "squash"
 
 	// Layer 2: Command-specific config
-	if squashConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.squash", branchType, command)); squashConfig {
+	if squashConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.squash", branchType, command)); squashConfig {
 		useSquash = true
 	}
 	// Check for explicit no-squash config
-	if noSquashConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.no-squash", branchType, command)); noSquashConfig {
+	if noSquashConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.no-squash", branchType, command)); noSquashConfig {
 		useSquash = false
 	}
 
@@ -438,11 +438,11 @@ func resolveFinishPreserveMerges(cfg *Config, branchType string, command string,
 	preserveMerges := false
 
 	// Layer 2: Command-specific config
-	if preserveConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.preserve-merges", branchType, command)); preserveConfig {
+	if preserveConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.preserve-merges", branchType, command)); preserveConfig {
 		preserveMerges = true
 	}
 	// Check for explicit no-preserve-merges config
-	if noPreserveConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.no-preserve-merges", branchType, command)); noPreserveConfig {
+	if noPreserveConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.no-preserve-merges", branchType, command)); noPreserveConfig {
 		preserveMerges = false
 	}
 
@@ -469,16 +469,16 @@ func resolveFFMode(cfg *Config, branchType string, command string, mergeOpts *Me
 	mode := FFModeFF
 
 	// Layer 2: Command-specific config
-	if noFFConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.no-ff", branchType, command)); noFFConfig {
+	if noFFConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.no-ff", branchType, command)); noFFConfig {
 		mode = FFModeNoFF
 	}
 	// Check for explicit fast-forward config
-	if ffConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.ff", branchType, command)); ffConfig {
+	if ffConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.ff", branchType, command)); ffConfig {
 		mode = FFModeFF
 	}
 	// The fast-forward requirement is a finish-only setting
 	if command == "finish" {
-		if ffOnlyConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.%s.ff-only", branchType, command)); ffOnlyConfig {
+		if ffOnlyConfig := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.%s.ff-only", branchType, command)); ffOnlyConfig {
 			mode = FFModeFFOnly
 		}
 	}
@@ -492,14 +492,14 @@ func resolveFFMode(cfg *Config, branchType string, command string, mergeOpts *Me
 }
 
 // resolveShouldFetch resolves whether to fetch from the remote before a command runs, using the
-// standard precedence: Layer-1 default (per command) -> gitflow.<type>.<cmd>.fetch config ->
+// standard precedence: Layer-1 default (per command) -> gitpour.<type>.<cmd>.fetch config ->
 // CLI flag. Shared by finish (default true) and start (default true).
 func resolveShouldFetch(cfg *Config, branchType, cmd string, defaultFetch bool, fetch *bool) bool {
 	// Layer 1: Command default
 	shouldFetch := defaultFetch
 
 	// Layer 2: Command-specific config (can set true OR false)
-	configKey := fmt.Sprintf("gitflow.%s.%s.fetch", branchType, cmd)
+	configKey := fmt.Sprintf("gitpour.%s.%s.fetch", branchType, cmd)
 	if value, exists := cfg.CommandConfig[configKey]; exists {
 		shouldFetch = ParseBool(value)
 	}
@@ -554,7 +554,7 @@ func resolveFinishNoVerify(cfg *Config, branchType string, noVerify *bool) bool 
 
 	// Layer 2: Check command-specific config
 	// Note: Git config keys are stored lowercase, so we use "noverify" not "noVerify"
-	configKey := fmt.Sprintf("gitflow.%s.finish.noverify", branchType)
+	configKey := fmt.Sprintf("gitpour.%s.finish.noverify", branchType)
 	if value, exists := cfg.CommandConfig[configKey]; exists {
 		skipVerify = ParseBool(value)
 	}
@@ -575,7 +575,7 @@ func resolveFinishPush(cfg *Config, branchType string, push *bool) bool {
 	pushBranches := false
 
 	// Layer 2: Command-specific config
-	if getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.finish.push", branchType)) {
+	if getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.finish.push", branchType)) {
 		pushBranches = true
 	}
 
@@ -589,7 +589,7 @@ func resolveFinishPush(cfg *Config, branchType string, push *bool) bool {
 
 // resolveFinishPushTag resolves whether to push the created tag after finishing.
 // The default follows the resolved branch-push decision so a bare --push (or push
-// config) also pushes the tag. A gitflow.<type>.finish.pushtag key overrides that
+// config) also pushes the tag. A gitpour.<type>.finish.pushtag key overrides that
 // default only when explicitly set (distinguishing "unset" from "false"), and the
 // CLI flag wins over both.
 func resolveFinishPushTag(cfg *Config, branchType string, resolvedPush bool, pushTag *bool) bool {
@@ -598,7 +598,7 @@ func resolveFinishPushTag(cfg *Config, branchType string, resolvedPush bool, pus
 
 	// Layer 2: Command-specific config, honored only when the key exists so an
 	// unset key does not clobber the derived default.
-	if v, ok := cfg.CommandConfig[fmt.Sprintf("gitflow.%s.finish.pushtag", branchType)]; ok {
+	if v, ok := cfg.CommandConfig[fmt.Sprintf("gitpour.%s.finish.pushtag", branchType)]; ok {
 		pushTagVal = ParseBool(v)
 	}
 
@@ -625,7 +625,7 @@ func resolveSquashMessage(fullBranchName string, mergeOpts *MergeStrategyOptions
 
 // ResolveIntegrateOptions resolves all integrate command options using the same
 // three-layer precedence as finish, keyed on the base-branch name and the
-// gitflow.<branch>.integrate.* Layer-2 namespace. It differs from
+// gitpour.<branch>.integrate.* Layer-2 namespace. It differs from
 // ResolveFinishOptions in its defaults: tagging is OFF by default (base branches
 // have no version-derived tag name) and fetching is OFF by default (opt-in).
 // Retention options are irrelevant to integrate and left unset.
@@ -673,7 +673,7 @@ func resolveIntegrateShouldTag(cfg *Config, branchName string, tagOpts *TagOptio
 	shouldTag := false
 
 	// Layer 2: command-specific config
-	if value, exists := cfg.CommandConfig[fmt.Sprintf("gitflow.%s.integrate.tag", branchName)]; exists {
+	if value, exists := cfg.CommandConfig[fmt.Sprintf("gitpour.%s.integrate.tag", branchName)]; exists {
 		shouldTag = ParseBool(value)
 	}
 
@@ -693,7 +693,7 @@ func resolveIntegrateTagName(cfg *Config, branchName string, tagOpts *TagOptions
 	tagName := ""
 
 	// Layer 2: command-specific configured name
-	if name := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.integrate.tagname", branchName)); name != "" {
+	if name := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.integrate.tagname", branchName)); name != "" {
 		tagName = name
 	}
 
@@ -708,7 +708,7 @@ func resolveIntegrateTagName(cfg *Config, branchName string, tagOpts *TagOptions
 // resolveIntegrateShouldSign resolves whether to sign the tag.
 func resolveIntegrateShouldSign(cfg *Config, branchName string, tagOpts *TagOptions) bool {
 	shouldSign := false
-	if sign := getCommandConfigBool(cfg, fmt.Sprintf("gitflow.%s.integrate.sign", branchName)); sign {
+	if sign := getCommandConfigBool(cfg, fmt.Sprintf("gitpour.%s.integrate.sign", branchName)); sign {
 		shouldSign = true
 	}
 	if tagOpts != nil && tagOpts.ShouldSign != nil {
@@ -720,7 +720,7 @@ func resolveIntegrateShouldSign(cfg *Config, branchName string, tagOpts *TagOpti
 // resolveIntegrateSigningKey resolves the signing key.
 func resolveIntegrateSigningKey(cfg *Config, branchName string, tagOpts *TagOptions) string {
 	signingKey := ""
-	if key := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.integrate.signingkey", branchName)); key != "" {
+	if key := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.integrate.signingkey", branchName)); key != "" {
 		signingKey = key
 	}
 	if tagOpts != nil && tagOpts.SigningKey != "" {
@@ -741,7 +741,7 @@ func resolveIntegrateTagMessage(tagName string, tagOpts *TagOptions) string {
 // resolveIntegrateMessageFile resolves the tag message file path.
 func resolveIntegrateMessageFile(cfg *Config, branchName string, tagOpts *TagOptions) string {
 	messageFile := ""
-	if file := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.integrate.messagefile", branchName)); file != "" {
+	if file := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.integrate.messagefile", branchName)); file != "" {
 		messageFile = file
 	}
 	if tagOpts != nil && tagOpts.MessageFile != "" {
@@ -754,7 +754,7 @@ func resolveIntegrateMessageFile(cfg *Config, branchName string, tagOpts *TagOpt
 // Layer-1 default is OFF (opt-in), unlike finish.
 func resolveIntegrateShouldFetch(cfg *Config, branchName string, fetch *bool) bool {
 	shouldFetch := false
-	if value, exists := cfg.CommandConfig[fmt.Sprintf("gitflow.%s.integrate.fetch", branchName)]; exists {
+	if value, exists := cfg.CommandConfig[fmt.Sprintf("gitpour.%s.integrate.fetch", branchName)]; exists {
 		shouldFetch = ParseBool(value)
 	}
 	if fetch != nil {
@@ -768,7 +768,7 @@ func resolveIntegrateMergeMessage(cfg *Config, branchName string, mergeOpts *Mer
 	if mergeOpts != nil && mergeOpts.MergeMessage != nil && *mergeOpts.MergeMessage != "" {
 		return *mergeOpts.MergeMessage
 	}
-	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.integrate.mergemessage", branchName)); msg != "" {
+	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.integrate.mergemessage", branchName)); msg != "" {
 		return msg
 	}
 	return ""
@@ -779,14 +779,14 @@ func resolveIntegrateUpdateMessage(cfg *Config, branchName string, mergeOpts *Me
 	if mergeOpts != nil && mergeOpts.UpdateMessage != nil && *mergeOpts.UpdateMessage != "" {
 		return *mergeOpts.UpdateMessage
 	}
-	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.integrate.updatemessage", branchName)); msg != "" {
+	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.integrate.updatemessage", branchName)); msg != "" {
 		return msg
 	}
 	return ""
 }
 
 // resolveMergeMessage resolves the merge commit message.
-// Layer 2: gitflow.<branchtype>.finish.mergemessage
+// Layer 2: gitpour.<branchtype>.finish.mergemessage
 // Layer 3: --merge-message flag (highest priority)
 func resolveMergeMessage(cfg *Config, branchType string, fullBranchName string, parentBranch string, mergeOpts *MergeStrategyOptions) string {
 	// Layer 3: CLI flag overrides all
@@ -795,7 +795,7 @@ func resolveMergeMessage(cfg *Config, branchType string, fullBranchName string, 
 	}
 
 	// Layer 2: Command-specific config
-	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.finish.mergemessage", branchType)); msg != "" {
+	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.finish.mergemessage", branchType)); msg != "" {
 		return msg
 	}
 
@@ -804,7 +804,7 @@ func resolveMergeMessage(cfg *Config, branchType string, fullBranchName string, 
 }
 
 // resolveUpdateMessage resolves the update commit message for child branch updates.
-// Layer 2: gitflow.<branchtype>.finish.updateMessage
+// Layer 2: gitpour.<branchtype>.finish.updateMessage
 // Layer 3: --update-message flag (highest priority)
 func resolveUpdateMessage(cfg *Config, branchType string, mergeOpts *MergeStrategyOptions) string {
 	// Layer 3: CLI flag overrides all
@@ -813,7 +813,7 @@ func resolveUpdateMessage(cfg *Config, branchType string, mergeOpts *MergeStrate
 	}
 
 	// Layer 2: Command-specific config
-	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitflow.%s.finish.updatemessage", branchType)); msg != "" {
+	if msg := getCommandConfigString(cfg, fmt.Sprintf("gitpour.%s.finish.updatemessage", branchType)); msg != "" {
 		return msg
 	}
 

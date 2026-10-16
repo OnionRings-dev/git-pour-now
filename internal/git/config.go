@@ -34,7 +34,7 @@ func (r *Repo) GetConfig(key string) (string, error) {
 // GetConfigLocal gets a Git config value from the repository's LOCAL config only
 // (.git/config), ignoring global and system scope.
 //
-// Use it for repository-local state git-flow writes itself rather than for
+// Use it for repository-local state git-pour writes itself rather than for
 // settings users configure: the matching write (SetConfig) and removal
 // (UnsetConfigIfPresent) are both local-scoped, so a merged read would report a
 // global or system value that those two can never manage — see
@@ -104,7 +104,7 @@ func (r *Repo) GetConfigLocalIfSet(key string) (value string, found bool, err er
 //
 // A multi-value source is refused rather than migrated: GetConfigLocalIfSet
 // returns an error for one, so this returns BEFORE writing and both names are
-// left exactly as they were. git-flow writes no key this primitive serves as
+// left exactly as they were. git-pour writes no key this primitive serves as
 // multi-value, and UnsetConfigIfPresent already refuses multi-value keys for the
 // same reason — refusing destroys nothing, while guessing at a merge order might.
 func (r *Repo) MoveConfigLocal(oldKey string, newKey string) error {
@@ -489,7 +489,7 @@ func UnsetConfigWithScope(key string, scope ConfigScope, filePath string) error 
 // a per-branch key that has to be spelled identically wherever it is read,
 // written, cleaned up or migrated.
 func BaseBranchKey(branch string) string {
-	return fmt.Sprintf("gitflow.branch.%s.base", branch)
+	return fmt.Sprintf("gitpour.branch.%s.base", branch)
 }
 
 // GetBaseBranch returns the stored base branch for a topic branch.

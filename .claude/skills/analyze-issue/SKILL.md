@@ -12,7 +12,7 @@ Perform detailed analysis of a GitHub issue and write the analysis to the .ai di
 ## Instructions
 
 1. **Fetch Issue Details**
-   - Get issue #$ARGUMENTS from gittower/git-flow-next
+   - Get issue #$ARGUMENTS from OnionRings-dev/git-pour-now
    - Extract: title, description, labels, any linked issues
 
 2. **Create Workflow Directory**
@@ -97,7 +97,7 @@ Based on TESTING_GUIDELINES.md:
 - [ ] <Any clarifications needed from issue author>
 
 ## Next Steps
-1. Create feature branch: `git flow feature start <number>-<slug>`
+1. Create feature branch: `git pour feature start <number>-<slug>`
 2. Create implementation plan: `/create-plan`
 ```
 

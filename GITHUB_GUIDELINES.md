@@ -49,7 +49,7 @@ Not covered here: commit messages (see [COMMIT_GUIDELINES.md](COMMIT_GUIDELINES.
 
 Avoid:
 
-> Thanks for the detailed report and clean reproduction — this is a real bug. On a fresh repo without a configured git identity, `git flow init` fails while creating the initial commit and leaves the config half-written, which is why the second run reports "already initialized." I've turned it into a spec (#131) and split the two follow-ups into #125 and #126.
+> Thanks for the detailed report and clean reproduction — this is a real bug. On a fresh repo without a configured git identity, `git pour init` fails while creating the initial commit and leaves the config half-written, which is why the second run reports "already initialized." I've turned it into a spec (#131) and split the two follow-ups into #125 and #126.
 
 Prefer:
 
@@ -67,14 +67,14 @@ Prefer:
 
 > Two changes needed before merge:
 >
-> - `UnsetConfigSection` runs after the error return, so an early-exit path still leaves the orphaned `gitflow.branch.qa.*` section — move it before the return.
+> - `UnsetConfigSection` runs after the error return, so an early-exit path still leaves the orphaned `gitpour.branch.qa.*` section — move it before the return.
 > - Scenario 3 asserts the retry exits 0 but not that the branch was created — add that assertion.
 >
 > Nits inline.
 
 **Inline diff comment** (concise, one finding, actionable):
 
-> This writes the config before `CreateBranch`, so a creation failure here leaves an orphaned `gitflow.branch.qa.*` section. Roll back the write on failure so a failed add leaves nothing behind.
+> This writes the config before `CreateBranch`, so a creation failure here leaves an orphaned `gitpour.branch.qa.*` section. Roll back the write on failure so a failed add leaves nothing behind.
 
 ## See Also
 

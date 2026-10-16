@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
 )
 
 // DeleteCommand handles the deletion of a topic branch
@@ -15,8 +15,8 @@ func DeleteCommand(branchType string, name string, force *bool, remote *bool, fe
 	repo := mustOpenRepo()
 	if err := executeDelete(repo, branchType, name, force, remote, fetch, worktreeOpts); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -27,12 +27,12 @@ func DeleteCommand(branchType string, name string, force *bool, remote *bool, fe
 
 // executeDelete performs the actual branch deletion logic and returns any errors
 func executeDelete(repo *git.Repo, branchType string, name string, force *bool, remote *bool, fetch *bool, worktreeOpts WorktreeCleanupOptions) error {
-	// Validate that git-flow is initialized before resolving branch types.
+	// Validate that git-pour is initialized before resolving branch types.
 	// LoadConfig falls back to DefaultConfig when uninitialized, so this gate
 	// must run first or the default branch types mask the uninitialized state.
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}
@@ -112,7 +112,7 @@ func performDelete(repo *git.Repo, branchType, name, fullBranchName string, bran
 	if fetch != nil {
 		shouldFetch = *fetch
 	} else {
-		configKey := fmt.Sprintf("gitflow.%s.delete.fetch", branchType)
+		configKey := fmt.Sprintf("gitpour.%s.delete.fetch", branchType)
 		fetchConfig, err := repo.GetConfig(configKey)
 		if err == nil && config.ParseBool(fetchConfig) {
 			shouldFetch = true
@@ -126,7 +126,7 @@ func performDelete(repo *git.Repo, branchType, name, fullBranchName string, bran
 		forceDelete = *force
 	} else {
 		// Check config if not specified
-		configKey := fmt.Sprintf("gitflow.%s.delete.force", branchType)
+		configKey := fmt.Sprintf("gitpour.%s.delete.force", branchType)
 		forceConfig, err := repo.GetConfig(configKey)
 		if err == nil && config.ParseBool(forceConfig) {
 			forceDelete = true
@@ -140,7 +140,7 @@ func performDelete(repo *git.Repo, branchType, name, fullBranchName string, bran
 		deleteRemote = *remote
 	} else {
 		// Check config if not specified
-		configKey := fmt.Sprintf("gitflow.branch.%s.deleteRemote", branchType)
+		configKey := fmt.Sprintf("gitpour.branch.%s.deleteRemote", branchType)
 		remoteConfig, err := repo.GetConfig(configKey)
 		if err == nil && config.ParseBool(remoteConfig) {
 			deleteRemote = true
@@ -205,7 +205,7 @@ func performDelete(repo *git.Repo, branchType, name, fullBranchName string, bran
 	}
 
 	// Confirm the branch can actually be deleted BEFORE freeing its worktree
-	// (#175): freeing is a one-way trip (a git-flow-created worktree is
+	// (#175): freeing is a one-way trip (a git-pour-created worktree is
 	// removed outright; even a hand-made one, detached, does not un-detach
 	// itself), and 'git branch -d' below would otherwise be the first thing
 	// to notice a clean-but-unmerged branch — by which point the worktree is

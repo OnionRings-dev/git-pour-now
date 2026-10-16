@@ -1,6 +1,13 @@
 # Testing Guidelines
 
-This document outlines the testing conventions and patterns used in the git-flow-next project.
+The default git-pour-now workflow uses `main`, `feature/`, and temporary
+`prerelease/<version>` branches. Stable tags are created on main; prerelease tags
+on the matching prerelease branch. No develop branch is created. Examples below
+using develop/release/hotfix belong to the explicit `--preset=classic` workflow.
+The test suite requests that preset explicitly for inherited GitFlow scenarios.
+
+
+This document outlines the testing conventions and patterns used in the git-pour-now project.
 
 > **Important**: When implementing tests, you MUST read [GIT_TEST_SCENARIOS.md](GIT_TEST_SCENARIOS.md) for detailed instructions on setting up Git test scenarios (merge conflicts, remotes, state verification). That document contains essential patterns for creating realistic test conditions.
 
@@ -41,7 +48,7 @@ func TestStartWithFetchFlag(t *testing.T)
 ```go
 // TestFinishWithMergeConflict tests the behavior when finishing a branch with merge conflicts.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds conflicting changes to both feature and develop branches
 // 4. Attempts to finish the feature branch
@@ -54,7 +61,7 @@ func TestFinishWithMergeConflict(t *testing.T) {
 ### Additional Comment Guidelines
 
 - **Be specific**: Include exact branch names, commands, and expected results
-- **Number all steps**: Use sequential numbering (1, 2, 3...)  
+- **Number all steps**: Use sequential numbering (1, 2, 3...)
 - **Include verification**: Always specify what is being verified
 - **Use active voice**: "Creates a branch" not "A branch is created"
 - **Match test structure**: Comments should reflect actual test implementation
@@ -64,16 +71,16 @@ func TestFinishWithMergeConflict(t *testing.T) {
 ```go
 // TestConfigAddBase tests adding base branch configurations.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Adds various base branches with different configurations  
+// 1. Sets up a test repository and initializes git-pour
+// 2. Adds various base branches with different configurations
 // 3. Verifies branches are created and configuration is saved correctly
 // 4. Tests error conditions like duplicate branches and invalid parents
 func TestConfigAddBase(t *testing.T) { ... }
 
 // TestStartFeatureBranch tests the start command for feature branches.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Runs 'git flow feature start my-feature'
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Runs 'git pour feature start my-feature'
 // 3. Verifies feature/my-feature branch is created
 // 4. Verifies branch is based on develop branch
 func TestStartFeatureBranch(t *testing.T) { ... }
@@ -98,7 +105,7 @@ func TestMergeStrategyConfigHierarchy(t *testing.T) {
         {"command_overrides_branch", "merge", "rebase=true", "", "rebase"},
         {"flag_overrides_config", "merge", "rebase=true", "--no-rebase", "merge"},
     }
-    
+
     for _, tc := range testCases {
         t.Run(tc.name, func(t *testing.T) {
             // Test implementation...
@@ -122,7 +129,7 @@ func TestMergeStrategyBranchDefault(t *testing.T) {
 // TestMergeStrategyCommandConfigOverride tests command config overriding branch default.
 // Steps:
 // 1. Sets up repository with branch configured for merge strategy
-// 2. Sets gitflow.feature.finish.rebase=true in config
+// 2. Sets gitpour.feature.finish.rebase=true in config
 // 3. Runs finish command without flags
 // 4. Verifies rebase strategy was used instead of merge
 func TestMergeStrategyCommandConfigOverride(t *testing.T) {
@@ -146,7 +153,7 @@ func TestMergeStrategyFlagOverridesConfig(t *testing.T) {
 3. **Maintainable test suite** - Easy to modify, disable, or extend individual test scenarios
 4. **Better test names** - Function names clearly describe what is being tested
 5. **Proper test isolation** - Each test sets up exactly what it needs, nothing more
-6. **Follows git-flow-next philosophy** - Explicit and readable over clever and compact
+6. **Follows git-pour-now philosophy** - Explicit and readable over clever and compact
 
 ### Exception: Helper Functions
 
@@ -164,7 +171,7 @@ func TestValidateBranchName(t *testing.T) {
         {"invalid_spaces", "feature branch", false},
         {"invalid_colon", "feature:branch", false},
     }
-    
+
     for _, tc := range testCases {
         t.Run(tc.name, func(t *testing.T) {
             result := util.ValidateBranchName(tc.input)
@@ -182,15 +189,15 @@ All tests use temporary Git repositories created through test utilities.
 
 ### Default Branch Configuration
 
-When using `git flow init --defaults`, the following branches and settings are configured:
+When using `git pour init --defaults`, the following branches and settings are configured:
 
 #### Base Branches
 - **main**: Production branch (root branch)
 - **develop**: Integration branch (auto-updates from main)
 
-#### Topic Branch Types  
+#### Topic Branch Types
 - **feature**: Prefix `feature/`, parent `develop`, starts from `develop`
-- **release**: Prefix `release/`, parent `main`, starts from `develop` 
+- **release**: Prefix `release/`, parent `main`, starts from `develop`
 - **hotfix**: Prefix `hotfix/`, parent `main`, starts from `main`
 
 #### Default Merge Strategies
@@ -208,9 +215,9 @@ When using `git flow init --defaults`, the following branches and settings are c
 
 ### Testing with Default Configuration
 
-- **Use git-flow defaults by default**: Initialize repositories with `git flow init --defaults`
+- **Use git-pour defaults by default**: Initialize repositories with `git pour init --defaults`
 - **Use feature branches for topic branch testing**: Feature branches are the most common topic branch type and should be used for general topic branch functionality tests
-- **Only create standalone branches when required**: If your test specifically needs a non-git-flow branch or custom configuration, create it explicitly
+- **Only create standalone branches when required**: If your test specifically needs a non-git-pour branch or custom configuration, create it explicitly
 - **Adjust configuration when needed**: Use `git config` commands to modify behavior for specific test scenarios
 
 ```go
@@ -218,13 +225,13 @@ When using `git flow init --defaults`, the following branches and settings are c
 func TestExample(t *testing.T) {
     dir := testutil.SetupTestRepo(t)
     defer testutil.CleanupTestRepo(t, dir)
-    
+
     // Initialize with defaults - creates main, develop, and configures feature/release/hotfix
     output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
     if err != nil {
-        t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+        t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
     }
-    
+
     // Use feature branches for topic branch testing
     output, err = testutil.RunGitFlow(t, dir, "feature", "start", "test-branch")
     // ... test implementation
@@ -234,19 +241,19 @@ func TestExample(t *testing.T) {
 func TestFeatureFinishWithRebase(t *testing.T) {
     dir := testutil.SetupTestRepo(t)
     defer testutil.CleanupTestRepo(t, dir)
-    
+
     // Initialize with defaults
     output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
     if err != nil {
-        t.Fatalf("Failed to initialize git-flow: %v", err)
+        t.Fatalf("Failed to initialize git-pour: %v", err)
     }
-    
+
     // Modify merge strategy for this test
-    _, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.rebase", "true")
+    _, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.rebase", "true")
     if err != nil {
         t.Fatalf("Failed to configure rebase strategy: %v", err)
     }
-    
+
     // Now test with the modified configuration
     output, err = testutil.RunGitFlow(t, dir, "feature", "start", "rebase-test")
     // ... test implementation
@@ -260,13 +267,13 @@ func TestExample(t *testing.T) {
     // Setup temporary repository
     dir := testutil.SetupTestRepo(t)
     defer testutil.CleanupTestRepo(t, dir)
-    
-    // Initialize git-flow with defaults
+
+    // Initialize git-pour with defaults
     output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
     if err != nil {
-        t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+        t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
     }
-    
+
     // Test implementation...
 }
 ```
@@ -278,7 +285,7 @@ Available in `test/testutil/git.go`:
 - `SetupTestRepo(t *testing.T) string` - Creates temporary Git repository
 - `CleanupTestRepo(t *testing.T, dir string)` - Removes temporary repository
 - `RunGit(t *testing.T, dir string, args ...string)` - Executes Git commands
-- `RunGitFlow(t *testing.T, dir string, args ...string)` - Executes git-flow commands
+- `RunGitFlow(t *testing.T, dir string, args ...string)` - Executes git-pour commands
 - `WriteFile(t *testing.T, dir string, name string, content string)` - Creates files
 - `BranchExists(t *testing.T, dir string, branch string) bool` - Checks branch existence
 - `GetCurrentBranch(t *testing.T, dir string) string` - Gets current branch name
@@ -347,7 +354,7 @@ if state.Action != "finish" {
 
 ### The Problem
 
-When executing Git or git-flow commands in tests, the commands run in the **current working directory** by default. If you don't explicitly set the working directory, commands will execute in the test runner's directory (e.g., `test/cmd/`) instead of your temporary test repository. This causes:
+When executing Git or git-pour commands in tests, the commands run in the **current working directory** by default. If you don't explicitly set the working directory, commands will execute in the test runner's directory (e.g., `test/cmd/`) instead of your temporary test repository. This causes:
 
 - Commands operating on the wrong repository
 - Flaky tests that depend on global state
@@ -458,12 +465,12 @@ For detailed examples of these anti-patterns and their solutions, see [GIT_TEST_
 
 ### Test Binary
 
-The `test/cmd` integration tests execute the git-flow binary as a subprocess. `TestMain` (in `test/cmd/main_test.go`) builds a fresh binary into a temporary directory via `testutil.BuildGitFlow()` before any test runs, so `go test ./...` is self-sufficient — no manual build step is required, and tests can never silently run against a stale binary.
+The `test/cmd` integration tests execute the git-pour binary as a subprocess. `TestMain` (in `test/cmd/main_test.go`) builds a fresh binary into a temporary directory via `testutil.BuildGitFlow()` before any test runs, so `go test ./...` is self-sufficient — no manual build step is required, and tests can never silently run against a stale binary.
 
-To test a specific prebuilt binary instead (e.g. a release artifact), set the `GIT_FLOW_PATH` environment variable:
+To test a specific prebuilt binary instead (e.g. a release artifact), set the `GIT_POUR_PATH` environment variable:
 
 ```bash
-GIT_FLOW_PATH=/path/to/git-flow go test ./test/cmd/
+GIT_POUR_PATH=/path/to/git-pour go test ./test/cmd/
 ```
 
 ### Required Shells
@@ -472,7 +479,7 @@ The shell-init wrapper tests execute the emitted scripts against their real inte
 
 ### CRITICAL: Use Test Helpers, Not Bash Piping
 
-**IMPORTANT**: When running git-flow commands that require interactive input, always use the `runGitFlowWithInput` helper function instead of bash piping.
+**IMPORTANT**: When running git-pour commands that require interactive input, always use the `runGitFlowWithInput` helper function instead of bash piping.
 
 #### ❌ BAD: Using Bash Piping
 
@@ -497,7 +504,7 @@ output, err := runGitFlowWithInput(t, dir, input, "init")
 ```
 
 **Benefits:**
-1. Direct stdin connection to the git-flow process
+1. Direct stdin connection to the git-pour process
 2. Consistent working directory handling via `cmd.Dir`
 3. Reliable and deterministic test execution
 
@@ -514,7 +521,7 @@ func RunGitFlow(t *testing.T, dir string, args ...string) (string, error) {
 ```
 
 **Why this matters:**
-- Git commands run by the git-flow binary inherit the working directory
+- Git commands run by the git-pour binary inherit the working directory
 - Without proper `cmd.Dir` setting, commands may run in the wrong repository
 - This can cause tests to pass locally but fail in CI, or vice versa
 

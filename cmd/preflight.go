@@ -4,9 +4,9 @@ import (
 	goerrors "errors"
 	"fmt"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
 // preflightOptions tunes runFetchSyncPreflight for a caller's pre-merge guard. The zero value is the
@@ -35,7 +35,7 @@ type preflightOptions struct {
 	fetchFailureNonFatal bool
 
 	// operation names the command driving the preflight ("finish" or "delete"). It is propagated
-	// into BranchNotInSyncError so a sync abort suggests the right `git flow <type> <op> --force`
+	// into BranchNotInSyncError so a sync abort suggests the right `git pour <type> <op> --force`
 	// command. Empty renders as finish (the zero-value default).
 	operation string
 

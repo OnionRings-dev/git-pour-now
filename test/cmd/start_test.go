@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestStartFeatureBranch tests the start command for feature branches
@@ -16,16 +16,16 @@ func TestStartFeatureBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow feature start my-feature
+	// Run git-pour feature start my-feature
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "my-feature")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
@@ -52,16 +52,16 @@ func TestStartReleaseAndHotfixBranches(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow release start 1.0.0
+	// Run git-pour release start 1.0.0
 	output, err = testutil.RunGitFlow(t, dir, "release", "start", "1.0.0")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow release start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour release start: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
@@ -74,10 +74,10 @@ func TestStartReleaseAndHotfixBranches(t *testing.T) {
 		t.Errorf("Expected 'release/1.0.0' branch to exist")
 	}
 
-	// Run git-flow hotfix start 1.0.1
+	// Run git-pour hotfix start 1.0.1
 	output, err = testutil.RunGitFlow(t, dir, "hotfix", "start", "1.0.1")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow hotfix start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour hotfix start: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
@@ -98,17 +98,17 @@ func TestStartWithCustomConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with custom configuration
-	input := "custom-main\ncustom-dev\nf/\nr/\nh/\ns/\n"
+	// Initialize git-pour with custom configuration
+	input := "custom-main\nf/\n"
 	output, err := testutil.RunGitFlowWithInput(t, dir, input, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow feature start my-feature
+	// Run git-pour feature start my-feature
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "my-feature")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
@@ -121,10 +121,10 @@ func TestStartWithCustomConfig(t *testing.T) {
 		t.Errorf("Expected 'f/my-feature' branch to exist")
 	}
 
-	// Check if the branch is based on custom-dev
-	_, err = testutil.RunGit(t, dir, "merge-base", "--is-ancestor", "custom-dev", "f/my-feature")
+	// Check if the branch is based on custom-main
+	_, err = testutil.RunGit(t, dir, "merge-base", "--is-ancestor", "custom-main", "f/my-feature")
 	if err != nil {
-		t.Errorf("Expected 'f/my-feature' to be based on 'custom-dev'")
+		t.Errorf("Expected 'f/my-feature' to be based on 'custom-main'")
 	}
 }
 
@@ -135,10 +135,10 @@ func TestStartWithExistingBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -176,10 +176,10 @@ func TestStartWithNonExistentStartPoint(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Delete the develop branch to make it non-existent
@@ -221,11 +221,11 @@ func TestStartWithNoStartPoint(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with custom configuration
-	input := "main\ndevelop\nf/\nr/\nh/\ns/\n"
+	// Initialize git-pour with custom configuration
+	input := "main\nf/\n"
 	output, err := testutil.RunGitFlowWithInput(t, dir, input, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -234,9 +234,9 @@ func TestStartWithNoStartPoint(t *testing.T) {
 		t.Fatalf("Failed to create feature branch: %v\nOutput: %s", err, output)
 	}
 
-	// Verify that the branch was created from develop (parent branch)
-	if !strings.Contains(output, "Created branch 'f/test-feature' from 'develop'") {
-		t.Errorf("Expected branch to be created from 'develop', got: %s", output)
+	// Verify that the branch was created from main (parent branch)
+	if !strings.Contains(output, "Created branch 'f/test-feature' from 'main'") {
+		t.Errorf("Expected branch to be created from 'main', got: %s", output)
 	}
 
 	// Verify that the branch exists
@@ -248,10 +248,10 @@ func TestStartWithNoStartPoint(t *testing.T) {
 		t.Errorf("Expected branch 'f/test-feature' to exist, got: %s", output)
 	}
 
-	// Get the commit hash of develop
-	developHash, err := testutil.RunGit(t, dir, "rev-parse", "develop")
+	// Get the commit hash of main
+	mainHash, err := testutil.RunGit(t, dir, "rev-parse", "main")
 	if err != nil {
-		t.Fatalf("Failed to get develop hash: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to get main hash: %v\nOutput: %s", err, output)
 	}
 
 	// Get the commit hash of the feature branch
@@ -260,9 +260,9 @@ func TestStartWithNoStartPoint(t *testing.T) {
 		t.Fatalf("Failed to get feature hash: %v\nOutput: %s", err, output)
 	}
 
-	// Verify that the feature branch was created from develop
-	if developHash != featureHash {
-		t.Errorf("Expected feature branch to be at the same commit as develop")
+	// Verify that the feature branch was created from main
+	if mainHash != featureHash {
+		t.Errorf("Expected feature branch to be at the same commit as main")
 	}
 }
 
@@ -273,10 +273,10 @@ func TestStartWithEmptyBranchName(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to create a feature branch with empty name
@@ -308,10 +308,10 @@ func TestStartWithInvalidBranchType(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to start a branch with an invalid type
@@ -326,34 +326,34 @@ func TestStartWithInvalidBranchType(t *testing.T) {
 	}
 
 	// Verify error message matches Cobra's unknown command error
-	expectedError := "Error: unknown command \"invalid\" for \"git-flow\""
+	expectedError := "Error: unknown command \"invalid\" for \"git-pour\""
 	if !strings.Contains(output, expectedError) {
 		t.Errorf("Expected error message to contain '%s', got: %s", expectedError, output)
 	}
 
 	// Also verify that Cobra's help suggestion is included
-	if !strings.Contains(output, "Run 'git-flow --help' for usage") {
+	if !strings.Contains(output, "Run 'git-pour --help' for usage") {
 		t.Errorf("Expected error message to contain help suggestion, got: %s", output)
 	}
 }
 
-// TestStartWithoutInitialization tests the start command without git-flow initialization
+// TestStartWithoutInitialization tests the start command without git-pour initialization
 func TestStartWithoutInitialization(t *testing.T) {
 	t.Parallel()
 	// Setup
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Verify git-flow is not initialized
-	output, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.initialized")
+	// Verify git-pour is not initialized
+	output, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.initialized")
 	if err == nil {
-		t.Error("Expected git-flow to not be initialized, but it is")
+		t.Error("Expected git-pour to not be initialized, but it is")
 	}
 
-	// Try to create a feature branch without initializing git-flow
+	// Try to create a feature branch without initializing git-pour
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "my-feature")
 	if err == nil {
-		t.Error("Expected command to fail without git-flow initialization, but it succeeded")
+		t.Error("Expected command to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -366,7 +366,7 @@ func TestStartWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	expectedError := "Error: git flow is not initialized"
+	expectedError := "Error: git pour is not initialized"
 	if !strings.Contains(output, expectedError) {
 		t.Errorf("Expected error message to contain '%s', got: %s", expectedError, output)
 	}
@@ -376,10 +376,10 @@ func TestStartWithoutInitialization(t *testing.T) {
 		t.Error("Expected no branch to be created, but 'feature/my-feature' exists")
 	}
 
-	// Verify git-flow is still not initialized
-	_, err = testutil.RunGit(t, dir, "config", "--get", "gitflow.initialized")
+	// Verify git-pour is still not initialized
+	_, err = testutil.RunGit(t, dir, "config", "--get", "gitpour.initialized")
 	if err == nil {
-		t.Error("Expected git-flow to still not be initialized after failed command")
+		t.Error("Expected git-pour to still not be initialized after failed command")
 	}
 
 	// Verify only the default branch exists
@@ -419,11 +419,11 @@ func TestStartWithoutInitialization(t *testing.T) {
 // develop. That branching behavior is owned by #134 and is out of #98's scope; this mirrors the
 // assertion convention of TestStartFetchesAdvancedStartPoint (config-forced path).
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow (NO fetch config, NO flag)
+// 1. Sets up a test repository with a remote and initializes git-pour (NO fetch config, NO flag)
 // 2. Records OLD = the primary's origin/develop
 // 3. Advances develop from a second clone (commit + push); records NEW = the bare remote develop
 // 4. Asserts the primary's origin/develop is still OLD and the bare develop is NEW (out of sync)
-// 5. Runs 'git flow feature start'
+// 5. Runs 'git pour feature start'
 // 6. Verifies a "Fetching" line, the branch is created, and origin/develop now resolves to NEW
 func TestStartFetchesByDefault(t *testing.T) {
 	t.Parallel()
@@ -480,7 +480,7 @@ func TestStartFetchesByDefault(t *testing.T) {
 	// Run start with no fetch config and no flag — the new default should drive the fetch
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "advanced-default")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify fetch ran by default
@@ -506,15 +506,15 @@ func TestStartFetchesByDefault(t *testing.T) {
 // TestStartWithFetchFlag tests that the --fetch flag works
 func TestStartWithFetchFlag(t *testing.T) {
 	t.Parallel()
-	// Setup test repo with remote (includes git-flow init)
+	// Setup test repo with remote (includes git-pour init)
 	dir, remoteDir := testutil.SetupTestRepoWithRemote(t)
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	// Run git-flow feature start with the fetch flag
+	// Run git-pour feature start with the fetch flag
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "fetch-test", "--fetch")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify that output contains fetching info
@@ -523,30 +523,30 @@ func TestStartWithFetchFlag(t *testing.T) {
 	}
 }
 
-// TestStartWithFetchConfig tests Scenario 20: gitflow.<topic>.start.fetch=true drives a fetch.
+// TestStartWithFetchConfig tests Scenario 20: gitpour.<topic>.start.fetch=true drives a fetch.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Sets gitflow.feature.start.fetch=true
-// 3. Runs 'git flow feature start' with no explicit fetch flag
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Sets gitpour.feature.start.fetch=true
+// 3. Runs 'git pour feature start' with no explicit fetch flag
 // 4. Verifies a "Fetching" line appears
 // 5. Verifies the feature branch is created
 func TestStartWithFetchConfig(t *testing.T) {
 	t.Parallel()
-	// Setup test repo with remote (includes git-flow init)
+	// Setup test repo with remote (includes git-pour init)
 	dir, remoteDir := testutil.SetupTestRepoWithRemote(t)
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// Set the config to enable fetch
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "true")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
-	// Run git-flow feature start without explicit fetch flag
+	// Run git-pour feature start without explicit fetch flag
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "config-fetch-test")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify that output contains fetching info
@@ -564,9 +564,9 @@ func TestStartWithFetchConfig(t *testing.T) {
 // Uses a remote-backed fixture so the absence of "Fetching" reflects the flag overriding the config,
 // not a missing remote.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Sets gitflow.feature.start.fetch=true
-// 3. Runs 'git flow feature start' with --no-fetch
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Sets gitpour.feature.start.fetch=true
+// 3. Runs 'git pour feature start' with --no-fetch
 // 4. Verifies no "Fetching" line appears (flag overrides config)
 // 5. Verifies the feature branch is created
 func TestStartWithNoFetchOverridesConfig(t *testing.T) {
@@ -577,15 +577,15 @@ func TestStartWithNoFetchOverridesConfig(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// Set the config to enable fetch
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "true")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
-	// Run git-flow feature start with --no-fetch to override config
+	// Run git-pour feature start with --no-fetch to override config
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "no-fetch-override-test", "--no-fetch")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify that output does not contain fetching info
@@ -606,10 +606,10 @@ func TestStartWithCustomRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Add a remote with custom name
@@ -620,16 +620,16 @@ func TestStartWithCustomRemote(t *testing.T) {
 	}
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	// Set custom remote name in gitflow config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.origin", customRemote)
+	// Set custom remote name in gitpour config
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.origin", customRemote)
 	if err != nil {
 		t.Fatalf("Failed to set custom remote: %v", err)
 	}
 
-	// Run git-flow feature start with the fetch flag
+	// Run git-pour feature start with the fetch flag
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "custom-remote-test", "--fetch")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify that output contains fetching from custom remote
@@ -640,9 +640,9 @@ func TestStartWithCustomRemote(t *testing.T) {
 
 // TestStartStoresBaseBranch tests that the start command stores the base branch in git config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Runs 'git flow feature start test-base-storage'
-// 3. Verifies that gitflow.branch.feature/test-base-storage.base is set to 'develop'
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Runs 'git pour feature start test-base-storage'
+// 3. Verifies that gitpour.branch.feature/test-base-storage.base is set to 'develop'
 // 4. Tests with release branch to verify base is set to 'develop' (start point)
 func TestStartStoresBaseBranch(t *testing.T) {
 	t.Parallel()
@@ -650,10 +650,10 @@ func TestStartStoresBaseBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch
@@ -663,7 +663,7 @@ func TestStartStoresBaseBranch(t *testing.T) {
 	}
 
 	// Verify base branch is stored in config
-	baseConfig, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/test-base-storage.base")
+	baseConfig, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/test-base-storage.base")
 	if err != nil {
 		t.Fatalf("Failed to get base config: %v", err)
 	}
@@ -680,7 +680,7 @@ func TestStartStoresBaseBranch(t *testing.T) {
 	}
 
 	// Verify release base branch is stored as 'develop' (start point)
-	releaseBaseConfig, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.release/1.0.0.base")
+	releaseBaseConfig, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.release/1.0.0.base")
 	if err != nil {
 		t.Fatalf("Failed to get release base config: %v", err)
 	}
@@ -693,9 +693,9 @@ func TestStartStoresBaseBranch(t *testing.T) {
 
 // TestStartFeatureBranchNoRemoteFetchSkipped tests that start skips fetch silently when no remote exists.
 // Steps:
-// 1. Sets up a test repository (no remote) and initializes git-flow with defaults
-// 2. Enables fetch for start via git config gitflow.feature.start.fetch true
-// 3. Runs 'git flow feature start no-remote-test'
+// 1. Sets up a test repository (no remote) and initializes git-pour with defaults
+// 2. Enables fetch for start via git config gitpour.feature.start.fetch true
+// 3. Runs 'git pour feature start no-remote-test'
 // 4. Verifies output does NOT contain "Fetching" (fetch skipped silently)
 // 5. Verifies output does NOT contain "does not appear to be a git repository"
 // 6. Verifies feature/no-remote-test branch is created successfully
@@ -705,14 +705,14 @@ func TestStartFeatureBranchNoRemoteFetchSkipped(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Enable fetch for start
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "true")
 	if err != nil {
 		t.Fatalf("Failed to set fetch config: %v", err)
 	}
@@ -742,11 +742,11 @@ func TestStartFeatureBranchNoRemoteFetchSkipped(t *testing.T) {
 // The advance is made from a second clone so the primary's origin/develop is not updated before
 // start runs — otherwise the test would pass without ever fetching.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow; enables start.fetch
+// 1. Sets up a test repository with a remote and initializes git-pour; enables start.fetch
 // 2. Records OLD = the primary's origin/develop
 // 3. Advances develop from a second clone (commit + push); records NEW = the bare remote develop
 // 4. Asserts the primary's origin/develop is still OLD and the bare develop is NEW (out of sync)
-// 5. Runs 'git flow feature start'
+// 5. Runs 'git pour feature start'
 // 6. Verifies a "Fetching" line, the branch is created, and origin/develop now resolves to NEW
 func TestStartFetchesAdvancedStartPoint(t *testing.T) {
 	t.Parallel()
@@ -755,7 +755,7 @@ func TestStartFetchesAdvancedStartPoint(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// Enable fetch for start
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "true"); err != nil {
 		t.Fatalf("Failed to set fetch config: %v", err)
 	}
 
@@ -808,7 +808,7 @@ func TestStartFetchesAdvancedStartPoint(t *testing.T) {
 	// Run start
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "advanced-test")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify fetch ran
@@ -835,9 +835,9 @@ func TestStartFetchesAdvancedStartPoint(t *testing.T) {
 // unreachable remote, the fetch failure is a non-fatal warning and the branch is still created.
 // RunGitFlow uses CombinedOutput, so the warning is asserted on the combined output.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow; enables start.fetch
+// 1. Sets up a test repository with a remote and initializes git-pour; enables start.fetch
 // 2. Points origin at a nonexistent path
-// 3. Runs 'git flow feature start'
+// 3. Runs 'git pour feature start'
 // 4. Verifies the command still succeeds, the combined output contains a Warning, and the branch exists
 func TestStartUnreachableRemoteWarnsAndCreates(t *testing.T) {
 	t.Parallel()
@@ -845,7 +845,7 @@ func TestStartUnreachableRemoteWarnsAndCreates(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "true"); err != nil {
 		t.Fatalf("Failed to set fetch config: %v", err)
 	}
 	if _, err := testutil.RunGit(t, dir, "remote", "set-url", "origin", "./nonexistent-remote-repo.git"); err != nil {
@@ -869,13 +869,13 @@ func TestStartUnreachableRemoteWarnsAndCreates(t *testing.T) {
 }
 
 // TestStartFetchConfigFalseSkipsFetch tests Scenario 2 (#98): an explicit
-// gitflow.<type>.start.fetch=false opt-out wins over the new fetch-on-by-default.
+// gitpour.<type>.start.fetch=false opt-out wins over the new fetch-on-by-default.
 // Uses a remote-backed fixture so the absence of "Fetching" reflects the config, not a
 // missing remote.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Sets gitflow.feature.start.fetch=false; no flag
-// 3. Runs 'git flow feature start'
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Sets gitpour.feature.start.fetch=false; no flag
+// 3. Runs 'git pour feature start'
 // 4. Verifies no "Fetching from" line appears (config false wins over the default)
 // 5. Verifies the feature branch is created
 func TestStartFetchConfigFalseSkipsFetch(t *testing.T) {
@@ -885,13 +885,13 @@ func TestStartFetchConfigFalseSkipsFetch(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// Explicit opt-out via config
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "false"); err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "config-false-test")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify no fetch (config false overrides the new default)
@@ -910,8 +910,8 @@ func TestStartFetchConfigFalseSkipsFetch(t *testing.T) {
 // Uses a remote-backed fixture so the absence of "Fetching" reflects the flag, not a missing
 // remote.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow (no fetch config)
-// 2. Runs 'git flow feature start ... --no-fetch'
+// 1. Sets up a test repository with a remote and initializes git-pour (no fetch config)
+// 2. Runs 'git pour feature start ... --no-fetch'
 // 3. Verifies no "Fetching from" line appears (flag overrides the default)
 // 4. Verifies the feature branch is created
 func TestStartNoFetchFlagSkipsByDefault(t *testing.T) {
@@ -922,7 +922,7 @@ func TestStartNoFetchFlagSkipsByDefault(t *testing.T) {
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "no-fetch-flag-test", "--no-fetch")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify no fetch (--no-fetch overrides the new default)
@@ -937,11 +937,11 @@ func TestStartNoFetchFlagSkipsByDefault(t *testing.T) {
 }
 
 // TestStartFetchFlagOverridesConfigFalse tests Scenario 4 (#98): --fetch beats
-// gitflow.<type>.start.fetch=false, confirming the new default did not disturb precedence.
+// gitpour.<type>.start.fetch=false, confirming the new default did not disturb precedence.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Sets gitflow.feature.start.fetch=false
-// 3. Runs 'git flow feature start ... --fetch'
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Sets gitpour.feature.start.fetch=false
+// 3. Runs 'git pour feature start ... --fetch'
 // 4. Verifies a "Fetching from" line appears (flag beats config false)
 // 5. Verifies the feature branch is created
 func TestStartFetchFlagOverridesConfigFalse(t *testing.T) {
@@ -950,13 +950,13 @@ func TestStartFetchFlagOverridesConfigFalse(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "false"); err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "flag-over-config-test", "--fetch")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	// Verify fetch ran (flag beats config false)
@@ -975,8 +975,8 @@ func TestStartFetchFlagOverridesConfigFalse(t *testing.T) {
 // the new default never turns into a "not a git repository" error in local-only repos.
 // This is the no-config sibling of TestStartFeatureBranchNoRemoteFetchSkipped.
 // Steps:
-// 1. Sets up a test repository WITHOUT a remote and initializes git-flow with defaults
-// 2. Runs 'git flow feature start' (NO fetch config — relies on the new default)
+// 1. Sets up a test repository WITHOUT a remote and initializes git-pour with defaults
+// 2. Runs 'git pour feature start' (NO fetch config — relies on the new default)
 // 3. Verifies output does NOT contain "Fetching" (fetch skipped silently)
 // 4. Verifies output does NOT contain "does not appear to be a git repository"
 // 5. Verifies the feature branch is created
@@ -985,8 +985,8 @@ func TestStartDefaultNoRemoteFetchSkipped(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a feature branch relying on the new default (no fetch config)
@@ -1016,9 +1016,9 @@ func TestStartDefaultNoRemoteFetchSkipped(t *testing.T) {
 // RunGitFlow uses CombinedOutput, so both the "Fetching from" attempt and the warning are
 // observable.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow (NO fetch config)
+// 1. Sets up a test repository with a remote and initializes git-pour (NO fetch config)
 // 2. Points origin at a nonexistent path
-// 3. Runs 'git flow feature start' (no flag — relies on the new default)
+// 3. Runs 'git pour feature start' (no flag — relies on the new default)
 // 4. Verifies the command still succeeds (exit 0)
 // 5. Verifies combined output contains "Fetching from origin..." (fetch attempted under default)
 // 6. Verifies combined output contains the fetch-specific warning
@@ -1054,13 +1054,13 @@ func TestStartDefaultUnreachableRemoteWarnsAndCreates(t *testing.T) {
 	}
 }
 
-// TestStartFetchConfigOffSkipsFetch tests that gitflow.feature.start.fetch=off skips
+// TestStartFetchConfigOffSkipsFetch tests that gitpour.feature.start.fetch=off skips
 // the fetch, matching git-config's falsy "off" spelling. Uses a remote-backed fixture
 // so the absence of "Fetching" reflects the config, not a missing remote.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Sets gitflow.feature.start.fetch=off; no flag
-// 3. Runs 'git flow feature start config-off-test'
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Sets gitpour.feature.start.fetch=off; no flag
+// 3. Runs 'git pour feature start config-off-test'
 // 4. Verifies no "Fetching from" line appears
 // 5. Verifies the feature branch is created
 func TestStartFetchConfigOffSkipsFetch(t *testing.T) {
@@ -1069,13 +1069,13 @@ func TestStartFetchConfigOffSkipsFetch(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "off"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "off"); err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "config-off-test")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow feature start: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour feature start: %v\nOutput: %s", err, output)
 	}
 
 	if strings.Contains(output, "Fetching from") {

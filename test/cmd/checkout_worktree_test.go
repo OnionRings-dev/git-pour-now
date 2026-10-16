@@ -6,13 +6,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // managedMarkerFor returns the provenance marker key for a branch, the key that
-// records git-flow as the creator of its worktree.
+// records git-pour as the creator of its worktree.
 func managedMarkerFor(branch string) string {
-	return "gitflow.worktree." + branch + ".managed"
+	return "gitpour.worktree." + branch + ".managed"
 }
 
 // writeObstruction creates dir and a file inside it, the "occupied path" state
@@ -48,9 +48,9 @@ func assertFileContent(t *testing.T, path string, want string) {
 // TestCheckoutNavigatesToExistingWorktree covers scenario 1: checkout navigates
 // to the branch's worktree instead of switching the main worktree's branch.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Records the branch checked out in the main worktree
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set to an empty file
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set to an empty file
 // 4. Verifies the CD file holds the worktree path and the main worktree's branch is unchanged
 // 5. Verifies stdout carries the worktree and cd lines and no 'Switched to branch' line
 // 6. Verifies no shell-init tip is printed, since the channel is plainly in use
@@ -92,8 +92,8 @@ func TestCheckoutNavigatesToExistingWorktree(t *testing.T) {
 // TestCheckoutWithoutWorktreeSwitchesBranch covers scenario 2: with no worktree
 // and no --worktree, checkout behaves exactly as it does today.
 // Steps:
-// 1. Initializes git-flow and creates feature/x without checking it out
-// 2. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set to an empty file
+// 1. Initializes git-pour and creates feature/x without checking it out
+// 2. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set to an empty file
 // 3. Verifies stdout is the classic 'Switched to branch' message
 // 4. Verifies the main worktree is now on feature/x
 // 5. Verifies the CD file is still zero-length, since a classic switch is not a navigation
@@ -125,8 +125,8 @@ func TestCheckoutWithoutWorktreeSwitchesBranch(t *testing.T) {
 // TestCheckoutWorktreeFlagCreatesAndMarks covers scenario 3: --worktree creates
 // the missing worktree, records provenance, and navigates to it.
 // Steps:
-// 1. Initializes git-flow and creates feature/x without checking it out
-// 2. Runs 'git flow feature checkout x --worktree' with GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour and creates feature/x without checking it out
+// 2. Runs 'git pour feature checkout x --worktree' with GIT_POUR_CD_FILE set
 // 3. Verifies the worktree exists at the computed path and git lists it
 // 4. Verifies the provenance marker is set to true
 // 5. Verifies the CD file holds the worktree path and stdout reports the creation
@@ -167,14 +167,14 @@ func TestCheckoutWorktreeFlagCreatesAndMarks(t *testing.T) {
 }
 
 // TestCheckoutHandMadeWorktreeStaysUnmanaged covers scenario 4: arriving at a
-// worktree git-flow did not create never writes a provenance marker.
+// worktree git-pour did not create never writes a provenance marker.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates a worktree for it with plain 'git worktree add' at a path of the test's choosing
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set
 // 4. Verifies the CD file holds the hand-made path
 // 5. Verifies no provenance marker was written
-// 6. Verifies 'git flow worktree list' still tags the row (unmanaged)
+// 6. Verifies 'git pour worktree list' still tags the row (unmanaged)
 func TestCheckoutHandMadeWorktreeStaysUnmanaged(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -214,9 +214,9 @@ func TestCheckoutHandMadeWorktreeStaysUnmanaged(t *testing.T) {
 // TestCheckoutWorktreeOccupiedPathFails covers scenario 5: --worktree refuses an
 // occupied target path when --force is not given.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates the computed worktree path as a directory holding a file
-// 3. Runs 'git flow feature checkout x --worktree' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --worktree' with GIT_POUR_CD_FILE set
 // 4. Verifies exit code 6 and that stderr names the occupied path
 // 5. Verifies the CD file is still zero-length and the obstruction is untouched
 // 6. Verifies no worktree was registered
@@ -247,9 +247,9 @@ func TestCheckoutWorktreeOccupiedPathFails(t *testing.T) {
 // TestCheckoutWorktreeForceReplacesStaleDirectory covers scenario 6: --force
 // replaces a plain directory in the way and creates the worktree there.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates the computed worktree path as a directory holding a file
-// 3. Runs 'git flow feature checkout x --worktree --force' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --worktree --force' with GIT_POUR_CD_FILE set
 // 4. Verifies exit code 0 and that the stale file is gone
 // 5. Verifies a worktree exists at the path, the marker is written and the CD file holds the path
 // 6. Verifies stdout reports the creation
@@ -294,9 +294,9 @@ func TestCheckoutWorktreeForceReplacesStaleDirectory(t *testing.T) {
 // TestCheckoutNoCDLeavesFileEmptyAndKeepsBranch covers scenario 7: --no-cd
 // suppresses only the channel write.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Records the branch checked out in the main worktree
-// 3. Runs 'git flow feature checkout x --no-cd' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --no-cd' with GIT_POUR_CD_FILE set
 // 4. Verifies the CD file is still zero-length
 // 5. Verifies the main worktree's branch is unchanged
 // 6. Verifies stdout still carries the human-readable cd hint
@@ -327,9 +327,9 @@ func TestCheckoutNoCDLeavesFileEmptyAndKeepsBranch(t *testing.T) {
 // TestCheckoutWithoutCDFileEnvPrintsPath covers scenario 8: with the channel
 // unused the path is printed for manual use, with the shell-init tip.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Records the branch checked out in the main worktree
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE unset
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE unset
 // 4. Verifies stdout equals exactly the two navigation lines plus the tip
 // 5. Verifies stderr is empty
 // 6. Verifies the main worktree's branch is unchanged, as in scenario 1
@@ -349,7 +349,7 @@ func TestCheckoutWithoutCDFileEnvPrintsPath(t *testing.T) {
 
 	want := "Worktree for branch 'feature/x' at " + wtPath + "\n" +
 		"To switch to it: cd " + wtPath + "\n" +
-		"Tip: run 'git flow shell-init <shell>' for automatic directory switching\n"
+		"Tip: run 'git pour shell-init <shell>' for automatic directory switching\n"
 	if stdout != want {
 		t.Errorf("Expected stdout %q, got %q", want, stdout)
 	}
@@ -364,13 +364,13 @@ func TestCheckoutWithoutCDFileEnvPrintsPath(t *testing.T) {
 // TestCheckoutIgnoresBranchTypeWorktreeDefault covers scenario 9 as a FORWARD
 // GUARD: checkout never auto-creates a worktree from a branch-type default.
 //
-// gitflow.branch.<type>.worktree does not exist until #173, so this test passes
+// gitpour.branch.<type>.worktree does not exist until #173, so this test passes
 // VACUOUSLY today. It is kept so #173 cannot accidentally teach checkout to
 // honour the key; do not read it as live coverage.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
-// 2. Sets gitflow.branch.feature.worktree to true
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour and creates feature/x
+// 2. Sets gitpour.branch.feature.worktree to true
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set
 // 4. Verifies stdout is the classic 'Switched to branch' message
 // 5. Verifies no worktree was created and the CD file is untouched
 func TestCheckoutIgnoresBranchTypeWorktreeDefault(t *testing.T) {
@@ -378,7 +378,7 @@ func TestCheckoutIgnoresBranchTypeWorktreeDefault(t *testing.T) {
 	dir := initWorktreeRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 	createFreeBranch(t, dir, "feature/x")
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.worktree", "true"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.worktree", "true"); err != nil {
 		t.Fatalf("Failed to set the branch type worktree default: %v\nOutput: %s", err, out)
 	}
 	cdFile := cdFilePath(t)
@@ -400,8 +400,8 @@ func TestCheckoutIgnoresBranchTypeWorktreeDefault(t *testing.T) {
 // TestCheckoutQuietSuppressesShellInitTip covers scenario 18: --quiet suppresses
 // the shell-init tip.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
-// 2. Runs 'git flow feature checkout x --quiet' with GIT_FLOW_CD_FILE unset, the only state where the tip would print
+// 1. Initializes git-pour, creates feature/x and a worktree for it
+// 2. Runs 'git pour feature checkout x --quiet' with GIT_POUR_CD_FILE unset, the only state where the tip would print
 // 3. Verifies stdout equals exactly the two navigation lines
 // 4. Verifies no Tip line is present and stderr is empty
 func TestCheckoutQuietSuppressesShellInitTip(t *testing.T) {
@@ -434,10 +434,10 @@ func TestCheckoutQuietSuppressesShellInitTip(t *testing.T) {
 // TestCheckoutBranchInMainWorktreeNavigatesToMainWorktree covers SC-6: a branch
 // checked out in the main worktree is navigated to like any other worktree.
 // Steps:
-// 1. Initializes git-flow and creates feature/x and feature/other
+// 1. Initializes git-pour and creates feature/x and feature/other
 // 2. Adds a worktree for feature/other so the command can run from a linked worktree
 // 3. Checks feature/x out in the main worktree
-// 4. Runs 'git flow feature checkout x' from the linked worktree with GIT_FLOW_CD_FILE set
+// 4. Runs 'git pour feature checkout x' from the linked worktree with GIT_POUR_CD_FILE set
 // 5. Verifies the CD file holds the main worktree root and stdout names it
 // 6. Verifies git's 'already used by worktree' failure never appears, because no classic switch is attempted
 func TestCheckoutBranchInMainWorktreeNavigatesToMainWorktree(t *testing.T) {
@@ -473,10 +473,10 @@ func TestCheckoutBranchInMainWorktreeNavigatesToMainWorktree(t *testing.T) {
 // TestCheckoutStaleWorktreeEntryFails covers SC-7: a worktree entry whose
 // directory is gone is never handed to the shell as a destination.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Deletes the worktree directory by hand, leaving the admin entry behind
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set
-// 4. Verifies exit code 3 and that stderr names the recorded path and 'git flow worktree prune'
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set
+// 4. Verifies exit code 3 and that stderr names the recorded path and 'git pour worktree prune'
 // 5. Verifies the CD file is still zero-length
 // 6. Verifies the main worktree's branch was not switched
 func TestCheckoutStaleWorktreeEntryFails(t *testing.T) {
@@ -499,7 +499,7 @@ func TestCheckoutStaleWorktreeEntryFails(t *testing.T) {
 // unrelated directory, or replaced by a file.
 //
 // The CD-file assertion is the one that matters: SC-7's whole point is that
-// git-flow must not exit 0 with a destination the shell cannot use.
+// git-pour must not exit 0 with a destination the shell cannot use.
 func assertStaleWorktreeRefused(t *testing.T, dir string, wtPath string, branchBefore string) {
 	t.Helper()
 	cdFile := cdFilePath(t)
@@ -511,8 +511,8 @@ func assertStaleWorktreeRefused(t *testing.T, dir string, wtPath string, branchB
 	if !strings.Contains(stderr, wtPath) {
 		t.Errorf("Expected stderr to name the recorded path %q, got %q", wtPath, stderr)
 	}
-	if !strings.Contains(stderr, "git flow worktree prune") {
-		t.Errorf("Expected stderr to point at 'git flow worktree prune', got %q", stderr)
+	if !strings.Contains(stderr, "git pour worktree prune") {
+		t.Errorf("Expected stderr to point at 'git pour worktree prune', got %q", stderr)
 	}
 	assertCDFileEmpty(t, cdFile)
 	if got := testutil.GetCurrentBranch(t, dir); got != branchBefore {
@@ -524,10 +524,10 @@ func assertStaleWorktreeRefused(t *testing.T, dir string, wtPath string, branchB
 // still EXISTS but is no longer the worktree: a plain directory took its place.
 // A guard that only tested existence navigated the shell into it and exited 0.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Deletes the worktree directory and puts an unrelated plain directory at the same path
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set
-// 4. Verifies exit code 3 and that stderr names the recorded path and 'git flow worktree prune'
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set
+// 4. Verifies exit code 3 and that stderr names the recorded path and 'git pour worktree prune'
 // 5. Verifies the CD file is still zero-length, so the shell was never sent there
 // 6. Verifies the main worktree's branch was not switched
 func TestCheckoutReplacedWorktreeDirectoryFails(t *testing.T) {
@@ -548,12 +548,12 @@ func TestCheckoutReplacedWorktreeDirectoryFails(t *testing.T) {
 
 // TestCheckoutReplacedWorktreeFileFails covers SC-7 where the recorded path was
 // replaced by a REGULAR FILE. This is SC-7's stated rationale exactly: existence
-// alone let git-flow exit 0 while the wrapper reported 'cannot enter <path>'.
+// alone let git-pour exit 0 while the wrapper reported 'cannot enter <path>'.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Deletes the worktree directory and writes a regular file at the same path
-// 3. Runs 'git flow feature checkout x' with GIT_FLOW_CD_FILE set
-// 4. Verifies exit code 3 and that stderr names the recorded path and 'git flow worktree prune'
+// 3. Runs 'git pour feature checkout x' with GIT_POUR_CD_FILE set
+// 4. Verifies exit code 3 and that stderr names the recorded path and 'git pour worktree prune'
 // 5. Verifies the CD file is still zero-length, so the shell was never sent there
 // 6. Verifies the main worktree's branch was not switched
 func TestCheckoutReplacedWorktreeFileFails(t *testing.T) {
@@ -577,9 +577,9 @@ func TestCheckoutReplacedWorktreeFileFails(t *testing.T) {
 // TestCheckoutForceRefusesFile covers SC-4: --force refuses a file at the
 // target path.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates the computed worktree path as a file with known content
-// 3. Runs 'git flow feature checkout x --worktree --force' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --worktree --force' with GIT_POUR_CD_FILE set
 // 4. Verifies exit code 6 and that stderr refuses because the target is a file
 // 5. Verifies the file still exists with its content intact
 // 6. Verifies the CD file is still zero-length
@@ -612,10 +612,10 @@ func TestCheckoutForceRefusesFile(t *testing.T) {
 // TestCheckoutForceRefusesRegisteredWorktree covers SC-4: --force refuses a
 // registered worktree of this repository.
 // Steps:
-// 1. Initializes git-flow and sets a branch-independent path template so two branches compute the same target
+// 1. Initializes git-pour and sets a branch-independent path template so two branches compute the same target
 // 2. Creates feature/x and feature/y and adds a worktree for feature/y at that shared target
-// 3. Runs 'git flow feature checkout x --worktree --force' with GIT_FLOW_CD_FILE set
-// 4. Verifies exit code 6 and that stderr points at 'git flow worktree remove'
+// 3. Runs 'git pour feature checkout x --worktree --force' with GIT_POUR_CD_FILE set
+// 4. Verifies exit code 6 and that stderr points at 'git pour worktree remove'
 // 5. Verifies the other worktree still exists and is still listed by git
 // 6. Verifies the CD file is still zero-length
 func TestCheckoutForceRefusesRegisteredWorktree(t *testing.T) {
@@ -627,8 +627,8 @@ func TestCheckoutForceRefusesRegisteredWorktree(t *testing.T) {
 	// other parallel test and concurrent 'go test' run.
 	sharedRoot := filepath.Join(filepath.Dir(testutil.EvalPath(t, dir)), filepath.Base(dir)+"-shared-wt")
 	defer os.RemoveAll(sharedRoot)
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "../{{ repo }}-shared-wt"); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "../{{ repo }}-shared-wt"); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 	createFreeBranch(t, dir, "feature/x")
 	createFreeBranch(t, dir, "feature/y")
@@ -641,8 +641,8 @@ func TestCheckoutForceRefusesRegisteredWorktree(t *testing.T) {
 	if got := worktreeExitCode(err); got != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nStderr: %s", got, stderr)
 	}
-	if !strings.Contains(stderr, "git flow worktree remove") {
-		t.Errorf("Expected stderr to point at 'git flow worktree remove', got %q", stderr)
+	if !strings.Contains(stderr, "git pour worktree remove") {
+		t.Errorf("Expected stderr to point at 'git pour worktree remove', got %q", stderr)
 	}
 	if _, err := os.Stat(sharedRoot); err != nil {
 		t.Errorf("Expected the other worktree to survive: %v", err)
@@ -656,9 +656,9 @@ func TestCheckoutForceRefusesRegisteredWorktree(t *testing.T) {
 // TestCheckoutForceRefusesDirectoryWithGitEntry covers SC-4: --force refuses
 // a directory holding a .git FILE, the linked-worktree form.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates the computed path as a directory holding a .git file and a decoy file
-// 3. Runs 'git flow feature checkout x --worktree --force' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --worktree --force' with GIT_POUR_CD_FILE set
 // 4. Verifies exit code 6 and that stderr refuses because the directory looks like a repository
 // 5. Verifies the directory and both files are intact
 // 6. Verifies the CD file is still zero-length
@@ -694,9 +694,9 @@ func TestCheckoutForceRefusesDirectoryWithGitEntry(t *testing.T) {
 // the entry and checks !IsDir() passes that one and then removes somebody's
 // clone.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates the computed path as a directory holding a .git/ directory with a file inside it, plus a sentinel file
-// 3. Runs 'git flow feature checkout x --worktree --force' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --worktree --force' with GIT_POUR_CD_FILE set
 // 4. Verifies exit code 6 and that stderr refuses because the directory looks like a repository
 // 5. Verifies the directory, the .git directory's content and the sentinel are all intact
 // 6. Verifies the CD file is still zero-length
@@ -726,8 +726,8 @@ func TestCheckoutForceRefusesDirectoryWithGitDirectory(t *testing.T) {
 // TestCheckoutForceWithNothingToRemoveSucceeds covers SC-4: --force with an
 // empty target path is an ordinary creation.
 // Steps:
-// 1. Initializes git-flow and creates feature/x with nothing at the computed path
-// 2. Runs 'git flow feature checkout x --worktree --force' with GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour and creates feature/x with nothing at the computed path
+// 2. Runs 'git pour feature checkout x --worktree --force' with GIT_POUR_CD_FILE set
 // 3. Verifies exit code 0 and that the worktree was created and marked
 // 4. Verifies stdout reports the creation and says nothing about a removal
 // 5. Verifies stderr is empty
@@ -765,9 +765,9 @@ func TestCheckoutForceWithNothingToRemoveSucceeds(t *testing.T) {
 // TestCheckoutWorktreeFlagWithExistingWorktreeNavigates covers --worktree on a
 // branch that already has one: it navigates and leaves provenance alone.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
+// 1. Initializes git-pour, creates feature/x and a worktree for it
 // 2. Records the provenance marker value
-// 3. Runs 'git flow feature checkout x --worktree' with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --worktree' with GIT_POUR_CD_FILE set
 // 4. Verifies no second worktree was created and the CD file holds the existing path
 // 5. Verifies stdout says 'Worktree for branch', not 'Created worktree'
 // 6. Verifies the provenance marker is unchanged
@@ -806,8 +806,8 @@ func TestCheckoutWorktreeFlagWithExistingWorktreeNavigates(t *testing.T) {
 // TestCheckoutNoCDStillSwitchesBranchWithoutWorktree covers SC-9: --no-cd never
 // blocks the classic branch switch.
 // Steps:
-// 1. Initializes git-flow and creates feature/x without checking it out
-// 2. Runs 'git flow feature checkout x --no-cd' with GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour and creates feature/x without checking it out
+// 2. Runs 'git pour feature checkout x --no-cd' with GIT_POUR_CD_FILE set
 // 3. Verifies the main worktree is now on feature/x
 // 4. Verifies stdout is the classic 'Switched to branch' message
 // 5. Verifies the CD file is still zero-length
@@ -835,8 +835,8 @@ func TestCheckoutNoCDStillSwitchesBranchWithoutWorktree(t *testing.T) {
 // TestCheckoutPrefixMatchNavigatesToWorktree covers the worktree lookup running
 // on the RESOLVED branch name, never on the user's raw argument.
 // Steps:
-// 1. Initializes git-flow, creates feature/user-auth and a worktree for it
-// 2. Runs 'git flow feature checkout user' with the unique prefix and GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour, creates feature/user-auth and a worktree for it
+// 2. Runs 'git pour feature checkout user' with the unique prefix and GIT_POUR_CD_FILE set
 // 3. Verifies the CD file holds feature/user-auth's worktree path
 // 4. Verifies stdout names the resolved branch
 func TestCheckoutPrefixMatchNavigatesToWorktree(t *testing.T) {
@@ -864,9 +864,9 @@ func TestCheckoutPrefixMatchNavigatesToWorktree(t *testing.T) {
 // TestCheckoutUnwritableCDFileWarnsAndSucceeds covers a destination file that
 // cannot be written: the navigation still happens and the command still succeeds.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a worktree for it
-// 2. Points GIT_FLOW_CD_FILE at a path inside a directory that does not exist
-// 3. Runs 'git flow feature checkout x'
+// 1. Initializes git-pour, creates feature/x and a worktree for it
+// 2. Points GIT_POUR_CD_FILE at a path inside a directory that does not exist
+// 3. Runs 'git pour feature checkout x'
 // 4. Verifies exit code 0 and that stdout still carries the navigation lines
 // 5. Verifies stderr carries a Warning naming the destination file
 func TestCheckoutUnwritableCDFileWarnsAndSucceeds(t *testing.T) {
@@ -899,8 +899,8 @@ func TestCheckoutUnwritableCDFileWarnsAndSucceeds(t *testing.T) {
 // the most common checkout invocation and make the installed wrapper perform a
 // no-op cd to the repository root.
 // Steps:
-// 1. Initializes git-flow and runs 'feature start x' so feature/x is checked out in the main worktree
-// 2. Runs 'git flow feature checkout x' from the main worktree with GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour and runs 'feature start x' so feature/x is checked out in the main worktree
+// 2. Runs 'git pour feature checkout x' from the main worktree with GIT_POUR_CD_FILE set
 // 3. Verifies stdout equals exactly the classic 'Switched to branch' message
 // 4. Verifies stderr is empty and no navigation or tip lines were printed
 // 5. Verifies the CD file is still zero-length and the branch is still feature/x
@@ -933,9 +933,9 @@ func TestCheckoutCurrentMainWorktreeUsesClassicBehavior(t *testing.T) {
 // TestCheckoutForceWithoutWorktreeIsSilentNoOp covers SC-15: --force without
 // --worktree changes nothing and says nothing.
 // Steps:
-// 1. Initializes git-flow and creates feature/x
+// 1. Initializes git-pour and creates feature/x
 // 2. Creates the computed worktree path as a directory holding a sentinel file
-// 3. Runs 'git flow feature checkout x --force' without --worktree, with GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature checkout x --force' without --worktree, with GIT_POUR_CD_FILE set
 // 4. Verifies stdout equals exactly the classic 'Switched to branch' message and stderr is empty
 // 5. Verifies the sentinel directory and its file are byte-identical
 // 6. Verifies no worktree was created and the CD file is still zero-length

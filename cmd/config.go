@@ -6,34 +6,34 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/util"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/util"
 	"github.com/spf13/cobra"
 )
 
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Manage git-flow configuration",
-	Long: `Manage git-flow configuration for base branches and topic branch types.
+	Short: "Manage git-pour configuration",
+	Long: `Manage git-pour configuration for base branches and topic branch types.
 
 Base branches are long-living branches like main, develop, staging, production.
 Topic branches are short-living branches like feature, release, hotfix.
 
 Examples:
-  git-flow config add base develop main --auto-update=true
-  git-flow config add topic feature develop --prefix=feat/
-  git-flow config edit base develop --auto-update=false
-  git-flow config rename base develop integration
-  git-flow config delete topic support
-  git-flow config list`,
+  git-pour config add base develop main --auto-update=true
+  git-pour config add topic feature develop --prefix=feat/
+  git-pour config edit base develop --auto-update=false
+  git-pour config rename base develop integration
+  git-pour config delete topic support
+  git-pour config list`,
 }
 
 var configAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add base branch or topic branch type configuration",
-	Long: `Add a new base branch or topic branch type to the git-flow configuration.
+	Long: `Add a new base branch or topic branch type to the git-pour configuration.
 
 Base branches are created immediately when added.
 Topic branch configurations are saved for use with start command.`,
@@ -42,15 +42,15 @@ Topic branch configurations are saved for use with start command.`,
 var configAddBaseCmd = &cobra.Command{
 	Use:   "base <name> [<parent>]",
 	Short: "Add a base branch configuration",
-	Long: `Add a base branch to the git-flow configuration.
+	Long: `Add a base branch to the git-pour configuration.
 
 The branch will be created immediately if it doesn't exist.
 If parent is specified, the branch will be created from the parent branch.
 
 Examples:
-  git-flow config add base production
-  git-flow config add base develop main --auto-update=true
-  git-flow config add base staging production --upstream-strategy=merge`,
+  git-pour config add base production
+  git-pour config add base develop main --auto-update=true
+  git-pour config add base staging production --upstream-strategy=merge`,
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -71,15 +71,15 @@ Examples:
 var configAddTopicCmd = &cobra.Command{
 	Use:   "topic <name> <parent>",
 	Short: "Add a topic branch type configuration",
-	Long: `Add a topic branch type to the git-flow configuration.
+	Long: `Add a topic branch type to the git-pour configuration.
 
 The configuration is saved immediately and can be used with start command.
 Parent branch must be a configured base branch.
 
 Examples:
-  git-flow config add topic feature develop --prefix=feat/
-  git-flow config add topic release main --starting-point=develop --tag=true
-  git-flow config add topic hotfix main --upstream-strategy=squash`,
+  git-pour config add topic feature develop --prefix=feat/
+  git-pour config add topic release main --starting-point=develop --tag=true
+  git-pour config add topic hotfix main --upstream-strategy=squash`,
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -108,8 +108,8 @@ var configEditBaseCmd = &cobra.Command{
 	Long: `Edit an existing base branch configuration.
 
 Examples:
-  git-flow config edit base develop --auto-update=false
-  git-flow config edit base staging --upstream-strategy=rebase`,
+  git-pour config edit base develop --auto-update=false
+  git-pour config edit base staging --upstream-strategy=rebase`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -129,8 +129,8 @@ var configEditTopicCmd = &cobra.Command{
 	Long: `Edit an existing topic branch type configuration.
 
 Examples:
-  git-flow config edit topic feature --prefix=feat/
-  git-flow config edit topic release --tag=true`,
+  git-pour config edit topic feature --prefix=feat/
+  git-pour config edit topic release --tag=true`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -160,8 +160,8 @@ var configRenameBaseCmd = &cobra.Command{
 This will rename the actual Git branch and update all references in the configuration.
 
 Examples:
-  git-flow config rename base develop integration
-  git-flow config rename base master main`,
+  git-pour config rename base develop integration
+  git-pour config rename base master main`,
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		oldName := args[0]
@@ -180,8 +180,8 @@ var configRenameTopicCmd = &cobra.Command{
 This only updates the configuration, not any existing branches.
 
 Examples:
-  git-flow config rename topic feature feat
-  git-flow config rename topic bugfix fix`,
+  git-pour config rename topic feature feat
+  git-pour config rename topic bugfix fix`,
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		oldName := args[0]
@@ -207,8 +207,8 @@ This removes the configuration but keeps the Git branch.
 Cannot delete if other branches depend on this branch.
 
 Examples:
-  git-flow config delete base staging
-  git-flow config delete base old-main`,
+  git-pour config delete base staging
+  git-pour config delete base old-main`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -226,8 +226,8 @@ var configDeleteTopicCmd = &cobra.Command{
 This removes the configuration but does not affect existing branches of this type.
 
 Examples:
-  git-flow config delete topic support
-  git-flow config delete topic bugfix`,
+  git-pour config delete topic support
+  git-pour config delete topic bugfix`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -239,14 +239,14 @@ Examples:
 
 var configListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List current git-flow configuration",
+	Short: "List current git-pour configuration",
 	Args:  cobra.NoArgs,
-	Long: `List the current git-flow configuration showing all base branches and topic branch types.
+	Long: `List the current git-pour configuration showing all base branches and topic branch types.
 
 Shows the branch hierarchy, merge strategies, and other settings.
 
 Example:
-  git-flow config list`,
+  git-pour config list`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ConfigListCommand()
 	},
@@ -257,8 +257,8 @@ func ConfigAddBaseCommand(name, parent, upstreamStrategy, downstreamStrategy str
 	repo := mustOpenRepo()
 	if err := executeConfigAddBase(repo, name, parent, upstreamStrategy, downstreamStrategy, autoUpdate, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -272,8 +272,8 @@ func ConfigAddTopicCommand(name, parent, prefix, startingPoint, upstreamStrategy
 	repo := mustOpenRepo()
 	if err := executeConfigAddTopic(repo, name, parent, prefix, startingPoint, upstreamStrategy, downstreamStrategy, tag, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -288,8 +288,8 @@ func ConfigEditBaseCommand(name, upstreamStrategy, downstreamStrategy string, au
 	repo := mustOpenRepo()
 	if err := executeConfigEditBase(repo, name, upstreamStrategy, downstreamStrategy, autoUpdate, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -304,8 +304,8 @@ func ConfigEditTopicCommand(name, prefix, startingPoint, upstreamStrategy, downs
 	repo := mustOpenRepo()
 	if err := executeConfigEditTopic(repo, name, prefix, startingPoint, upstreamStrategy, downstreamStrategy, tag, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -319,8 +319,8 @@ func ConfigRenameBaseCommand(oldName, newName string, shared bool) {
 	repo := mustOpenRepo()
 	if err := executeConfigRenameBase(repo, oldName, newName, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -334,8 +334,8 @@ func ConfigRenameTopicCommand(oldName, newName string, shared bool) {
 	repo := mustOpenRepo()
 	if err := executeConfigRenameTopic(repo, oldName, newName, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -349,8 +349,8 @@ func ConfigDeleteBaseCommand(name string, shared bool) {
 	repo := mustOpenRepo()
 	if err := executeConfigDeleteBase(repo, name, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -364,8 +364,8 @@ func ConfigDeleteTopicCommand(name string, shared bool) {
 	repo := mustOpenRepo()
 	if err := executeConfigDeleteTopic(repo, name, shared); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -379,8 +379,8 @@ func ConfigListCommand() {
 	repo := mustOpenRepo()
 	if err := executeConfigList(repo); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -401,13 +401,13 @@ func changedBoolPtr(cmd *cobra.Command, name string) *bool {
 	return &v
 }
 
-// loadConfigForEdit loads the configuration a CRUD verb should edit: the .gitflow
+// loadConfigForEdit loads the configuration a CRUD verb should edit: the .gitpour
 // file when --shared is set (requiring it to exist first), or the repository's
 // local/merged config otherwise.
 func loadConfigForEdit(repo *git.Repo, shared bool) (*config.Config, error) {
 	if shared {
 		if !config.SharedConfigExists(repo) {
-			return nil, &errors.InvalidInputError{Message: "no shared .gitflow file found; run 'git flow init --shared' first"}
+			return nil, &errors.InvalidInputError{Message: "no shared .gitpour file found; run 'git pour init --shared' first"}
 		}
 		return config.LoadSharedConfig(repo)
 	}
@@ -415,7 +415,7 @@ func loadConfigForEdit(repo *git.Repo, shared bool) (*config.Config, error) {
 }
 
 // persistConfig writes the edited configuration back. For --shared it rewrites
-// the structured keys into .gitflow and then re-syncs the shared-managed key set
+// the structured keys into .gitpour and then re-syncs the shared-managed key set
 // into local .git/config; otherwise it writes local config directly.
 func persistConfig(repo *git.Repo, cfg *config.Config, shared bool) error {
 	if shared {
@@ -429,7 +429,7 @@ func persistConfig(repo *git.Repo, cfg *config.Config, shared bool) error {
 		// Mirror `config sync`: make the hook-trust filter visible so users editing
 		// shared config know a hook path was withheld from local until trusted.
 		for _, k := range result.SkippedHookKeys {
-			fmt.Fprintf(os.Stderr, "Warning: skipped shared hook path %q; set gitflow.shared.trustHooks=true to apply it.\n", k)
+			fmt.Fprintf(os.Stderr, "Warning: skipped shared hook path %q; set gitpour.shared.trustHooks=true to apply it.\n", k)
 		}
 		return nil
 	}
@@ -437,11 +437,11 @@ func persistConfig(repo *git.Repo, cfg *config.Config, shared bool) error {
 }
 
 // removeBranchSection removes a branch's config section. For --shared it removes
-// the section from .gitflow (local is reconciled by the re-sync in persistConfig,
+// the section from .gitpour (local is reconciled by the re-sync in persistConfig,
 // which stale-removes keys no longer present in the shared file); otherwise it
 // removes the section from local config directly.
 func removeBranchSection(repo *git.Repo, shared bool, branchName string) error {
-	section := fmt.Sprintf("gitflow.branch.%s", branchName)
+	section := fmt.Sprintf("gitpour.branch.%s", branchName)
 	if shared {
 		return git.UnsetConfigSectionFile(config.SharedConfigPath(repo), section)
 	}
@@ -449,14 +449,14 @@ func removeBranchSection(repo *git.Repo, shared bool, branchName string) error {
 }
 
 func executeConfigAddBase(repo *git.Repo, name, parent, upstreamStrategy, downstreamStrategy string, autoUpdate bool, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -532,7 +532,7 @@ func executeConfigAddBase(repo *git.Repo, name, parent, upstreamStrategy, downst
 	if err := repo.BranchExists(name); err != nil {
 		// Branch doesn't exist, create it
 		if err := repo.CreateBranch(name, parent); err != nil {
-			if rollbackErr := repo.UnsetConfigSection(fmt.Sprintf("gitflow.branch.%s", name)); rollbackErr != nil {
+			if rollbackErr := repo.UnsetConfigSection(fmt.Sprintf("gitpour.branch.%s", name)); rollbackErr != nil {
 				err = fmt.Errorf("%w; failed to roll back configuration: %w", err, rollbackErr)
 			}
 			return &errors.GitError{Operation: fmt.Sprintf("create branch '%s'", name), Err: err}
@@ -545,14 +545,14 @@ func executeConfigAddBase(repo *git.Repo, name, parent, upstreamStrategy, downst
 }
 
 func executeConfigAddTopic(repo *git.Repo, name, parent, prefix, startingPoint, upstreamStrategy, downstreamStrategy string, tag bool, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -635,14 +635,14 @@ func executeConfigAddTopic(repo *git.Repo, name, parent, prefix, startingPoint, 
 }
 
 func executeConfigEditBase(repo *git.Repo, name, upstreamStrategy, downstreamStrategy string, autoUpdate *bool, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -702,14 +702,14 @@ func executeConfigEditBase(repo *git.Repo, name, upstreamStrategy, downstreamStr
 }
 
 func executeConfigEditTopic(repo *git.Repo, name, prefix, startingPoint, upstreamStrategy, downstreamStrategy string, tag *bool, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -781,14 +781,14 @@ func executeConfigEditTopic(repo *git.Repo, name, prefix, startingPoint, upstrea
 }
 
 func executeConfigRenameBase(repo *git.Repo, oldName, newName string, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -874,14 +874,14 @@ func executeConfigRenameBase(repo *git.Repo, oldName, newName string, shared boo
 }
 
 func executeConfigRenameTopic(repo *git.Repo, oldName, newName string, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -940,14 +940,14 @@ func executeConfigRenameTopic(repo *git.Repo, oldName, newName string, shared bo
 }
 
 func executeConfigDeleteBase(repo *git.Repo, name string, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -1002,14 +1002,14 @@ func executeConfigDeleteBase(repo *git.Repo, name string, shared bool) error {
 }
 
 func executeConfigDeleteTopic(repo *git.Repo, name string, shared bool) error {
-	// Validate that git-flow is initialized. Only gate LOCAL edits: for --shared
-	// the target is the .gitflow file (whose existence loadConfigForEdit enforces
-	// with the correct "run 'git flow init --shared'" suggestion), so a fresh
-	// clone with a .gitflow but no local init can still edit the shared file.
+	// Validate that git-pour is initialized. Only gate LOCAL edits: for --shared
+	// the target is the .gitpour file (whose existence loadConfigForEdit enforces
+	// with the correct "run 'git pour init --shared'" suggestion), so a fresh
+	// clone with a .gitpour but no local init can still edit the shared file.
 	if !shared {
 		initialized, err := config.IsInitialized(repo)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 		if !initialized {
 			return &errors.NotInitializedError{}
@@ -1053,14 +1053,14 @@ func executeConfigDeleteTopic(repo *git.Repo, name string, shared bool) error {
 }
 
 func executeConfigList(repo *git.Repo) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
-		fmt.Println("Git-flow is not initialized in this repository.")
-		fmt.Println("Run 'git-flow init' to set up git-flow configuration.")
+		fmt.Println("Git-pour is not initialized in this repository.")
+		fmt.Println("Run 'git-pour init' to set up git-pour configuration.")
 		return nil
 	}
 
@@ -1071,11 +1071,11 @@ func executeConfigList(repo *git.Repo) error {
 	}
 
 	if len(cfg.Branches) == 0 {
-		fmt.Println("No git-flow configuration found.")
+		fmt.Println("No git-pour configuration found.")
 		return nil
 	}
 
-	fmt.Println("Git-flow Configuration")
+	fmt.Println("Git-pour Configuration")
 	fmt.Println("======================")
 	fmt.Println()
 
@@ -1085,7 +1085,7 @@ func executeConfigList(repo *git.Repo) error {
 	var topicBranches []string
 
 	// Both types are matched explicitly rather than one of them catching
-	// whatever is left: every start records a runtime gitflow.branch.<branch>.base
+	// whatever is left: every start records a runtime gitpour.branch.<branch>.base
 	// key, which the config parser turns into an entry with no type at all. Those
 	// entries describe an active branch, not a configured branch type, and a
 	// catch-all would print them as types with every field empty.
@@ -1167,11 +1167,11 @@ func executeConfigList(repo *git.Repo) error {
 	fmt.Println("──────────────────────────────────────────────────────────")
 	fmt.Println()
 	fmt.Println("Configuration commands:")
-	fmt.Println("  Add base branch:     git flow config add base <name> <parent>")
-	fmt.Println("  Add topic type:      git flow config add topic <name> <parent> --prefix <prefix>")
-	fmt.Println("  Edit base branch:    git flow config edit base <name> [options]")
-	fmt.Println("  Edit topic type:     git flow config edit topic <name> [options]")
-	fmt.Println("  Delete branch type:  git flow config delete <base|topic> <name>")
+	fmt.Println("  Add base branch:     git pour config add base <name> <parent>")
+	fmt.Println("  Add topic type:      git pour config add topic <name> <parent> --prefix <prefix>")
+	fmt.Println("  Edit base branch:    git pour config edit base <name> [options]")
+	fmt.Println("  Edit topic type:     git pour config edit topic <name> [options]")
+	fmt.Println("  Delete branch type:  git pour config delete <base|topic> <name>")
 	fmt.Println()
 	fmt.Println("Common options:")
 	fmt.Println("  --upstream-strategy <merge|rebase|squash>")
@@ -1179,21 +1179,21 @@ func executeConfigList(repo *git.Repo) error {
 	fmt.Println("  --auto-update        Enable auto-update for base branches")
 	fmt.Println("  --tag                Enable tag creation for topic types")
 	fmt.Println()
-	fmt.Println("For detailed help: git flow config --help")
+	fmt.Println("For detailed help: git pour config --help")
 
 	return nil
 }
 
 var configSyncCmd = &cobra.Command{
 	Use:   "sync",
-	Short: "Copy the shared .gitflow config into local git config",
+	Short: "Copy the shared .gitpour config into local git config",
 	Args:  cobra.NoArgs,
-	Long: `Copy the shared-managed gitflow.* keys from the committable .gitflow file into
+	Long: `Copy the shared-managed gitpour.* keys from the committable .gitpour file into
 the repository's local .git/config, overwriting differing values and removing
-local keys no longer present in .gitflow.
+local keys no longer present in .gitpour.
 
-Hook/filter path keys are copied only when gitflow.shared.trustHooks is enabled.
-When no .gitflow file is present this is a no-op that exits successfully.`,
+Hook/filter path keys are copied only when gitpour.shared.trustHooks is enabled.
+When no .gitpour file is present this is a no-op that exits successfully.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ConfigSyncCommand()
 	},
@@ -1201,25 +1201,25 @@ When no .gitflow file is present this is a no-op that exits successfully.`,
 
 var configStatusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Show whether local git config matches the shared .gitflow",
+	Short: "Show whether local git config matches the shared .gitpour",
 	Args:  cobra.NoArgs,
-	Long: `Compare the shared-managed gitflow.* keys in local .git/config against the
-committable .gitflow file.
+	Long: `Compare the shared-managed gitpour.* keys in local .git/config against the
+committable .gitpour file.
 
-Exits 0 when in sync (or when no .gitflow file is present), and with a non-zero
+Exits 0 when in sync (or when no .gitpour file is present), and with a non-zero
 validation-error code when the two have drifted, listing the differing keys.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ConfigStatusCommand()
 	},
 }
 
-// ConfigSyncCommand copies the shared .gitflow config into local config.
+// ConfigSyncCommand copies the shared .gitpour config into local config.
 func ConfigSyncCommand() {
 	repo := mustOpenRepo()
 	if err := executeConfigSync(repo); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -1228,13 +1228,13 @@ func ConfigSyncCommand() {
 	}
 }
 
-// ConfigStatusCommand reports drift between local config and .gitflow.
+// ConfigStatusCommand reports drift between local config and .gitpour.
 func ConfigStatusCommand() {
 	repo := mustOpenRepo()
 	if err := executeConfigStatus(repo); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -1245,7 +1245,7 @@ func ConfigStatusCommand() {
 
 func executeConfigSync(repo *git.Repo) error {
 	if !config.SharedConfigExists(repo) {
-		fmt.Println("No shared .gitflow configuration found; nothing to sync.")
+		fmt.Println("No shared .gitpour configuration found; nothing to sync.")
 		return nil
 	}
 	result, err := config.CopySharedToLocal(repo)
@@ -1253,15 +1253,15 @@ func executeConfigSync(repo *git.Repo) error {
 		return err
 	}
 	for _, k := range result.SkippedHookKeys {
-		fmt.Fprintf(os.Stderr, "Warning: skipped shared hook path %q; set gitflow.shared.trustHooks=true to apply it.\n", k)
+		fmt.Fprintf(os.Stderr, "Warning: skipped shared hook path %q; set gitpour.shared.trustHooks=true to apply it.\n", k)
 	}
-	fmt.Println("Synced local git-flow configuration from .gitflow.")
+	fmt.Println("Synced local git-pour configuration from .gitpour.")
 	return nil
 }
 
 func executeConfigStatus(repo *git.Repo) error {
 	if !config.SharedConfigExists(repo) {
-		fmt.Println("No shared .gitflow configuration found.")
+		fmt.Println("No shared .gitpour configuration found.")
 		return nil
 	}
 	inSync, diffs, note, err := config.SharedStatus(repo)
@@ -1272,10 +1272,10 @@ func executeConfigStatus(repo *git.Repo) error {
 		fmt.Println(note)
 	}
 	if inSync {
-		fmt.Println("Local git-flow configuration is in sync with .gitflow.")
+		fmt.Println("Local git-pour configuration is in sync with .gitpour.")
 		return nil
 	}
-	fmt.Println("Local git-flow configuration is out of sync with .gitflow. Differing keys:")
+	fmt.Println("Local git-pour configuration is out of sync with .gitpour. Differing keys:")
 	for _, k := range diffs {
 		fmt.Printf("  %s\n", k)
 	}
@@ -1363,7 +1363,7 @@ func init() {
 	configEditTopicCmd.Flags().String("downstream-strategy", "", "Merge strategy when updating from parent (merge|rebase)")
 	configEditTopicCmd.Flags().Bool("tag", false, "Create tags on finish")
 
-	// --shared writes to the committable .gitflow file and re-syncs local config,
+	// --shared writes to the committable .gitpour file and re-syncs local config,
 	// instead of writing local config only. Available on every CRUD verb.
 	for _, c := range []*cobra.Command{
 		configAddBaseCmd, configAddTopicCmd,
@@ -1371,6 +1371,6 @@ func init() {
 		configRenameBaseCmd, configRenameTopicCmd,
 		configDeleteBaseCmd, configDeleteTopicCmd,
 	} {
-		c.Flags().Bool("shared", false, "Edit the shared .gitflow file and re-sync local config (requires an existing .gitflow)")
+		c.Flags().Bool("shared", false, "Edit the shared .gitpour file and re-sync local config (requires an existing .gitpour)")
 	}
 }

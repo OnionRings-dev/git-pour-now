@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // commitFileInWorktree writes name with content into the worktree at wtPath,
@@ -47,11 +47,11 @@ func assertWorktreeHeadDetached(t *testing.T, path string) {
 // ---------------------------------------------------------------------------
 
 // TestFinishRemovesCleanManagedWorktree covers spec scenario 1: finishing a
-// branch with a clean git-flow-created worktree merges, removes the worktree,
+// branch with a clean git-pour-created worktree merges, removes the worktree,
 // clears its marker, and deletes the branch.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a managed worktree for it with a distinguishing commit
-// 2. Runs 'git flow feature finish x' from the main worktree
+// 1. Initializes git-pour, creates feature/x and a managed worktree for it with a distinguishing commit
+// 2. Runs 'git pour feature finish x' from the main worktree
 // 3. Verifies exit 0, the merge landed on develop, the worktree directory and admin entry are gone
 // 4. Verifies the provenance marker is cleared and the branch is gone
 func TestFinishRemovesCleanManagedWorktree(t *testing.T) {
@@ -86,9 +86,9 @@ func TestFinishRemovesCleanManagedWorktree(t *testing.T) {
 // TestFinishDetachesHandMadeWorktree covers spec scenario 2: a worktree created
 // by hand is detached, not removed, and its files stay exactly as they were.
 // Steps:
-// 1. Initializes git-flow, creates feature/x and a hand-made worktree via plain 'git worktree add'
+// 1. Initializes git-pour, creates feature/x and a hand-made worktree via plain 'git worktree add'
 // 2. Writes an extra file inside it (proof the directory is untouched afterward)
-// 3. Runs 'git flow feature finish x'
+// 3. Runs 'git pour feature finish x'
 // 4. Verifies exit 0, the merge landed, the branch is gone
 // 5. Verifies 'git worktree list' still shows the path, HEAD is detached, and both files survive
 func TestFinishDetachesHandMadeWorktree(t *testing.T) {
@@ -123,10 +123,10 @@ func TestFinishDetachesHandMadeWorktree(t *testing.T) {
 }
 
 // TestFinishKeepWorktreeDetachesManagedWorktree covers spec scenario 3:
-// --keep-worktree applies the detach path to a git-flow-created worktree too.
+// --keep-worktree applies the detach path to a git-pour-created worktree too.
 // Steps:
-// 1. Initializes git-flow and creates feature/x with a managed worktree
-// 2. Runs 'git flow feature finish x --keep-worktree'
+// 1. Initializes git-pour and creates feature/x with a managed worktree
+// 2. Runs 'git pour feature finish x --keep-worktree'
 // 3. Verifies exit 0, the merge landed, the branch is deleted
 // 4. Verifies the directory survives, detached, and its provenance marker is cleared
 func TestFinishKeepWorktreeDetachesManagedWorktree(t *testing.T) {
@@ -155,11 +155,11 @@ func TestFinishKeepWorktreeDetachesManagedWorktree(t *testing.T) {
 }
 
 // TestFinishRefusesDirtyManagedWorktreeWithoutForce covers spec scenario 4
-// (first half): a dirty git-flow-created worktree without --force-worktree
+// (first half): a dirty git-pour-created worktree without --force-worktree
 // aborts before the merge starts.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a managed worktree, and modifies a tracked file inside it
-// 2. Runs 'git flow feature finish x'
+// 1. Initializes git-pour, creates feature/x with a managed worktree, and modifies a tracked file inside it
+// 2. Runs 'git pour feature finish x'
 // 3. Verifies exit 6 and a message naming --force-worktree
 // 4. Verifies develop never received the merge, feature/x still exists, and the worktree/modification/marker survive
 func TestFinishRefusesDirtyManagedWorktreeWithoutForce(t *testing.T) {
@@ -196,11 +196,11 @@ func TestFinishRefusesDirtyManagedWorktreeWithoutForce(t *testing.T) {
 }
 
 // TestFinishForceWorktreeRemovesDirtyManagedWorktree covers spec scenario 4
-// (second half): --force-worktree lets a dirty git-flow-created worktree be
+// (second half): --force-worktree lets a dirty git-pour-created worktree be
 // removed and the finish proceed.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a managed worktree, and modifies a tracked file inside it
-// 2. Runs 'git flow feature finish x --force-worktree'
+// 1. Initializes git-pour, creates feature/x with a managed worktree, and modifies a tracked file inside it
+// 2. Runs 'git pour feature finish x --force-worktree'
 // 3. Verifies exit 0, the merge landed, and the worktree and branch are gone
 func TestFinishForceWorktreeRemovesDirtyManagedWorktree(t *testing.T) {
 	t.Parallel()
@@ -230,9 +230,9 @@ func TestFinishForceWorktreeRemovesDirtyManagedWorktree(t *testing.T) {
 // hand-made worktree with uncommitted changes needs no force at all — it is
 // detached, and the changes survive.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a hand-made worktree
+// 1. Initializes git-pour, creates feature/x with a hand-made worktree
 // 2. Modifies a tracked file and adds an untracked file inside it
-// 3. Runs 'git flow feature finish x' with no worktree flags
+// 3. Runs 'git pour feature finish x' with no worktree flags
 // 4. Verifies exit 0, the merge landed, the branch is gone, and both changes are still present
 func TestFinishDetachesDirtyHandMadeWorktreeWithoutForce(t *testing.T) {
 	t.Parallel()
@@ -269,9 +269,9 @@ func TestFinishDetachesDirtyHandMadeWorktreeWithoutForce(t *testing.T) {
 // worktree with a merge underway cannot be freed, so finish aborts before
 // touching anything.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a managed worktree
+// 1. Initializes git-pour, creates feature/x with a managed worktree
 // 2. Creates a diverging branch and, inside the worktree, starts a conflicting 'git merge' by hand, leaving it unresolved
-// 3. Runs 'git flow feature finish x'
+// 3. Runs 'git pour feature finish x'
 // 4. Verifies exit 6 and a message naming the worktree and 'merge'
 // 5. Verifies nothing was removed or detached, the in-progress merge survives, and feature/x still exists
 func TestFinishRefusesWorktreeWithOperationInProgress(t *testing.T) {
@@ -283,9 +283,9 @@ func TestFinishRefusesWorktreeWithOperationInProgress(t *testing.T) {
 	wtPath := addWorktree(t, dir, "feature/x")
 	commitFileInWorktree(t, wtPath, "conflict.txt", "from feature", "feature change")
 
-	// 'git flow init' leaves develop checked out in the main worktree, so
+	// 'git pour init' leaves develop checked out in the main worktree, so
 	// committing conflicting content there (via the main worktree directly,
-	// with plain git — no git-flow operation involved) needs no extra branch
+	// with plain git — no git-pour operation involved) needs no extra branch
 	// or worktree of its own.
 	if err := testutil.WriteFile(t, dir, "conflict.txt", "from develop"); err != nil {
 		t.Fatalf("Failed to write conflicting content on develop: %v", err)
@@ -326,15 +326,15 @@ func TestFinishRefusesWorktreeWithOperationInProgress(t *testing.T) {
 }
 
 // TestFinishFromInsideOwnWorktreeNavigatesToMainWorktree covers spec scenario
-// 7: finish run from inside the branch's own git-flow-created worktree merges
+// 7: finish run from inside the branch's own git-pour-created worktree merges
 // successfully (redirected away from that worktree so the merge's own
 // checkout cannot repurpose it), then removes it and records the main
 // worktree as the destination, since the parent branch (develop) has no
 // worktree of its own here.
 // Steps:
-// 1. Initializes git-flow and moves the main worktree onto 'main' (so 'develop' is free for the merge to check out)
+// 1. Initializes git-pour and moves the main worktree onto 'main' (so 'develop' is free for the merge to check out)
 // 2. Creates feature/x with a managed worktree
-// 3. Runs 'git flow feature finish x' with cwd inside that worktree and GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature finish x' with cwd inside that worktree and GIT_POUR_CD_FILE set
 // 4. Verifies exit 0, the merge landed on develop, and the worktree is gone
 // 5. Verifies the CD file holds the main worktree path and the branch is deleted
 func TestFinishFromInsideOwnWorktreeNavigatesToMainWorktree(t *testing.T) {
@@ -380,8 +380,8 @@ func TestFinishFromInsideOwnWorktreeNavigatesToMainWorktree(t *testing.T) {
 // Refusing clearly here is a strict improvement, not a new restriction; real
 // support is left to a follow-up issue.
 // Steps:
-// 1. Initializes git-flow, moves the main worktree onto 'main', creates feature/x with a managed worktree
-// 2. Runs 'git flow feature finish x --rebase' with cwd inside the feature worktree
+// 1. Initializes git-pour, moves the main worktree onto 'main', creates feature/x with a managed worktree
+// 2. Runs 'git pour feature finish x --rebase' with cwd inside the feature worktree
 // 3. Verifies exit 6, a message naming the worktree and the --merge/--squash alternative
 // 4. Verifies nothing was touched: no merge state was written, and the worktree and branch both survive
 func TestFinishRebaseRefusedWhenTopicHasSeparateWorktree(t *testing.T) {
@@ -421,9 +421,9 @@ func TestFinishRebaseRefusedWhenTopicHasSeparateWorktree(t *testing.T) {
 // scenario 7's other half: when the parent branch DOES have its own worktree,
 // that is the destination, not the main-worktree fallback.
 // Steps:
-// 1. Initializes git-flow, moves the main worktree onto 'main', and gives 'develop' its own managed worktree
+// 1. Initializes git-pour, moves the main worktree onto 'main', and gives 'develop' its own managed worktree
 // 2. Creates feature/x with a managed worktree
-// 3. Runs 'git flow feature finish x' with cwd inside the feature worktree and GIT_FLOW_CD_FILE set
+// 3. Runs 'git pour feature finish x' with cwd inside the feature worktree and GIT_POUR_CD_FILE set
 // 4. Verifies exit 0 and that the CD file holds develop's worktree path, not the main worktree
 func TestFinishFromInsideOwnWorktreeNavigatesToParentWorktree(t *testing.T) {
 	t.Parallel()
@@ -455,8 +455,8 @@ func TestFinishFromInsideOwnWorktreeNavigatesToParentWorktree(t *testing.T) {
 // finishing from inside a hand-made worktree never navigates, because the
 // directory is detached in place rather than removed.
 // Steps:
-// 1. Initializes git-flow and creates feature/x with a hand-made worktree
-// 2. Runs 'git flow feature finish x' with cwd inside that worktree and GIT_FLOW_CD_FILE set
+// 1. Initializes git-pour and creates feature/x with a hand-made worktree
+// 2. Runs 'git pour feature finish x' with cwd inside that worktree and GIT_POUR_CD_FILE set
 // 3. Verifies exit 0 and that the CD file stays empty
 // 4. Verifies the directory survives, detached, at the same path
 func TestFinishFromInsideHandMadeWorktreeWritesNothing(t *testing.T) {
@@ -487,8 +487,8 @@ func TestFinishFromInsideHandMadeWorktreeWritesNothing(t *testing.T) {
 // --keep (retain the branch) leaves a managed worktree completely alone, even
 // though --force-worktree/--keep-worktree were also given.
 // Steps:
-// 1. Initializes git-flow and creates feature/x with a managed worktree
-// 2. Runs 'git flow feature finish x --keep --force-worktree'
+// 1. Initializes git-pour and creates feature/x with a managed worktree
+// 2. Runs 'git pour feature finish x --keep --force-worktree'
 // 3. Verifies exit 0, the merge landed, and feature/x still exists
 // 4. Verifies the worktree is untouched: still present, still attached to feature/x, marker still true
 func TestFinishKeepBranchLeavesWorktreeUntouched(t *testing.T) {
@@ -521,8 +521,8 @@ func TestFinishKeepBranchLeavesWorktreeUntouched(t *testing.T) {
 // TestFinishNoWorktreeFlagsAreNoOps covers spec scenario 15: with no worktree
 // for the branch, the new flags change nothing.
 // Steps:
-// 1. Initializes git-flow and creates feature/x with no worktree anywhere
-// 2. Runs 'git flow feature finish x --keep-worktree --force-worktree'
+// 1. Initializes git-pour and creates feature/x with no worktree anywhere
+// 2. Runs 'git pour feature finish x --keep-worktree --force-worktree'
 // 3. Verifies exit 0, the merge landed, the branch is gone, and no worktree-related output appears
 func TestFinishNoWorktreeFlagsAreNoOps(t *testing.T) {
 	t.Parallel()
@@ -545,8 +545,8 @@ func TestFinishNoWorktreeFlagsAreNoOps(t *testing.T) {
 // TestFinishMainWorktreeFlagsAreNoOps covers spec scenario 16: a branch checked
 // out in the main worktree is unaffected by the new flags.
 // Steps:
-// 1. Initializes git-flow and runs 'feature start x', leaving feature/x checked out in the main worktree
-// 2. Runs 'git flow feature finish x --keep-worktree --force-worktree'
+// 1. Initializes git-pour and runs 'feature start x', leaving feature/x checked out in the main worktree
+// 2. Runs 'git pour feature finish x --keep-worktree --force-worktree'
 // 3. Verifies exit 0, the merge landed, the branch is gone, and no worktree-related output appears
 func TestFinishMainWorktreeFlagsAreNoOps(t *testing.T) {
 	t.Parallel()
@@ -574,10 +574,10 @@ func TestFinishMainWorktreeFlagsAreNoOps(t *testing.T) {
 // worktree on --continue must refuse there too, leaving the merge state
 // intact for a later retry.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a managed worktree, and sets up a merge conflict on finish
-// 2. Runs 'git flow feature finish x', which stops with unresolved conflicts
+// 1. Initializes git-pour, creates feature/x with a managed worktree, and sets up a merge conflict on finish
+// 2. Runs 'git pour feature finish x', which stops with unresolved conflicts
 // 3. Resolves the conflict and stages it, then dirties the worktree with an unrelated untracked file
-// 4. Runs 'git flow feature finish x --continue'
+// 4. Runs 'git pour feature finish x --continue'
 // 5. Verifies exit 6, a message naming --force-worktree, and that the merge state file still exists
 func TestFinishContinuePreflightRefusesDirtyManagedWorktree(t *testing.T) {
 	t.Parallel()
@@ -641,8 +641,8 @@ func TestFinishContinuePreflightRefusesDirtyManagedWorktree(t *testing.T) {
 // and then silently discard it, refusing identically forever.
 // Steps:
 // 1. Reproduces the same conflict-then-dirty-worktree setup as TestFinishContinuePreflightRefusesDirtyManagedWorktree
-// 2. Runs 'git flow feature finish x --continue' and confirms the same refusal (exit 6)
-// 3. Runs 'git flow feature finish x --continue --force-worktree'
+// 2. Runs 'git pour feature finish x --continue' and confirms the same refusal (exit 6)
+// 3. Runs 'git pour feature finish x --continue --force-worktree'
 // 4. Verifies exit 0, the merge completed, the worktree was removed despite the untracked file, and the branch is gone
 func TestFinishContinueForceWorktreeOverridesPersistedChoice(t *testing.T) {
 	t.Parallel()
@@ -708,10 +708,10 @@ func TestFinishContinueForceWorktreeOverridesPersistedChoice(t *testing.T) {
 // must still find and complete the operation rather than reporting no merge
 // in progress.
 // Steps:
-// 1. Initializes git-flow, moves the main worktree onto 'main', creates feature/x with a managed worktree, and sets up a merge conflict on finish
-// 2. Runs 'git flow feature finish x' with cwd inside the feature worktree — stops with unresolved conflicts, state saved in the main worktree
+// 1. Initializes git-pour, moves the main worktree onto 'main', creates feature/x with a managed worktree, and sets up a merge conflict on finish
+// 2. Runs 'git pour feature finish x' with cwd inside the feature worktree — stops with unresolved conflicts, state saved in the main worktree
 // 3. Resolves the conflict IN THE MAIN WORKTREE, where the merge actually is
-// 4. Runs 'git flow feature finish x --continue' with cwd STILL inside the original feature worktree
+// 4. Runs 'git pour feature finish x --continue' with cwd STILL inside the original feature worktree
 // 5. Verifies exit 0, the merge completed on develop, the worktree is gone, and the branch is deleted
 func TestFinishContinueFromInsideOriginalWorktreeAfterRedirect(t *testing.T) {
 	t.Parallel()
@@ -769,12 +769,12 @@ func TestFinishContinueFromInsideOriginalWorktreeAfterRedirect(t *testing.T) {
 // TestFinishWorktreeFlagsHaveNoConfigEquivalent pins the "Layer 3 only, no
 // config key" scoping decision for #175: unlike finish's other options
 // (--keep, --rebase, --tag, ...), --keep-worktree and --force-worktree have
-// no gitflow.<type>.finish.* counterpart. A config key shaped like one must be
+// no gitpour.<type>.finish.* counterpart. A config key shaped like one must be
 // silently ignored rather than "fixed" by a future config-hierarchy sweep.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a clean, managed worktree
-// 2. Sets gitflow.feature.finish.keep-worktree=true in git config — a key that does not exist as a real option
-// 3. Runs 'git flow feature finish x' with no worktree flags at all
+// 1. Initializes git-pour, creates feature/x with a clean, managed worktree
+// 2. Sets gitpour.feature.finish.keep-worktree=true in git config — a key that does not exist as a real option
+// 3. Runs 'git pour feature finish x' with no worktree flags at all
 // 4. Verifies the worktree was REMOVED, not detached, proving the config key was never consulted
 func TestFinishWorktreeFlagsHaveNoConfigEquivalent(t *testing.T) {
 	t.Parallel()
@@ -784,7 +784,7 @@ func TestFinishWorktreeFlagsHaveNoConfigEquivalent(t *testing.T) {
 	createFreeBranch(t, dir, "feature/x")
 	wtPath := addWorktree(t, dir, "feature/x")
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.keep-worktree", "true"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.keep-worktree", "true"); err != nil {
 		t.Fatalf("Failed to set config: %v\nOutput: %s", err, out)
 	}
 
@@ -813,9 +813,9 @@ func TestFinishWorktreeFlagsHaveNoConfigEquivalent(t *testing.T) {
 // behavior for the no-worktree case (merge state is still cleared regardless;
 // this test adds the worktree that one doesn't have).
 // Steps:
-// 1. Initializes git-flow with a remote, creates feature/x with a managed worktree, pushes it
+// 1. Initializes git-pour with a remote, creates feature/x with a managed worktree, pushes it
 // 2. Configures the remote to reject branch deletions (receive.denyDeletes)
-// 3. Runs 'git flow feature finish x'
+// 3. Runs 'git pour feature finish x'
 // 4. Verifies a non-zero exit, the remote branch survives, and BOTH the local branch and its worktree survive
 func TestFinishPreservesWorktreeWhenRemoteDeletionFails(t *testing.T) {
 	t.Parallel()
@@ -866,9 +866,9 @@ func TestFinishPreservesWorktreeWhenRemoteDeletionFails(t *testing.T) {
 // instead commit on the parent's own worktree (or main), landing the bump in
 // the wrong place and, under --ff-only, risking advancing the parent itself.
 // Steps:
-// 1. Initializes git-flow, moves the main worktree onto 'main', creates feature/x with a managed worktree
-// 2. Installs a pre-flow-feature-finish hook that commits a version bump
-// 3. Runs 'git flow feature finish x' with cwd inside the feature worktree
+// 1. Initializes git-pour, moves the main worktree onto 'main', creates feature/x with a managed worktree
+// 2. Installs a pre-pour-feature-finish hook that commits a version bump
+// 3. Runs 'git pour feature finish x' with cwd inside the feature worktree
 // 4. Verifies exit 0 and that develop carries BOTH the feature content and the hook's version bump
 func TestFinishPreHookRunsOnTopicWorktreeWhenRedirected(t *testing.T) {
 	t.Parallel()
@@ -882,7 +882,7 @@ func TestFinishPreHookRunsOnTopicWorktreeWhenRedirected(t *testing.T) {
 	wtPath := addWorktree(t, dir, "feature/x")
 	commitFileInWorktree(t, wtPath, "feature-x.txt", "hello", "add feature-x.txt")
 
-	createHookScript(t, dir, "pre-flow-feature-finish", `#!/bin/sh
+	createHookScript(t, dir, "pre-pour-feature-finish", `#!/bin/sh
 set -e
 echo 1.2.3 > version.txt
 git add version.txt
@@ -908,9 +908,9 @@ git commit -q -m "Hook bumped the version"
 // reach it would otherwise silently overwrite the first one's recovery
 // state, stranding it.
 // Steps:
-// 1. Initializes git-flow, moves the main worktree onto 'main', gives develop its own worktree, creates feature/x and feature/y each with their own managed worktree
-// 2. Sets up a conflict for feature/x and runs 'git flow feature finish x' from inside its worktree — stops with unresolved conflicts, state saved in develop's worktree (the shared redirect destination)
-// 3. Runs 'git flow feature finish y' from inside its worktree — redirects to the SAME destination
+// 1. Initializes git-pour, moves the main worktree onto 'main', gives develop its own worktree, creates feature/x and feature/y each with their own managed worktree
+// 2. Sets up a conflict for feature/x and runs 'git pour feature finish x' from inside its worktree — stops with unresolved conflicts, state saved in develop's worktree (the shared redirect destination)
+// 3. Runs 'git pour feature finish y' from inside its worktree — redirects to the SAME destination
 // 4. Verifies finish y is refused, naming the in-progress finish for feature/x
 // 5. Verifies feature/x's own operation survived untouched: resolving its conflict and continuing still works
 func TestFinishRefusesRedirectIntoBusyDestinationWorktree(t *testing.T) {
@@ -977,8 +977,8 @@ func TestFinishRefusesRedirectIntoBusyDestinationWorktree(t *testing.T) {
 // exactly like the refusal was meant to prevent, for the one combination the
 // guard was supposed to let through.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a managed worktree and a commit
-// 2. Runs 'git flow feature finish x --rebase --ff-only'
+// 1. Initializes git-pour, creates feature/x with a managed worktree and a commit
+// 2. Runs 'git pour feature finish x --rebase --ff-only'
 // 3. Verifies exit 0, the commit landed on develop by fast-forward, and the worktree is gone
 func TestFinishFFOnlyRebaseFromInsideOwnWorktreeSucceeds(t *testing.T) {
 	t.Parallel()
@@ -1010,9 +1010,9 @@ func TestFinishFFOnlyRebaseFromInsideOwnWorktreeSucceeds(t *testing.T) {
 // can never follow a completed merge" true even when the hook is what caused
 // the dirt.
 // Steps:
-// 1. Initializes git-flow, creates feature/x with a managed worktree
+// 1. Initializes git-pour, creates feature/x with a managed worktree
 // 2. Installs a pre-finish hook that leaves an uncommitted file in the worktree
-// 3. Runs 'git flow feature finish x' with cwd inside the feature worktree
+// 3. Runs 'git pour feature finish x' with cwd inside the feature worktree
 // 4. Verifies exit 6, and that the branch, the worktree, and the hook's uncommitted file all survive (nothing merged, nothing removed)
 func TestFinishRefusesWhenPreHookDirtiesWorktree(t *testing.T) {
 	t.Parallel()
@@ -1025,7 +1025,7 @@ func TestFinishRefusesWhenPreHookDirtiesWorktree(t *testing.T) {
 	createFreeBranch(t, dir, "feature/x")
 	wtPath := addWorktree(t, dir, "feature/x")
 
-	createHookScript(t, dir, "pre-flow-feature-finish", `#!/bin/sh
+	createHookScript(t, dir, "pre-pour-feature-finish", `#!/bin/sh
 echo "uncommitted" > dirty.txt
 `)
 
@@ -1056,14 +1056,14 @@ echo "uncommitted" > dirty.txt
 // though it is sitting right there. findFinishStateAcrossWorktrees replaces
 // the recompute with a direct search across every worktree.
 // Steps:
-//  1. Initializes git-flow; gives main (hotfix's parent) its own separate
+//  1. Initializes git-pour; gives main (hotfix's parent) its own separate
 //     worktree, and diverges develop (an auto-update child of main) via a
 //     scratch worktree that is then removed, freeing develop up
 //  2. Creates hotfix/x from main with a conflicting change to the same file,
 //     with its own worktree
-//  3. Runs 'git flow hotfix finish x': the main merge succeeds, but updating
+//  3. Runs 'git pour hotfix finish x': the main merge succeeds, but updating
 //     develop conflicts — main's worktree ends up checked out on develop
-//  4. Runs 'git flow hotfix finish x --abort' from hotfix/x's own worktree
+//  4. Runs 'git pour hotfix finish x --abort' from hotfix/x's own worktree
 //  5. Verifies the abort actually finds and clears the conflict in main's
 //     worktree, and hotfix/x survives
 func TestFinishAbortAndContinueAfterChildUpdateConflict(t *testing.T) {
@@ -1148,11 +1148,11 @@ func TestFinishAbortAndContinueAfterChildUpdateConflict(t *testing.T) {
 // refuseIfChildWorktreeConflicts now checks every auto-update child before
 // the merge starts.
 // Steps:
-//  1. Initializes git-flow; moves the main worktree off develop and gives
+//  1. Initializes git-pour; moves the main worktree off develop and gives
 //     develop its own separate worktree instead, so it differs from where
 //     hotfix's redirect (main has no worktree of its own) would land
 //  2. Creates hotfix/x with its own worktree
-//  3. Runs 'git flow hotfix finish x' from hotfix/x's own worktree
+//  3. Runs 'git pour hotfix finish x' from hotfix/x's own worktree
 //  4. Verifies exit 6, naming develop and its worktree, and that nothing
 //     changed: no merge state anywhere, hotfix/x and develop both untouched
 func TestFinishRefusesChildBranchWithConflictingWorktree(t *testing.T) {
@@ -1208,11 +1208,11 @@ func TestFinishRefusesChildBranchWithConflictingWorktree(t *testing.T) {
 // a user standing in the topic's own worktree was sent to the main worktree
 // instead of where finish actually landed.
 // Steps:
-//  1. Initializes git-flow; gives main (hotfix's parent) its own separate
+//  1. Initializes git-pour; gives main (hotfix's parent) its own separate
 //     worktree, distinct from the main worktree
 //  2. Creates hotfix/x from main with its own worktree
-//  3. Runs 'git flow hotfix finish x' from hotfix/x's own worktree with
-//     GIT_FLOW_CD_FILE set: the merge and the develop auto-update both
+//  3. Runs 'git pour hotfix finish x' from hotfix/x's own worktree with
+//     GIT_POUR_CD_FILE set: the merge and the develop auto-update both
 //     succeed cleanly, leaving main's worktree checked out on develop
 //  4. Verifies the CD file names main's own worktree (where repo actually
 //     ended up), not the main worktree

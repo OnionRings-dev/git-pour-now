@@ -6,19 +6,19 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 	"github.com/spf13/cobra"
 )
 
 // overviewCmd represents the overview command
 var overviewCmd = &cobra.Command{
 	Use:   "overview",
-	Short: "Show an overview of the git-flow configuration and branches",
+	Short: "Show an overview of the git-pour configuration and branches",
 	Args:  cobra.NoArgs,
-	Long: `Show an overview of the git-flow configuration and branches.
-This command displays the current git-flow configuration and lists all active topic branches.`,
+	Long: `Show an overview of the git-pour configuration and branches.
+This command displays the current git-pour configuration and lists all active topic branches.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		OverviewCommand()
 	},
@@ -29,8 +29,8 @@ func OverviewCommand() {
 	repo := mustOpenRepo()
 	if err := overview(repo); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -41,10 +41,10 @@ func OverviewCommand() {
 
 // overview performs the actual overview logic and returns any errors
 func overview(repo *git.Repo) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}

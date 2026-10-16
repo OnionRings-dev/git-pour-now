@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // createHookScript creates an executable hook script in the repository's hooks directory.
@@ -34,10 +34,10 @@ func TestStartPreHookBlocks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a pre-hook that fails
@@ -45,7 +45,7 @@ func TestStartPreHookBlocks(t *testing.T) {
 echo "Pre-hook blocking operation" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	// Try to start a feature - should fail
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "blocked-feature")
@@ -70,10 +70,10 @@ func TestFinishPreHookBlocks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "my-feature")
@@ -91,7 +91,7 @@ func TestFinishPreHookBlocks(t *testing.T) {
 echo "Pre-hook blocking finish" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-feature-finish", script)
+	createHookScript(t, dir, "pre-pour-feature-finish", script)
 
 	// Try to finish - should fail
 	output, err := testutil.RunGitFlow(t, dir, "feature", "finish", "my-feature")
@@ -116,10 +116,10 @@ func TestDeletePreHookBlocks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "to-delete")
@@ -135,7 +135,7 @@ func TestDeletePreHookBlocks(t *testing.T) {
 echo "Pre-hook blocking delete" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-feature-delete", script)
+	createHookScript(t, dir, "pre-pour-feature-delete", script)
 
 	// Try to delete - should fail
 	output, err := testutil.RunGitFlow(t, dir, "feature", "delete", "to-delete")
@@ -164,10 +164,10 @@ func TestStartPostHookRuns(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a marker file path
@@ -179,7 +179,7 @@ echo "BRANCH=$BRANCH" > "` + markerFile + `"
 echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 echo "BRANCH_TYPE=$BRANCH_TYPE" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-start", script)
+	createHookScript(t, dir, "post-pour-feature-start", script)
 
 	// Start a feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "post-hook-test")
@@ -212,10 +212,10 @@ func TestFinishPostHookReceivesExitCode(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "exit-code-test")
@@ -235,7 +235,7 @@ func TestFinishPostHookReceivesExitCode(t *testing.T) {
 	script := `#!/bin/sh
 echo "EXIT_CODE=$EXIT_CODE" > "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-finish", script)
+	createHookScript(t, dir, "post-pour-feature-finish", script)
 
 	// Finish the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "finish", "exit-code-test")
@@ -264,10 +264,10 @@ func TestStartVersionFilterModifiesBranchName(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a version filter that adds 'v' prefix
@@ -279,7 +279,7 @@ else
     echo "$VERSION"
 fi
 `
-	createHookScript(t, dir, "filter-flow-release-start-version", script)
+	createHookScript(t, dir, "filter-pour-release-start-version", script)
 
 	// Start a release with version "1.0.0" - filter should change to "v1.0.0"
 	output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0")
@@ -307,9 +307,9 @@ fi
 // start runs the version filter (with an empty version argument) and uses its
 // trimmed output as the branch name for a release branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Installs filter-flow-release-start-version that echoes "1.4.0" only when its $1 is empty
-// 3. Runs 'git flow release start' with no name and no base
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Installs filter-pour-release-start-version that echoes "1.4.0" only when its $1 is empty
+// 3. Runs 'git pour release start' with no name and no base
 // 4. Verifies exit 0 and output contains "Created branch 'release/1.4.0' from 'develop'"
 // 5. Verifies branch release/1.4.0 exists (filter-derived name from empty $1)
 func TestStartDerivesVersionFromFilterWhenNameOmitted(t *testing.T) {
@@ -317,9 +317,9 @@ func TestStartDerivesVersionFromFilterWhenNameOmitted(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Filter echoes 1.4.0 only when the version argument ($1) is empty,
@@ -330,7 +330,7 @@ if [ -z "$VERSION" ]; then
     echo "1.4.0"
 fi
 `
-	createHookScript(t, dir, "filter-flow-release-start-version", script)
+	createHookScript(t, dir, "filter-pour-release-start-version", script)
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "start")
 	if err != nil {
@@ -350,8 +350,8 @@ fi
 // with no version filter falls back to the business-layer empty-name error
 // rather than the Cobra arg-count error.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (no filter installed)
-// 2. Runs 'git flow release start' with no args
+// 1. Sets up a test repository and initializes git-pour with defaults (no filter installed)
+// 2. Runs 'git pour release start' with no args
 // 3. Verifies non-zero exit with code ExitCodeInvalidInput (2)
 // 4. Verifies output contains "branch name cannot be empty" and NOT "accepts between"
 // 5. Verifies no release branch was created (refs/heads/release/ is empty)
@@ -360,9 +360,9 @@ func TestStartNoFilterNoNameReturnsEmptyNameError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "start")
@@ -397,9 +397,9 @@ func TestStartNoFilterNoNameReturnsEmptyNameError(t *testing.T) {
 // TestStartFilterReturnsEmptyReturnsEmptyNameError tests that a no-argument
 // start with a filter that produces no output falls back to the empty-name error.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Installs filter-flow-release-start-version that prints nothing and exits 0
-// 3. Runs 'git flow release start' with no args
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Installs filter-pour-release-start-version that prints nothing and exits 0
+// 3. Runs 'git pour release start' with no args
 // 4. Verifies non-zero exit with code ExitCodeInvalidInput (2)
 // 5. Verifies output contains "branch name cannot be empty"
 // 6. Verifies no release branch was created (refs/heads/release/ is empty)
@@ -408,15 +408,15 @@ func TestStartFilterReturnsEmptyReturnsEmptyNameError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	script := `#!/bin/sh
 exit 0
 `
-	createHookScript(t, dir, "filter-flow-release-start-version", script)
+	createHookScript(t, dir, "filter-pour-release-start-version", script)
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "start")
 	if err == nil {
@@ -447,8 +447,8 @@ exit 0
 // TestStartExplicitNameNoFilter tests that an explicit name with no filter
 // installed creates the branch unchanged and prints no filter-change message.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (no filter installed)
-// 2. Runs 'git flow release start 1.0.0'
+// 1. Sets up a test repository and initializes git-pour with defaults (no filter installed)
+// 2. Runs 'git pour release start 1.0.0'
 // 3. Verifies exit 0 and output contains "Created branch 'release/1.0.0' from 'develop'"
 // 4. Verifies branch release/1.0.0 exists
 // 5. Verifies output does NOT contain "Version filter changed"
@@ -457,9 +457,9 @@ func TestStartExplicitNameNoFilter(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0")
@@ -481,9 +481,9 @@ func TestStartExplicitNameNoFilter(t *testing.T) {
 // TestStartDerivesVersionFromFilterHotfix tests that no-argument start version
 // derivation is generic across branch types, using hotfix (start point main).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Installs filter-flow-hotfix-start-version that echoes "2.0.1"
-// 3. Runs 'git flow hotfix start' with no args
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Installs filter-pour-hotfix-start-version that echoes "2.0.1"
+// 3. Runs 'git pour hotfix start' with no args
 // 4. Verifies exit 0 and output contains "Created branch 'hotfix/2.0.1' from 'main'"
 // 5. Verifies branch hotfix/2.0.1 exists (derived name, hotfix start point main)
 func TestStartDerivesVersionFromFilterHotfix(t *testing.T) {
@@ -491,15 +491,15 @@ func TestStartDerivesVersionFromFilterHotfix(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	script := `#!/bin/sh
 echo "2.0.1"
 `
-	createHookScript(t, dir, "filter-flow-hotfix-start-version", script)
+	createHookScript(t, dir, "filter-pour-hotfix-start-version", script)
 
 	output, err := testutil.RunGitFlow(t, dir, "hotfix", "start")
 	if err != nil {
@@ -517,8 +517,8 @@ echo "2.0.1"
 // TestStartFeatureNoFilterNoNameReturnsEmptyNameError tests that a feature type
 // with no version filter and no argument still yields the empty-name error.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (no feature filter)
-// 2. Runs 'git flow feature start' with no args
+// 1. Sets up a test repository and initializes git-pour with defaults (no feature filter)
+// 2. Runs 'git pour feature start' with no args
 // 3. Verifies non-zero exit with code ExitCodeInvalidInput (2)
 // 4. Verifies output contains "branch name cannot be empty"
 // 5. Verifies no feature branch was created (refs/heads/feature/ is empty)
@@ -527,9 +527,9 @@ func TestStartFeatureNoFilterNoNameReturnsEmptyNameError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start")
@@ -561,8 +561,8 @@ func TestStartFeatureNoFilterNoNameReturnsEmptyNameError(t *testing.T) {
 // TestStartTooManyArgsRejected tests that relaxing the lower arg bound to zero
 // still caps the upper bound at two, rejecting three positional arguments.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Runs 'git flow release start 1.0.0 develop extra' (three positional args)
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Runs 'git pour release start 1.0.0 develop extra' (three positional args)
 // 3. Verifies non-zero exit and output contains "accepts between" (Cobra arg-count error)
 // 4. Verifies no release branch was created (refs/heads/release/ is empty)
 func TestStartTooManyArgsRejected(t *testing.T) {
@@ -570,9 +570,9 @@ func TestStartTooManyArgsRejected(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0", "develop", "extra")
@@ -597,9 +597,9 @@ func TestStartTooManyArgsRejected(t *testing.T) {
 // fails (non-zero exit) surfaces a Git error, not the empty-name fallback,
 // proving the filter runs before the moved empty-name guard.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Installs filter-flow-release-start-version that writes to stderr and exits 1
-// 3. Runs 'git flow release start' with no args
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Installs filter-pour-release-start-version that writes to stderr and exits 1
+// 3. Runs 'git pour release start' with no args
 // 4. Verifies non-zero exit with code ExitCodeGitError (3), not ExitCodeInvalidInput (2)
 // 5. Verifies output contains "version filter" and NOT "branch name cannot be empty"
 // 6. Verifies no release branch was created (refs/heads/release/ is empty)
@@ -608,16 +608,16 @@ func TestStartFilterNonZeroExitReturnsGitError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	script := `#!/bin/sh
 echo "filter boom" >&2
 exit 1
 `
-	createHookScript(t, dir, "filter-flow-release-start-version", script)
+	createHookScript(t, dir, "filter-pour-release-start-version", script)
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "start")
 	if err == nil {
@@ -654,10 +654,10 @@ func TestVersionFilterPassedToHooks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	markerFile := filepath.Join(dir, "hook-received-version.txt")
@@ -667,14 +667,14 @@ func TestVersionFilterPassedToHooks(t *testing.T) {
 VERSION="$1"
 echo "v$VERSION"
 `
-	createHookScript(t, dir, "filter-flow-release-start-version", filterScript)
+	createHookScript(t, dir, "filter-pour-release-start-version", filterScript)
 
 	// Create a post-hook that records the version it received
 	hookScript := `#!/bin/sh
 echo "VERSION=$VERSION" > "` + markerFile + `"
 echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-release-start", hookScript)
+	createHookScript(t, dir, "post-pour-release-start", hookScript)
 
 	// Start a release
 	_, err = testutil.RunGitFlow(t, dir, "release", "start", "2.0.0")
@@ -708,10 +708,10 @@ func TestFinishTagMessageFilterModifiesTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a release
@@ -730,7 +730,7 @@ func TestFinishTagMessageFilterModifiesTag(t *testing.T) {
 VERSION="$1"
 echo "Custom Release: $VERSION - Modified by filter"
 `
-	createHookScript(t, dir, "filter-flow-release-finish-tag-message", script)
+	createHookScript(t, dir, "filter-pour-release-finish-tag-message", script)
 
 	// Finish the release
 	_, err = testutil.RunGitFlow(t, dir, "release", "finish", "3.0.0")
@@ -768,14 +768,14 @@ func TestStartWithHooksInWorktree(t *testing.T) {
 	mainRepo := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
-	// Initialize git-flow in main repo
-	_, err := testutil.RunGitFlow(t, mainRepo, "init", "--defaults")
+	// Initialize git-pour in main repo
+	_, err := testutil.RunGitFlow(t, mainRepo, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a worktree
-	worktreePath, err := os.MkdirTemp("", "git-flow-cmd-worktree-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-cmd-worktree-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -794,15 +794,15 @@ func TestStartWithHooksInWorktree(t *testing.T) {
 	preScript := `#!/bin/sh
 echo "pre-hook-ran" > "` + markerFile + `"
 `
-	createHookScript(t, mainRepo, "pre-flow-feature-start", preScript)
+	createHookScript(t, mainRepo, "pre-pour-feature-start", preScript)
 
 	postScript := `#!/bin/sh
 echo "post-hook-ran" >> "` + markerFile + `"
 echo "BRANCH=$BRANCH" >> "` + markerFile + `"
 `
-	createHookScript(t, mainRepo, "post-flow-feature-start", postScript)
+	createHookScript(t, mainRepo, "post-pour-feature-start", postScript)
 
-	// Run git-flow command from worktree
+	// Run git-pour command from worktree
 	output, err := testutil.RunGitFlow(t, worktreePath, "feature", "start", "worktree-feature")
 	if err != nil {
 		t.Fatalf("Failed to start feature from worktree: %v\nOutput: %s", err, output)
@@ -853,7 +853,7 @@ func TestPublishPreHookBlocks(t *testing.T) {
 echo "Pre-hook blocking publish" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-feature-publish", script)
+	createHookScript(t, dir, "pre-pour-feature-publish", script)
 
 	// Try to publish - should fail
 	output, err := testutil.RunGitFlow(t, dir, "feature", "publish", "publish-test")
@@ -894,7 +894,7 @@ echo "BRANCH=$BRANCH" > "` + markerFile + `"
 echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 echo "ORIGIN=$ORIGIN" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-publish", script)
+	createHookScript(t, dir, "post-pour-feature-publish", script)
 
 	// Publish the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "publish", "publish-hook-test")
@@ -951,7 +951,7 @@ func TestTrackPreHookBlocks(t *testing.T) {
 echo "Pre-hook blocking track" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-feature-track", script)
+	createHookScript(t, dir, "pre-pour-feature-track", script)
 
 	// Try to track - should fail
 	output, err := testutil.RunGitFlow(t, dir, "feature", "track", "track-test")
@@ -1000,7 +1000,7 @@ echo "BRANCH=$BRANCH" > "` + markerFile + `"
 echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 echo "ORIGIN=$ORIGIN" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-track", script)
+	createHookScript(t, dir, "post-pour-feature-track", script)
 
 	// Track the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "track", "track-hook-test")
@@ -1034,10 +1034,10 @@ func TestDeletePostHookRuns(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "to-delete-hook")
@@ -1057,7 +1057,7 @@ echo "BRANCH=$BRANCH" > "` + markerFile + `"
 echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 echo "EXIT_CODE=$EXIT_CODE" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-delete", script)
+	createHookScript(t, dir, "post-pour-feature-delete", script)
 
 	// Delete the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "delete", "to-delete-hook")
@@ -1091,22 +1091,22 @@ func TestCustomBranchTypePreHookBlocks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Configure a custom branch type "bugfix"
-	_, _ = testutil.RunGit(t, dir, "config", "gitflow.branch.bugfix.prefix", "bugfix/")
-	_, _ = testutil.RunGit(t, dir, "config", "gitflow.branch.bugfix.parent", "develop")
+	_, _ = testutil.RunGit(t, dir, "config", "gitpour.branch.bugfix.prefix", "bugfix/")
+	_, _ = testutil.RunGit(t, dir, "config", "gitpour.branch.bugfix.parent", "develop")
 
 	// Create a pre-hook that fails for the custom branch type
 	script := `#!/bin/sh
 echo "Pre-hook blocking bugfix start" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-bugfix-start", script)
+	createHookScript(t, dir, "pre-pour-bugfix-start", script)
 
 	// Try to start a bugfix - should fail
 	output, err := testutil.RunGitFlow(t, dir, "bugfix", "start", "custom-blocked")
@@ -1126,21 +1126,21 @@ exit 1
 }
 
 // TestCustomBranchTypePostHookReceivesCorrectType tests that post-hooks receive the correct branch type.
-// Uses "support" branch type which is a standard git-flow type but configured with custom prefix.
+// Uses "support" branch type which is a standard git-pour type but configured with custom prefix.
 func TestCustomBranchTypePostHookReceivesCorrectType(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Configure support branch with a custom prefix
-	_, _ = testutil.RunGit(t, dir, "config", "gitflow.branch.support.prefix", "sup/")
-	_, _ = testutil.RunGit(t, dir, "config", "gitflow.branch.support.parent", "main")
+	_, _ = testutil.RunGit(t, dir, "config", "gitpour.branch.support.prefix", "sup/")
+	_, _ = testutil.RunGit(t, dir, "config", "gitpour.branch.support.parent", "main")
 
 	// Create a marker file path
 	markerFile := filepath.Join(dir, "custom-hook-executed.txt")
@@ -1152,7 +1152,7 @@ echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 echo "BRANCH_TYPE=$BRANCH_TYPE" >> "` + markerFile + `"
 echo "BASE_BRANCH=$BASE_BRANCH" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-support-start", script)
+	createHookScript(t, dir, "post-pour-support-start", script)
 
 	// Start a support branch
 	_, err = testutil.RunGitFlow(t, dir, "support", "start", "lts-1.0")
@@ -1192,10 +1192,10 @@ func TestUpdatePreHookBlocks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "update-test")
@@ -1222,7 +1222,7 @@ func TestUpdatePreHookBlocks(t *testing.T) {
 echo "Pre-hook blocking update" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-feature-update", script)
+	createHookScript(t, dir, "pre-pour-feature-update", script)
 
 	// Try to update - should fail
 	output, err := testutil.RunGitFlow(t, dir, "feature", "update", "update-test")
@@ -1242,10 +1242,10 @@ func TestUpdatePostHookRuns(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "update-hook-test")
@@ -1278,7 +1278,7 @@ echo "BRANCH_TYPE=$BRANCH_TYPE" >> "` + markerFile + `"
 echo "BASE_BRANCH=$BASE_BRANCH" >> "` + markerFile + `"
 echo "EXIT_CODE=$EXIT_CODE" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-update", script)
+	createHookScript(t, dir, "post-pour-feature-update", script)
 
 	// Update the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "update", "update-hook-test")
@@ -1317,10 +1317,10 @@ func TestUpdateShorthandHookRuns(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "shorthand-update")
@@ -1350,9 +1350,9 @@ func TestUpdateShorthandHookRuns(t *testing.T) {
 echo "BRANCH_TYPE=$BRANCH_TYPE" > "` + markerFile + `"
 echo "BRANCH_NAME=$BRANCH_NAME" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-update", script)
+	createHookScript(t, dir, "post-pour-feature-update", script)
 
-	// Use shorthand update command (git flow update)
+	// Use shorthand update command (git pour update)
 	_, err = testutil.RunGitFlow(t, dir, "update")
 	if err != nil {
 		t.Fatalf("Failed to run shorthand update: %v", err)
@@ -1384,10 +1384,10 @@ func TestStartHookReceivesPositionalArguments(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a marker file path
@@ -1401,7 +1401,7 @@ echo "ARG3=$3" >> "` + markerFile + `"
 echo "ARG4=$4" >> "` + markerFile + `"
 echo "ARG_COUNT=$#" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	// Start a feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "arg-test")
@@ -1445,10 +1445,10 @@ func TestFinishHookReceivesPositionalArguments(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "finish-arg-test")
@@ -1471,7 +1471,7 @@ echo "ARG2=$2" >> "` + markerFile + `"
 echo "ARG3=$3" >> "` + markerFile + `"
 echo "ARG_COUNT=$#" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "pre-flow-feature-finish", script)
+	createHookScript(t, dir, "pre-pour-feature-finish", script)
 
 	// Finish the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "finish", "finish-arg-test")
@@ -1505,16 +1505,16 @@ echo "ARG_COUNT=$#" >> "` + markerFile + `"
 }
 
 // TestUpdateHookReceivesPositionalArguments tests that update hooks receive positional arguments.
-// Update is a git-flow-next extension: $1=name, $2=origin, $3=branch, $4=base.
+// Update is a git-pour-now extension: $1=name, $2=origin, $3=branch, $4=base.
 func TestUpdateHookReceivesPositionalArguments(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow and create a feature branch
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour and create a feature branch
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	_, err = testutil.RunGitFlow(t, dir, "feature", "start", "update-arg-test")
@@ -1547,7 +1547,7 @@ echo "ARG3=$3" >> "` + markerFile + `"
 echo "ARG4=$4" >> "` + markerFile + `"
 echo "ARG_COUNT=$#" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-update", script)
+	createHookScript(t, dir, "post-pour-feature-update", script)
 
 	// Update the feature
 	_, err = testutil.RunGitFlow(t, dir, "feature", "update", "update-arg-test")
@@ -1591,10 +1591,10 @@ func TestHookPositionalArgsMatchEnvVars(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a hook that compares positional args with env vars
@@ -1625,7 +1625,7 @@ fi
 
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	// Start a feature - hook will fail if args don't match env vars
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "consistency-test")
@@ -1646,10 +1646,10 @@ func TestHotfixVersionFilter(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a version filter that adds 'hotfix-' prefix for hotfixes
@@ -1661,7 +1661,7 @@ else
     echo "$VERSION"
 fi
 `
-	createHookScript(t, dir, "filter-flow-hotfix-start-version", script)
+	createHookScript(t, dir, "filter-pour-hotfix-start-version", script)
 
 	// Start a hotfix - filter should change "1.0.1" to "hotfix-1.0.1"
 	output, err := testutil.RunGitFlow(t, dir, "hotfix", "start", "1.0.1")

@@ -15,13 +15,13 @@ import (
 var gitFlowPath string
 
 func init() {
-	// Check for GIT_FLOW_PATH environment variable first
-	if envPath := os.Getenv("GIT_FLOW_PATH"); envPath != "" {
+	// Check for GIT_POUR_PATH environment variable first
+	if envPath := os.Getenv("GIT_POUR_PATH"); envPath != "" {
 		gitFlowPath = envPath
 		return
 	}
 
-	// Get the absolute path to the git-flow binary
+	// Get the absolute path to the git-pour binary
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -30,45 +30,45 @@ func init() {
 	if strings.HasSuffix(wd, "test/cmd") {
 		wd = filepath.Join(wd, "..", "..")
 	}
-	gitFlowPath = filepath.Join(wd, "git-flow")
+	gitFlowPath = filepath.Join(wd, "git-pour")
 }
 
-// BuildGitFlow compiles the git-flow binary into a temporary directory and
+// BuildGitFlow compiles the git-pour binary into a temporary directory and
 // points RunGitFlow at it, so tests never execute a stale or missing binary.
-// If the GIT_FLOW_PATH environment variable is set, no build is performed and
+// If the GIT_POUR_PATH environment variable is set, no build is performed and
 // that binary is used instead. The returned cleanup function removes the
 // temporary directory. Intended to be called from TestMain in packages that
-// execute the git-flow binary.
+// execute the git-pour binary.
 func BuildGitFlow() (func(), error) {
-	if os.Getenv("GIT_FLOW_PATH") != "" {
+	if os.Getenv("GIT_POUR_PATH") != "" {
 		return func() {}, nil
 	}
 
-	tmpDir, err := os.MkdirTemp("", "git-flow-test-bin-*")
+	tmpDir, err := os.MkdirTemp("", "git-pour-test-bin-*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary directory: %w", err)
 	}
 
-	binary := filepath.Join(tmpDir, "git-flow")
+	binary := filepath.Join(tmpDir, "git-pour")
 	if runtime.GOOS == "windows" {
 		binary += ".exe"
 	}
 
 	// Build by module path so this works from any package directory
-	cmd := exec.Command("go", "build", "-o", binary, "github.com/gittower/git-flow-next")
+	cmd := exec.Command("go", "build", "-o", binary, "github.com/OnionRings-dev/git-pour-now")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		os.RemoveAll(tmpDir)
-		return nil, fmt.Errorf("failed to build git-flow: %w\nOutput: %s", err, output)
+		return nil, fmt.Errorf("failed to build git-pour: %w\nOutput: %s", err, output)
 	}
 
 	gitFlowPath = binary
 	return func() { os.RemoveAll(tmpDir) }, nil
 }
 
-// GitFlowPath returns the path of the git-flow binary under test. Use this
+// GitFlowPath returns the path of the git-pour binary under test. Use this
 // instead of resolving the binary path manually, so tests run the binary
-// built by TestMain (or the GIT_FLOW_PATH override).
+// built by TestMain (or the GIT_POUR_PATH override).
 func GitFlowPath() string {
 	return gitFlowPath
 }
@@ -116,34 +116,34 @@ func RunGitWithEnv(t *testing.T, dir string, env []string, args ...string) (stri
 	return string(output), nil
 }
 
-// gitFlowEnv assembles the environment for a git-flow subprocess.
+// gitFlowEnv assembles the environment for a git-pour subprocess.
 //
 // Order matters, and it is: the test process environment, then an empty
-// GIT_FLOW_CD_FILE, then the caller's extra env, then GIT_EDITOR=: last.
+// GIT_POUR_CD_FILE, then the caller's extra env, then GIT_EDITOR=: last.
 // exec dedups env keeping the FINAL value of a key, so:
-//   - the ambient GIT_FLOW_CD_FILE of a developer who exported the variable is
+//   - the ambient GIT_POUR_CD_FILE of a developer who exported the variable is
 //     neutralized for every test that does not opt in — otherwise each run would
 //     write into that developer's file and the "variable unset" scenario would
 //     silently stop testing anything;
-//   - a caller that does pass GIT_FLOW_CD_FILE=<path> still wins, since its
+//   - a caller that does pass GIT_POUR_CD_FILE=<path> still wins, since its
 //     value comes after the neutralizing one;
 //   - GIT_EDITOR=: comes last so caller env can never make git interactive.
 func gitFlowEnv(env []string) []string {
-	full := append(os.Environ(), "GIT_FLOW_CD_FILE=")
+	full := append(os.Environ(), "GIT_POUR_CD_FILE=")
 	full = append(full, env...)
 	return append(full, "GIT_EDITOR=:")
 }
 
-// RunGitFlow runs a git-flow command in the specified directory and returns its output
+// RunGitFlow runs a git-pour command in the specified directory and returns its output
 func RunGitFlow(t *testing.T, dir string, args ...string) (string, error) {
 	return RunGitFlowWithEnv(t, dir, nil, args...)
 }
 
-// RunGitFlowWithEnv runs a git-flow command in the specified directory with extra
+// RunGitFlowWithEnv runs a git-pour command in the specified directory with extra
 // environment variables appended to the child process env, returning its combined
 // output. The extra env is scoped to the subprocess only — it never mutates the
 // test process environment — so concurrent tests can isolate settings like
-// GIT_FLOW_CD_FILE without leaking into each other (see RunGitFlow for the
+// GIT_POUR_CD_FILE without leaking into each other (see RunGitFlow for the
 // no-extra-env case).
 func RunGitFlowWithEnv(t *testing.T, dir string, env []string, args ...string) (string, error) {
 	cmd := exec.Command(gitFlowPath, args...)
@@ -162,17 +162,17 @@ func RunGitFlowWithEnv(t *testing.T, dir string, env []string, args ...string) (
 	return string(output), nil
 }
 
-// RunGitFlowStreams runs a git-flow command and returns stdout and stderr
+// RunGitFlowStreams runs a git-pour command and returns stdout and stderr
 // separately. Use it when a test has to prove which stream carried the output;
 // RunGitFlow merges the two and cannot distinguish them.
 func RunGitFlowStreams(t *testing.T, dir string, args ...string) (string, string, error) {
 	return RunGitFlowStreamsWithEnv(t, dir, nil, args...)
 }
 
-// RunGitFlowStreamsWithEnv runs a git-flow command with extra environment
+// RunGitFlowStreamsWithEnv runs a git-pour command with extra environment
 // variables and returns stdout and stderr separately. It is the stream-separating
 // counterpart of RunGitFlowWithEnv, for tests that need both an environment
-// (e.g. GIT_FLOW_CD_FILE) and proof of which stream carried the output.
+// (e.g. GIT_POUR_CD_FILE) and proof of which stream carried the output.
 func RunGitFlowStreamsWithEnv(t *testing.T, dir string, env []string, args ...string) (string, string, error) {
 	cmd := exec.Command(gitFlowPath, args...)
 	cmd.Dir = dir
@@ -199,7 +199,7 @@ func RunGitFlowStreamsWithEnv(t *testing.T, dir string, env []string, args ...st
 	return stdout.String(), stderr.String(), nil
 }
 
-// RunGitFlowWithInput runs a git-flow command with the provided input and returns its output
+// RunGitFlowWithInput runs a git-pour command with the provided input and returns its output
 func RunGitFlowWithInput(t *testing.T, dir string, input string, args ...string) (string, error) {
 	cmd := exec.Command(gitFlowPath, args...)
 	cmd.Dir = dir
@@ -218,9 +218,9 @@ func RunGitFlowWithInput(t *testing.T, dir string, input string, args ...string)
 	return string(output), nil
 }
 
-// RunGitFlowInteractive runs a git-flow command with the given stdin input and
-// forces the first-run interactivity seam ON via GIT_FLOW_ASSUME_INTERACTIVE=1.
-// The subprocess test harness cannot allocate a PTY, so git-flow's real
+// RunGitFlowInteractive runs a git-pour command with the given stdin input and
+// forces the first-run interactivity seam ON via GIT_POUR_ASSUME_INTERACTIVE=1.
+// The subprocess test harness cannot allocate a PTY, so git-pour's real
 // term.IsTerminal check would always report non-interactive; this test-only env
 // var makes the first-run activation decision treat stdin as interactive and
 // read the answer from the piped input. Use it for the prompt scenarios (accept
@@ -230,7 +230,7 @@ func RunGitFlowInteractive(t *testing.T, dir string, input string, args ...strin
 	cmd := exec.Command(gitFlowPath, args...)
 	cmd.Dir = dir
 	cmd.Stdin = strings.NewReader(input)
-	cmd.Env = append(gitFlowEnv(nil), "GIT_FLOW_ASSUME_INTERACTIVE=1")
+	cmd.Env = append(gitFlowEnv(nil), "GIT_POUR_ASSUME_INTERACTIVE=1")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
@@ -266,10 +266,10 @@ func EvalPath(t *testing.T, path string) string {
 	return resolved
 }
 
-// SharedConfigPath returns the path to the committable .gitflow file at the root
+// SharedConfigPath returns the path to the committable .gitpour file at the root
 // of the given repository directory.
 func SharedConfigPath(dir string) string {
-	return filepath.Join(dir, ".gitflow")
+	return filepath.Join(dir, ".gitpour")
 }
 
 // GitConfigValue returns a single git config value from the repository's LOCAL
@@ -308,7 +308,7 @@ func GitConfigAll(t *testing.T, dir, key string) []string {
 }
 
 // GitConfigHasPrefix reports whether the repository's LOCAL git config contains
-// any key whose name starts with the given prefix (e.g. "gitflow.branch.qa.").
+// any key whose name starts with the given prefix (e.g. "gitpour.branch.qa.").
 func GitConfigHasPrefix(t *testing.T, dir, prefix string) bool {
 	out, err := RunGit(t, dir, "config", "--local", "--get-regexp", "^"+prefix)
 	if err != nil {
@@ -317,7 +317,7 @@ func GitConfigHasPrefix(t *testing.T, dir, prefix string) bool {
 	return strings.TrimSpace(out) != ""
 }
 
-// SharedConfigValue returns a single value from the .gitflow file, or empty when
+// SharedConfigValue returns a single value from the .gitpour file, or empty when
 // unset.
 func SharedConfigValue(t *testing.T, dir, key string) string {
 	out, err := RunGit(t, dir, "config", "--file", SharedConfigPath(dir), "--get", key)
@@ -327,7 +327,7 @@ func SharedConfigValue(t *testing.T, dir, key string) string {
 	return strings.TrimSpace(out)
 }
 
-// SharedConfigAll returns all values for a key from the .gitflow file, in order.
+// SharedConfigAll returns all values for a key from the .gitpour file, in order.
 func SharedConfigAll(t *testing.T, dir, key string) []string {
 	out, err := RunGit(t, dir, "config", "--file", SharedConfigPath(dir), "--get-all", key)
 	if err != nil {
@@ -342,15 +342,15 @@ func SharedConfigAll(t *testing.T, dir, key string) []string {
 	return vals
 }
 
-// SharedConfigSet sets a key in the .gitflow file via `git config --file`.
+// SharedConfigSet sets a key in the .gitpour file via `git config --file`.
 func SharedConfigSet(t *testing.T, dir, key, value string) {
 	t.Helper()
 	if _, err := RunGit(t, dir, "config", "--file", SharedConfigPath(dir), key, value); err != nil {
-		t.Fatalf("Failed to set %s in .gitflow: %v", key, err)
+		t.Fatalf("Failed to set %s in .gitpour: %v", key, err)
 	}
 }
 
-// SharedConfigHasPrefix reports whether the .gitflow file contains any key whose
+// SharedConfigHasPrefix reports whether the .gitpour file contains any key whose
 // name starts with the given prefix.
 func SharedConfigHasPrefix(t *testing.T, dir, prefix string) bool {
 	out, err := RunGit(t, dir, "config", "--file", SharedConfigPath(dir), "--get-regexp", "^"+prefix)
@@ -360,60 +360,60 @@ func SharedConfigHasPrefix(t *testing.T, dir, prefix string) bool {
 	return strings.TrimSpace(out) != ""
 }
 
-// AuthorSharedConfig runs `git flow init --shared --defaults` (plus any extra
+// AuthorSharedConfig runs `git pour init --shared --defaults` (plus any extra
 // args) in a throwaway repository and returns the raw bytes of the resulting
-// .gitflow file. Callers copy this into a fresh clone via SetupFreshCloneWithShared.
+// .gitpour file. Callers copy this into a fresh clone via SetupFreshCloneWithShared.
 func AuthorSharedConfig(t *testing.T, extraArgs ...string) []byte {
 	t.Helper()
 	src := SetupTestRepo(t)
 	defer CleanupTestRepo(t, src)
-	args := append([]string{"init", "--shared", "--defaults"}, extraArgs...)
+	args := append([]string{"init", "--shared", "--defaults", "--preset=classic"}, extraArgs...)
 	if out, err := RunGitFlow(t, src, args...); err != nil {
 		t.Fatalf("Failed to author shared config: %v\nOutput: %s", err, out)
 	}
 	data, err := os.ReadFile(SharedConfigPath(src))
 	if err != nil {
-		t.Fatalf("Failed to read authored .gitflow: %v", err)
+		t.Fatalf("Failed to read authored .gitpour: %v", err)
 	}
 	return data
 }
 
 // SetupFreshCloneWithShared creates a fresh repository that contains a committed
-// .gitflow file (with the given content) but NO local gitflow.* keys, simulating
-// a fresh clone of a repository that carries a committed .gitflow before its
+// .gitpour file (with the given content) but NO local gitpour.* keys, simulating
+// a fresh clone of a repository that carries a committed .gitpour before its
 // first-run activation. Like a real clone of a defaults repo, it also has a
 // develop branch (the non-trunk base of the default configuration) so topic
 // branches that start from develop can be created after activation.
-func SetupFreshCloneWithShared(t *testing.T, gitflowContent []byte) string {
+func SetupFreshCloneWithShared(t *testing.T, gitpourContent []byte) string {
 	t.Helper()
 	dir := SetupTestRepo(t)
-	if err := os.WriteFile(SharedConfigPath(dir), gitflowContent, 0644); err != nil {
-		t.Fatalf("Failed to write .gitflow: %v", err)
+	if err := os.WriteFile(SharedConfigPath(dir), gitpourContent, 0644); err != nil {
+		t.Fatalf("Failed to write .gitpour: %v", err)
 	}
-	if _, err := RunGit(t, dir, "add", ".gitflow"); err != nil {
-		t.Fatalf("Failed to stage .gitflow: %v", err)
+	if _, err := RunGit(t, dir, "add", ".gitpour"); err != nil {
+		t.Fatalf("Failed to stage .gitpour: %v", err)
 	}
-	if _, err := RunGit(t, dir, "commit", "-m", "Add committed .gitflow"); err != nil {
-		t.Fatalf("Failed to commit .gitflow: %v", err)
+	if _, err := RunGit(t, dir, "commit", "-m", "Add committed .gitpour"); err != nil {
+		t.Fatalf("Failed to commit .gitpour: %v", err)
 	}
-	// A real clone of a git-flow-defaults repository has develop as well as main.
-	// Branch develop AFTER committing .gitflow so both branches carry the file;
-	// this keeps the work tree switchable when a test edits the (tracked) .gitflow.
+	// A real clone of a git-pour-defaults repository has develop as well as main.
+	// Branch develop AFTER committing .gitpour so both branches carry the file;
+	// this keeps the work tree switchable when a test edits the (tracked) .gitpour.
 	if _, err := RunGit(t, dir, "branch", "develop"); err != nil {
 		t.Fatalf("Failed to create develop branch: %v", err)
 	}
 	return dir
 }
 
-// ClearLocalGitflowConfig removes every gitflow.* key from the repository's LOCAL
-// git config, leaving other scopes and any .gitflow file untouched. It is used to
-// return a repository that ran `git flow init` to a real "fresh clone" state
-// (branches present, but no local git-flow configuration).
+// ClearLocalGitflowConfig removes every gitpour.* key from the repository's LOCAL
+// git config, leaving other scopes and any .gitpour file untouched. It is used to
+// return a repository that ran `git pour init` to a real "fresh clone" state
+// (branches present, but no local git-pour configuration).
 func ClearLocalGitflowConfig(t *testing.T, dir string) {
 	t.Helper()
-	out, err := RunGit(t, dir, "config", "--local", "--get-regexp", "^gitflow\\.")
+	out, err := RunGit(t, dir, "config", "--local", "--get-regexp", "^gitpour\\.")
 	if err != nil {
-		// No gitflow.* keys present: nothing to clear.
+		// No gitpour.* keys present: nothing to clear.
 		return
 	}
 	seen := map[string]bool{}
@@ -435,7 +435,7 @@ func ClearLocalGitflowConfig(t *testing.T, dir string) {
 			if errors.As(err, &exitErr) && exitErr.ExitCode() == 5 {
 				continue
 			}
-			t.Fatalf("Failed to unset local gitflow config %s: %v", key, err)
+			t.Fatalf("Failed to unset local gitpour config %s: %v", key, err)
 		}
 	}
 }
@@ -443,7 +443,7 @@ func ClearLocalGitflowConfig(t *testing.T, dir string) {
 // SetupTestRepo creates a temporary Git repository for testing
 func SetupTestRepo(t *testing.T) string {
 	// Create temporary directory
-	dir, err := os.MkdirTemp("", "git-flow-test-*")
+	dir, err := os.MkdirTemp("", "git-pour-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temporary directory: %v", err)
 	}
@@ -482,9 +482,9 @@ func SetupTestRepo(t *testing.T) string {
 }
 
 // SetupEmptyTestRepo creates a temporary Git repository with no commits.
-// This is useful for testing behavior when git-flow init encounters an empty repo.
+// This is useful for testing behavior when git-pour init encounters an empty repo.
 func SetupEmptyTestRepo(t *testing.T) string {
-	dir, err := os.MkdirTemp("", "git-flow-test-*")
+	dir, err := os.MkdirTemp("", "git-pour-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temporary directory: %v", err)
 	}
@@ -544,7 +544,7 @@ func AddRemote(t *testing.T, dir string, remoteName string, pushAll bool) (strin
 	}
 
 	// Create a temporary directory for the bare repository
-	bareDir, err := os.MkdirTemp("", "git-flow-test-remote-*")
+	bareDir, err := os.MkdirTemp("", "git-pour-test-remote-*")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary directory for remote: %w", err)
 	}
@@ -628,7 +628,7 @@ func CommitsAhead(t *testing.T, dir, base, branch string) int {
 	return count
 }
 
-// SetupTestRepoWithRemote creates a test repository with git-flow initialized and a local remote.
+// SetupTestRepoWithRemote creates a test repository with git-pour initialized and a local remote.
 // It pushes main and develop branches to the remote with tracking enabled.
 // Returns the local repository directory and the remote repository directory.
 // Both should be cleaned up with CleanupTestRepo.
@@ -636,11 +636,11 @@ func SetupTestRepoWithRemote(t *testing.T) (string, string) {
 	// Create test repository
 	dir := SetupTestRepo(t)
 
-	// Initialize git-flow with defaults
-	_, err := RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
 		CleanupTestRepo(t, dir)
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a local bare remote repository

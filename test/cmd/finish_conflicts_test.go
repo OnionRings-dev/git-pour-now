@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishSingleConflictMergeStrategy tests finishing with a single conflict using merge strategy
@@ -16,10 +16,10 @@ func TestFinishSingleConflictMergeStrategy(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create conflicting content in develop
@@ -107,10 +107,10 @@ func TestFinishSingleConflictRebaseStrategy(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create conflicting content in develop
@@ -184,10 +184,10 @@ func TestFinishSingleConflictSquashStrategy(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create base content in develop
@@ -273,10 +273,10 @@ func TestFinishMultipleConflictsInSeparateCommits(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create base files in develop
@@ -358,10 +358,10 @@ func TestFinishChildBranchConflictDifferentStrategies(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Test each strategy for child branch
@@ -370,8 +370,8 @@ func TestFinishChildBranchConflictDifferentStrategies(t *testing.T) {
 	for _, strategy := range strategies {
 		t.Run("Strategy_"+strategy, func(t *testing.T) {
 			// Configure develop with the test strategy
-			testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
-			testutil.RunGit(t, dir, "config", "gitflow.branch.develop.downstreamStrategy", strategy)
+			testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
+			testutil.RunGit(t, dir, "config", "gitpour.branch.develop.downstreamStrategy", strategy)
 
 			// Create conflicting content in develop
 			testutil.RunGit(t, dir, "checkout", "develop")
@@ -437,22 +437,22 @@ func TestFinishMultipleChildrenWithConflicts(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create two child branches with different strategies
 	testutil.RunGit(t, dir, "checkout", "-b", "staging", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "rebase")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "rebase")
 
 	// Configure develop
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.downstreamStrategy", "merge")
 
 	// Create conflicting content in both children
 	testutil.RunGit(t, dir, "checkout", "staging")
@@ -527,28 +527,28 @@ func TestFinishMultipleChildrenDifferentStrategiesNoConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create two child branches with different strategies
 	testutil.RunGit(t, dir, "checkout", "-b", "staging", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "squash")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "squash")
 
 	testutil.RunGit(t, dir, "checkout", "-b", "qa", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.downstreamStrategy", "rebase")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.downstreamStrategy", "rebase")
 
 	// Configure develop with merge
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.downstreamStrategy", "merge")
 
 	// Add unique commits to each child
 	testutil.RunGit(t, dir, "checkout", "staging")
@@ -626,7 +626,7 @@ func TestFinishMultipleChildrenDifferentStrategiesNoConflict(t *testing.T) {
 // 1. Release branch conflicts with main during merge (first conflict)
 // 2. Develop branch conflicts with main during auto-update (second conflict)
 // Steps:
-// 1. Initialize git-flow with defaults (creates main, develop branches)
+// 1. Initialize git-pour with defaults (creates main, develop branches)
 // 2. Add conflicting content to main branch
 // 3. Add different conflicting content to develop branch
 // 4. Create release branch from develop with additional changes
@@ -639,10 +639,10 @@ func TestFinishWithConsecutiveConflicts(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults - creates main, develop, and all topic branch configs
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults - creates main, develop, and all topic branch configs
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Add initial conflicting content to main branch
@@ -708,7 +708,7 @@ func TestFinishWithConsecutiveConflicts(t *testing.T) {
 	}
 
 	// Check that merge state file exists and has correct step
-	stateFile := filepath.Join(dir, ".git", "gitflow", "state", "merge.json")
+	stateFile := filepath.Join(dir, ".git", "gitpour", "state", "merge.json")
 	if _, err := os.Stat(stateFile); os.IsNotExist(err) {
 		t.Fatal("Expected merge state file to exist after conflict")
 	}

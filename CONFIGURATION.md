@@ -1,13 +1,20 @@
 # Configuration Reference
 
-This document provides a comprehensive reference for all git-flow-next configuration options. All configuration is stored in Git configuration using the `gitflow.*` key namespace.
+The default git-pour-now workflow uses `main`, `feature/`, and temporary
+`prerelease/<version>` branches. Stable tags are created on main; prerelease tags
+on the matching prerelease branch. No develop branch is created. Examples below
+using develop/release/hotfix belong to the explicit `--preset=classic` workflow.
+The test suite requests that preset explicitly for inherited GitFlow scenarios.
+
+
+This document provides a comprehensive reference for all git-pour-now configuration options. All configuration is stored in Git configuration using the `gitpour.*` key namespace.
 
 ## Configuration Overview
 
-git-flow-next uses a hierarchical configuration system with **three levels of precedence**:
+git-pour-now uses a hierarchical configuration system with **three levels of precedence**:
 
-1. **Branch Type Definition** (`gitflow.branch.*`) - The identity and process characteristics of a branch type
-2. **Command-Specific Configuration** (`gitflow.<branchtype>.*`) - How specific commands behave for a branch type
+1. **Branch Type Definition** (`gitpour.branch.*`) - The identity and process characteristics of a branch type
+2. **Command-Specific Configuration** (`gitpour.<branchtype>.*`) - How specific commands behave for a branch type
 3. **Command-Line Flags** - **Highest priority** - one-off overrides that always win
 
 ### Understanding the Layers
@@ -28,24 +35,24 @@ Many command options intentionally have no Layer 1 equivalent — they exist onl
 
 | Key | Description | Default | Example |
 |-----|-------------|---------|---------|
-| `gitflow.version` | Internal version marker for compatibility | `1.0` | `1.0` |
-| `gitflow.initialized` | Marks repository as git-flow initialized | `false` | `true` |
-| `gitflow.origin` | Remote name to use for operations | `origin` | `upstream` |
-| `gitflow.remote` | Alias for `gitflow.origin` | `origin` | `upstream` |
-| `gitflow.worktreePath` | Path template for a branch's worktree. Supports `{{ repo }}`, `{{ branch }}`, `{{ branchName }}`, `{{ topicType }}` (spaced or unspaced), expands a leading `~`, resolves a relative template against the main worktree root, and always yields an absolute path | `../{{ repo }}-worktrees/{{ branch }}` | `~/worktrees/{{ topicType }}/{{ branchName }}` |
+| `gitpour.version` | Internal version marker for compatibility | `1.0` | `1.0` |
+| `gitpour.initialized` | Marks repository as git-pour initialized | `false` | `true` |
+| `gitpour.origin` | Remote name to use for operations | `origin` | `upstream` |
+| `gitpour.remote` | Alias for `gitpour.origin` | `origin` | `upstream` |
+| `gitpour.worktreePath` | Path template for a branch's worktree. Supports `{{ repo }}`, `{{ branch }}`, `{{ branchName }}`, `{{ topicType }}` (spaced or unspaced), expands a leading `~`, resolves a relative template against the main worktree root, and always yields an absolute path | `../{{ repo }}-worktrees/{{ branch }}` | `~/worktrees/{{ topicType }}/{{ branchName }}` |
 
-`gitflow.worktree.<branch>.managed` is **not** a setting: it is repository-local state git-flow writes when it creates a worktree, so later commands can tell its own worktrees from the user's. It is carried to the new name when the branch is renamed, and cleared when git-flow removes the worktree. It is excluded from the shared-config set and never reaches a committed `.gitflow`. See [git-flow-worktree(1)](docs/git-flow-worktree.1.md).
+`gitpour.worktree.<branch>.managed` is **not** a setting: it is repository-local state git-pour writes when it creates a worktree, so later commands can tell its own worktrees from the user's. It is carried to the new name when the branch is renamed, and cleared when git-pour removes the worktree. It is excluded from the shared-config set and never reaches a committed `.gitpour`. See [git-pour-worktree(1)](docs/git-pour-worktree.1.md).
 
-`gitflow.branch.<branch>.base` is likewise state rather than a setting: it records the start point a topic branch was created from. It is carried through a rename alongside the marker, and cleared when the branch is finished or deleted. See [git-flow-rename(1)](docs/git-flow-rename.1.md).
+`gitpour.branch.<branch>.base` is likewise state rather than a setting: it records the start point a topic branch was created from. It is carried through a rename alongside the marker, and cleared when the branch is finished or deleted. See [git-pour-rename(1)](docs/git-pour-rename.1.md).
 
 ## Branch Type Configuration (Layer 1)
 
 Branch type configuration defines the **identity and process characteristics** of each branch type using the pattern:
-`gitflow.branch.<branchname>.<property>`
+`gitpour.branch.<branchname>.<property>`
 
 These properties describe *what the branch type is* — its structural role and how it participates in the workflow. They should only contain essential branch-type-relevant configuration.
 
-Branch names (the `<branchname>` subsection) are matched **case-insensitively**, mirroring Git's `core.ignorecase`. The case used when a branch is first added is preserved as its canonical form and written back verbatim; git-flow always operates on that canonical name (including the Git ref, so it is correct on case-sensitive filesystems). Any later reference — a parent, a `--starting-point`, or the target of an `edit`/`rename`/`delete` — may be given in any case and resolves to the single canonical entry. Adding or renaming to a name that differs only in case from a *different* existing branch is rejected as "already exists"; a case-only rename of a branch to itself is allowed and re-canonicalizes it. Two branch types differing only in case cannot coexist. Branch names may contain dots (e.g., `custom.main`, `V10.5`): the property is always the final dot-separated segment, so the full dotted name round-trips through the config reader. (Names Git itself rejects as refs — a leading dot, consecutive dots, a trailing `.lock` — remain invalid. `config add`/`rename` additionally reject names beginning with `-`, which Git would accept as a ref but git-flow passes as a bare operand to git commands.)
+Branch names (the `<branchname>` subsection) are matched **case-insensitively**, mirroring Git's `core.ignorecase`. The case used when a branch is first added is preserved as its canonical form and written back verbatim; git-pour always operates on that canonical name (including the Git ref, so it is correct on case-sensitive filesystems). Any later reference — a parent, a `--starting-point`, or the target of an `edit`/`rename`/`delete` — may be given in any case and resolves to the single canonical entry. Adding or renaming to a name that differs only in case from a *different* existing branch is rejected as "already exists"; a case-only rename of a branch to itself is allowed and re-canonicalizes it. Two branch types differing only in case cannot coexist. Branch names may contain dots (e.g., `custom.main`, `V10.5`): the property is always the final dot-separated segment, so the full dotted name round-trips through the config reader. (Names Git itself rejects as refs — a leading dot, consecutive dots, a trailing `.lock` — remain invalid. `config add`/`rename` additionally reject names beginning with `-`, which Git would accept as a ref but git-pour passes as a bare operand to git commands.)
 
 ### Structural Properties
 
@@ -58,7 +65,7 @@ Define where the branch type fits in the hierarchy:
 | `startPoint` | Branch to start new branches from | Branch name | Same as parent |
 | `prefix` | Branch name prefix (topic only) | String | `<type>/` |
 
-The `prefix` value is a literal string prepended to the short branch name, used exactly as configured. The trailing slash in the defaults is a naming convention, not a requirement: with `prefix = feature_`, `git flow feature start login` creates the branch `feature_login`.
+The `prefix` value is a literal string prepended to the short branch name, used exactly as configured. The trailing slash in the defaults is a naming convention, not a requirement: with `prefix = feature_`, `git pour feature start login` creates the branch `feature_login`.
 
 ### Process Characteristics
 
@@ -74,9 +81,9 @@ Define how the branch type participates in the workflow:
 | `deleteRemote` | Delete remote branch on finish (topic only) | `true`, `false` | `false` |
 | `worktree` | `start` creates a worktree for new branches (topic only) | `true`, `false` | `false` |
 
-`worktree` says the branch type's process gives every new branch its own working directory: `git flow <type> start` then creates the branch in a worktree at the path [`gitflow.worktreePath`](#system-settings) computes, instead of checking it out. `--worktree` and `--no-worktree` override it per invocation. git-flow writes the key for topic branch types only — a worktree default on a base branch has no effect.
+`worktree` says the branch type's process gives every new branch its own working directory: `git pour <type> start` then creates the branch in a worktree at the path [`gitpour.worktreePath`](#system-settings) computes, instead of checking it out. `--worktree` and `--no-worktree` override it per invocation. git-pour writes the key for topic branch types only — a worktree default on a base branch has no effect.
 
-For example, setting `tag=true` on release branches means "releases produce tags" — it characterizes the release process. This can still be overridden per-command (Layer 2: `gitflow.release.finish.notag`) or per-invocation (Layer 3: `--notag`), but the branch config establishes the branch type's intended role.
+For example, setting `tag=true` on release branches means "releases produce tags" — it characterizes the release process. This can still be overridden per-command (Layer 2: `gitpour.release.finish.notag`) or per-invocation (Layer 3: `--notag`), but the branch config establishes the branch type's intended role.
 
 ### Default Branch Types
 
@@ -84,58 +91,58 @@ For example, setting `tag=true` on release branches means "releases produce tags
 
 ```bash
 # Main branch (production releases)
-gitflow.branch.main.type=base
-gitflow.branch.main.parent=             # No parent (root)
-gitflow.branch.main.upstreamStrategy=merge
-gitflow.branch.main.downstreamStrategy=merge
-gitflow.branch.main.autoUpdate=false
+gitpour.branch.main.type=base
+gitpour.branch.main.parent=             # No parent (root)
+gitpour.branch.main.upstreamStrategy=merge
+gitpour.branch.main.downstreamStrategy=merge
+gitpour.branch.main.autoUpdate=false
 
-# Develop branch (integration)  
-gitflow.branch.develop.type=base
-gitflow.branch.develop.parent=main
-gitflow.branch.develop.startPoint=main
-gitflow.branch.develop.upstreamStrategy=merge
-gitflow.branch.develop.downstreamStrategy=merge
-gitflow.branch.develop.autoUpdate=true    # Auto-updates from main
+# Develop branch (integration)
+gitpour.branch.develop.type=base
+gitpour.branch.develop.parent=main
+gitpour.branch.develop.startPoint=main
+gitpour.branch.develop.upstreamStrategy=merge
+gitpour.branch.develop.downstreamStrategy=merge
+gitpour.branch.develop.autoUpdate=true    # Auto-updates from main
 ```
 
-Base branches carry no `worktree` key: `start` never creates a worktree for them, so a default there would have no effect and git-flow does not write one.
+Base branches carry no `worktree` key: `start` never creates a worktree for them, so a default there would have no effect and git-pour does not write one.
 
 #### Topic Branches
 
 ```bash
 # Feature branches
-gitflow.branch.feature.type=topic
-gitflow.branch.feature.parent=develop
-gitflow.branch.feature.startPoint=develop
-gitflow.branch.feature.prefix=feature/
-gitflow.branch.feature.upstreamStrategy=merge
-gitflow.branch.feature.downstreamStrategy=rebase
-gitflow.branch.feature.tag=false
-gitflow.branch.feature.autoUpdate=false
-gitflow.branch.feature.worktree=false
+gitpour.branch.feature.type=topic
+gitpour.branch.feature.parent=develop
+gitpour.branch.feature.startPoint=develop
+gitpour.branch.feature.prefix=feature/
+gitpour.branch.feature.upstreamStrategy=merge
+gitpour.branch.feature.downstreamStrategy=rebase
+gitpour.branch.feature.tag=false
+gitpour.branch.feature.autoUpdate=false
+gitpour.branch.feature.worktree=false
 
 # Release branches
-gitflow.branch.release.type=topic
-gitflow.branch.release.parent=main
-gitflow.branch.release.startPoint=develop
-gitflow.branch.release.prefix=release/
-gitflow.branch.release.upstreamStrategy=merge
-gitflow.branch.release.downstreamStrategy=merge
-gitflow.branch.release.tag=true
-gitflow.branch.release.autoUpdate=false
-gitflow.branch.release.worktree=false
+gitpour.branch.release.type=topic
+gitpour.branch.release.parent=main
+gitpour.branch.release.startPoint=develop
+gitpour.branch.release.prefix=release/
+gitpour.branch.release.upstreamStrategy=merge
+gitpour.branch.release.downstreamStrategy=merge
+gitpour.branch.release.tag=true
+gitpour.branch.release.autoUpdate=false
+gitpour.branch.release.worktree=false
 
-# Hotfix branches  
-gitflow.branch.hotfix.type=topic
-gitflow.branch.hotfix.parent=main
-gitflow.branch.hotfix.startPoint=main
-gitflow.branch.hotfix.prefix=hotfix/
-gitflow.branch.hotfix.upstreamStrategy=merge
-gitflow.branch.hotfix.downstreamStrategy=merge
-gitflow.branch.hotfix.tag=true
-gitflow.branch.hotfix.autoUpdate=false
-gitflow.branch.hotfix.worktree=false
+# Hotfix branches
+gitpour.branch.hotfix.type=topic
+gitpour.branch.hotfix.parent=main
+gitpour.branch.hotfix.startPoint=main
+gitpour.branch.hotfix.prefix=hotfix/
+gitpour.branch.hotfix.upstreamStrategy=merge
+gitpour.branch.hotfix.downstreamStrategy=merge
+gitpour.branch.hotfix.tag=true
+gitpour.branch.hotfix.autoUpdate=false
+gitpour.branch.hotfix.worktree=false
 ```
 
 #### Custom Branch Types
@@ -144,18 +151,18 @@ You can define custom branch types by setting the appropriate configuration:
 
 ```bash
 # Example: Support branches
-gitflow.branch.support.type=topic
-gitflow.branch.support.parent=main
-gitflow.branch.support.startPoint=main
-gitflow.branch.support.prefix=support/
-gitflow.branch.support.tag=true
-gitflow.branch.support.tagprefix=support-
+gitpour.branch.support.type=topic
+gitpour.branch.support.parent=main
+gitpour.branch.support.startPoint=main
+gitpour.branch.support.prefix=support/
+gitpour.branch.support.tag=true
+gitpour.branch.support.tagprefix=support-
 ```
 
 ## Command-Specific Configuration (Layer 2)
 
 Command-specific configuration controls **how commands execute** for a branch type, using the pattern:
-`gitflow.<branchtype>.<command>.<option>`
+`gitpour.<branchtype>.<command>.<option>`
 
 These are operational settings — they adjust command behavior without changing the branch type's identity. Some of these can override Layer 1 process characteristics (e.g., `notag` overrides the branch type's `tag` setting), while others exist only at this layer (e.g., `sign`, `keep`, `fetch`).
 
@@ -177,7 +184,7 @@ The finish command supports per-branch-type configuration:
 | `keepremote` | Keep remote branch | `true`, `false` | `false` |
 | `keeplocal` | Keep local branch | `true`, `false` | `false` |
 | `force-delete` | Force delete branch | `true`, `false` | `false` |
-| `fetch` | Fetch before operation (`gitflow.<type>.<cmd>.fetch`; default → config → `--fetch`/`--no-fetch`) | `true`, `false` | `true` for both `finish` and `start` |
+| `fetch` | Fetch before operation (`gitpour.<type>.<cmd>.fetch`; default → config → `--fetch`/`--no-fetch`) | `true`, `false` | `true` for both `finish` and `start` |
 | `push` | Push finished branches to remote | `true`, `false` | `false` |
 | `pushtag` | Push created tag to remote | `true`, `false` | Follows `push` |
 
@@ -185,27 +192,27 @@ The finish command supports per-branch-type configuration:
 
 ```bash
 # Override feature finish to use rebase
-gitflow.feature.finish.rebase=true
+gitpour.feature.finish.rebase=true
 
 # Disable tags for feature branches
-gitflow.feature.finish.notag=true
+gitpour.feature.finish.notag=true
 
 # Sign all release tags
-gitflow.release.finish.sign=true
-gitflow.release.finish.signingkey=ABC123DEF
+gitpour.release.finish.sign=true
+gitpour.release.finish.signingkey=ABC123DEF
 
 # Keep hotfix branches locally after finish
-gitflow.hotfix.finish.keeplocal=true
+gitpour.hotfix.finish.keeplocal=true
 
 # Push finished release branches and the created tag to the remote
-gitflow.release.finish.push=true
+gitpour.release.finish.push=true
 
 # Push the created tag even when branches are not pushed
-gitflow.release.finish.pushtag=true
+gitpour.release.finish.pushtag=true
 ```
 
 When `push` is enabled, finish pushes the target/parent branch and each
-auto-updated child base branch to the remote (`gitflow.remote`, default
+auto-updated child base branch to the remote (`gitpour.remote`, default
 `origin`) as a final stage, then the created tag. `pushtag` follows the
 resolved `push` value unless set explicitly, letting you decouple the tag push
 from the branch push. A missing remote skips the push with a note (finish still
@@ -222,7 +229,7 @@ already-completed local finish intact.
 
 ```bash
 # Always fetch before deleting feature branches
-gitflow.feature.delete.fetch=true
+gitpour.feature.delete.fetch=true
 ```
 
 When `fetch` is enabled, delete fetches from the remote so Git can detect a branch that was merged remotely (e.g., via a GitHub PR merge). The parent is fast-forwarded from its remote only when it is the branch currently checked out (`git merge --ff-only` acts on HEAD); delete auto-checks-out the parent when you delete the branch you are on, which is the common case. A fetch failure against an unreachable remote is a non-fatal note — deletion is not blocked by the fetch itself, but the topic sync check still runs against existing local tracking data and can still abort (behind/diverged) unless `--force` is given. `--no-fetch` skips only the fetch, not the sync check.
@@ -237,100 +244,100 @@ When `fetch` is enabled, delete fetches from the remote so Git can detect a bran
 
 ```bash
 # Force rebase for feature updates
-gitflow.branch.feature.downstreamStrategy=rebase
+gitpour.branch.feature.downstreamStrategy=rebase
 
 # Use merge for release updates
-gitflow.branch.release.downstreamStrategy=merge
+gitpour.branch.release.downstreamStrategy=merge
 ```
 
 ## Configuration Precedence
 
-git-flow-next follows a strict three-layer precedence hierarchy:
+git-pour-now follows a strict three-layer precedence hierarchy:
 
 ### Layer 1: Branch Type Definition (Lowest Priority)
-Defines the branch type's identity and process characteristics via `gitflow.branch.<branchtype>.*`
+Defines the branch type's identity and process characteristics via `gitpour.branch.<branchtype>.*`
 ```bash
-gitflow.branch.release.tag=true    # "Releases produce tags" — a process characteristic
+gitpour.branch.release.tag=true    # "Releases produce tags" — a process characteristic
 ```
 
 ### Layer 2: Command-Specific Configuration (Medium Priority)
-Operational settings that control how commands execute via `gitflow.<branchtype>.<command>.*`
+Operational settings that control how commands execute via `gitpour.<branchtype>.<command>.*`
 ```bash
-gitflow.release.finish.notag=true  # Override: skip tagging for this command
+gitpour.release.finish.notag=true  # Override: skip tagging for this command
 ```
 
 ### Layer 3: Command-Line Flags (Highest Priority)
 One-off overrides that **always win**
 ```bash
-git flow release finish v1.0 --tag  # Force tagging for this invocation
+git pour release finish v1.0 --tag  # Force tagging for this invocation
 ```
 
 Not every option spans all three layers. Layer 1 is reserved for essential branch-type properties — many command options exist only at Layer 2 and Layer 3. For example, `sign`, `keep`, and publish `push-options` are purely operational and have no Layer 1 equivalent.
 
 ### Boolean Values
 
-Options listed with `Values: true, false` accept every git-config boolean spelling, at both Layer 1 and Layer 2: `true`, `yes`, `on` and any non-zero integer are true; `false`, `no`, `off`, `0` and an empty value are false; matching is case-insensitive. An unrecognized value is treated as `false`. Note that inverse options such as `no-rebase` and `notag` are separate keys rather than falsy spellings of the positive option. See the **Boolean Values** section of `docs/gitflow-config.5.md` for the full rule.
+Options listed with `Values: true, false` accept every git-config boolean spelling, at both Layer 1 and Layer 2: `true`, `yes`, `on` and any non-zero integer are true; `false`, `no`, `off`, `0` and an empty value are false; matching is case-insensitive. An unrecognized value is treated as `false`. Note that inverse options such as `no-rebase` and `notag` are separate keys rather than falsy spellings of the positive option. See the **Boolean Values** section of `docs/gitpour-config.5.md` for the full rule.
 
-## Shared Configuration (.gitflow)
+## Shared Configuration (.gitpour)
 
-By default git-flow configuration lives in `.git/config`, which is never committed, so every clone must run `git flow init`. A committable `.gitflow` file at the repository root lets a team share one configuration.
+By default git-pour configuration lives in `.git/config`, which is never committed, so every clone must run `git pour init`. A committable `.gitpour` file at the repository root lets a team share one configuration.
 
-git-flow does not read `.gitflow` directly during operations — it **copies** the `gitflow.*` keys into the clone's local `.git/config`, so every read site sees the shared values and native git precedence still applies.
+git-pour does not read `.gitpour` directly during operations — it **copies** the `gitpour.*` keys into the clone's local `.git/config`, so every read site sees the shared values and native git precedence still applies.
 
-### Creating and using .gitflow
+### Creating and using .gitpour
 
 ```bash
-# Author .gitflow and copy it into local config, then commit it
-git flow init --defaults --shared
-git add .gitflow && git commit -m "Add shared git-flow configuration"
+# Author .gitpour and copy it into local config, then commit it
+git pour init --defaults --shared
+git add .gitpour && git commit -m "Add shared git-pour configuration"
 
 # On a fresh clone, activate the committed configuration
-git flow config sync     # or set gitflow.shared.autoInit=true to activate automatically
+git pour config sync     # or set gitpour.shared.autoInit=true to activate automatically
 
-# Keep local config in step with .gitflow
-git flow config status   # exit 0 in sync, exit 6 on drift
-git flow config sync     # re-copy .gitflow into local config
+# Keep local config in step with .gitpour
+git pour config status   # exit 0 in sync, exit 6 on drift
+git pour config sync     # re-copy .gitpour into local config
 
 # Edit the shared file (and re-sync local) instead of local-only config
-git flow config edit topic feature --shared --prefix feat/
-git flow config add topic qa develop --shared
+git pour config edit topic feature --shared --prefix feat/
+git pour config add topic qa develop --shared
 ```
 
 ### Shared-managed keys and control keys
 
-The copy moves the whole `gitflow.*` namespace **except** the control keys `gitflow.shared.*` and per-branch runtime metadata `gitflow.branch.<branch>.base`. Keys outside `gitflow.*` (e.g. `core.*`, `alias.*`) are never copied, and multi-value keys keep their order.
+The copy moves the whole `gitpour.*` namespace **except** the control keys `gitpour.shared.*` and per-branch runtime metadata `gitpour.branch.<branch>.base`. Keys outside `gitpour.*` (e.g. `core.*`, `alias.*`) are never copied, and multi-value keys keep their order.
 
 ```bash
-# Activate a committed .gitflow automatically on your clones (read from global/local, never copied)
-git config --global gitflow.shared.autoInit true
+# Activate a committed .gitpour automatically on your clones (read from global/local, never copied)
+git config --global gitpour.shared.autoInit true
 
-# Allow copying the executable hook path key from a trusted .gitflow
-git config gitflow.shared.trustHooks true
+# Allow copying the executable hook path key from a trusted .gitpour
+git config gitpour.shared.trustHooks true
 ```
 
-When `gitflow.shared.trustHooks` is unset, the `gitflow.path.hooks` key is not copied from `.gitflow` (and is removed from local on the next sync if it was previously copied); non-interactive auto-init refuses when an untrusted shared hook path is present. See `docs/gitflow-config.5.md` for the full first-run activation and hook-trust semantics.
+When `gitpour.shared.trustHooks` is unset, the `gitpour.path.hooks` key is not copied from `.gitpour` (and is removed from local on the next sync if it was previously copied); non-interactive auto-init refuses when an untrusted shared hook path is present. See `docs/gitpour-config.5.md` for the full first-run activation and hook-trust semantics.
 
 ## Legacy Compatibility
 
 ### Git-Flow-AVH Compatibility
 
-git-flow-next automatically imports configuration from git-flow-avh installations:
+git-pour-now automatically imports configuration from git-flow-avh installations:
 
-| AVH Key | git-flow-next Equivalent | Description |
+| AVH Key | git-pour-now Equivalent | Description |
 |---------|--------------------------|-------------|
-| `gitflow.branch.master` | `gitflow.branch.main` | Main branch name |
-| `gitflow.branch.develop` | `gitflow.branch.develop` | Develop branch name |
-| `gitflow.prefix.feature` | `gitflow.branch.feature.prefix` | Feature prefix |
-| `gitflow.prefix.release` | `gitflow.branch.release.prefix` | Release prefix |
-| `gitflow.prefix.hotfix` | `gitflow.branch.hotfix.prefix` | Hotfix prefix |
-| `gitflow.prefix.support` | `gitflow.branch.support.prefix` | Support prefix |
-| `gitflow.prefix.versiontag` | `gitflow.branch.*.tagprefix` | Tag prefix |
+| `gitpour.branch.master` | `gitpour.branch.main` | Main branch name |
+| `gitpour.branch.develop` | `gitpour.branch.develop` | Develop branch name |
+| `gitpour.prefix.feature` | `gitpour.branch.feature.prefix` | Feature prefix |
+| `gitpour.prefix.release` | `gitpour.branch.release.prefix` | Release prefix |
+| `gitpour.prefix.hotfix` | `gitpour.branch.hotfix.prefix` | Hotfix prefix |
+| `gitpour.prefix.support` | `gitpour.branch.support.prefix` | Support prefix |
+| `gitpour.prefix.versiontag` | `gitpour.branch.*.tagprefix` | Tag prefix |
 
 ### Migration from git-flow-avh
 
-1. **Automatic Import**: Run `git flow init` to automatically import existing configuration
-2. **Manual Migration**: Use the mapping table above to convert AVH config to git-flow-next format
-3. **Verification**: Run `git flow overview` to verify imported configuration
+1. **Automatic Import**: Run `git pour init` to automatically import existing configuration
+2. **Manual Migration**: Use the mapping table above to convert AVH config to git-pour-now format
+3. **Verification**: Run `git pour overview` to verify imported configuration
 
 ## Configuration Examples
 
@@ -338,47 +345,47 @@ git-flow-next automatically imports configuration from git-flow-avh installation
 
 ```bash
 # Minimal configuration - feature branches only
-git config gitflow.branch.main.type base
-git config gitflow.branch.feature.type topic
-git config gitflow.branch.feature.parent main
-git config gitflow.branch.feature.prefix feature/
+git config gitpour.branch.main.type base
+git config gitpour.branch.feature.type topic
+git config gitpour.branch.feature.parent main
+git config gitpour.branch.feature.prefix feature/
 ```
 
 ### Traditional Git-Flow
 
 ```bash
-# Full git-flow with main, develop, and all topic types
-git config gitflow.branch.main.type base
-git config gitflow.branch.develop.type base
-git config gitflow.branch.develop.parent main
-git config gitflow.branch.develop.autoUpdate true
+# Full git-pour with main, develop, and all topic types
+git config gitpour.branch.main.type base
+git config gitpour.branch.develop.type base
+git config gitpour.branch.develop.parent main
+git config gitpour.branch.develop.autoUpdate true
 
-git config gitflow.branch.feature.type topic
-git config gitflow.branch.feature.parent develop
-git config gitflow.branch.feature.prefix feature/
+git config gitpour.branch.feature.type topic
+git config gitpour.branch.feature.parent develop
+git config gitpour.branch.feature.prefix feature/
 
-git config gitflow.branch.release.type topic
-git config gitflow.branch.release.parent main
-git config gitflow.branch.release.startPoint develop
-git config gitflow.branch.release.tag true
+git config gitpour.branch.release.type topic
+git config gitpour.branch.release.parent main
+git config gitpour.branch.release.startPoint develop
+git config gitpour.branch.release.tag true
 
-git config gitflow.branch.hotfix.type topic
-git config gitflow.branch.hotfix.parent main
-git config gitflow.branch.hotfix.tag true
+git config gitpour.branch.hotfix.type topic
+git config gitpour.branch.hotfix.parent main
+git config gitpour.branch.hotfix.tag true
 ```
 
 ### Custom Workflow
 
 ```bash
 # Custom branch types with specific merge strategies
-git config gitflow.branch.bugfix.type topic
-git config gitflow.branch.bugfix.parent develop
-git config gitflow.branch.bugfix.prefix bugfix/
-git config gitflow.branch.bugfix.upstreamStrategy squash
+git config gitpour.branch.bugfix.type topic
+git config gitpour.branch.bugfix.parent develop
+git config gitpour.branch.bugfix.prefix bugfix/
+git config gitpour.branch.bugfix.upstreamStrategy squash
 
 # Custom finish behavior
-git config gitflow.bugfix.finish.notag true
-git config gitflow.bugfix.finish.keep true
+git config gitpour.bugfix.finish.notag true
+git config gitpour.bugfix.finish.keep true
 ```
 
 ## Configuration Management
@@ -386,47 +393,47 @@ git config gitflow.bugfix.finish.keep true
 ### Viewing Configuration
 
 ```bash
-# View all git-flow configuration
-git config --get-regexp '^gitflow\.'
+# View all git-pour configuration
+git config --get-regexp '^gitpour\.'
 
 # View branch-specific configuration
-git config --get-regexp '^gitflow\.branch\.feature\.'
+git config --get-regexp '^gitpour\.branch\.feature\.'
 
-# View command-specific configuration  
-git config --get-regexp '^gitflow\.feature\.finish\.'
+# View command-specific configuration
+git config --get-regexp '^gitpour\.feature\.finish\.'
 ```
 
 ### Setting Configuration
 
 ```bash
 # Set branch type configuration
-git config gitflow.branch.feature.upstreamStrategy rebase
+git config gitpour.branch.feature.upstreamStrategy rebase
 
 # Set command-specific configuration
-git config gitflow.feature.finish.squash true
+git config gitpour.feature.finish.squash true
 
 # Set global configuration (all repositories)
-git config --global gitflow.feature.finish.notag true
+git config --global gitpour.feature.finish.notag true
 ```
 
 ### Removing Configuration
 
 ```bash
 # Remove specific setting
-git config --unset gitflow.feature.finish.rebase
+git config --unset gitpour.feature.finish.rebase
 
-# Remove all git-flow configuration (reset)
-git config --remove-section gitflow
+# Remove all git-pour configuration (reset)
+git config --remove-section gitpour
 ```
 
 ## Best Practices
 
-1. **Start with defaults** - Use `git flow init --defaults` for standard configuration
+1. **Start with defaults** - Use `git pour init --defaults` for standard configuration
 2. **Customize gradually** - Override only what you need to change
 3. **Document team conventions** - Use consistent configuration across team repositories
 4. **Use command precedence** - Rely on command-line flags for one-off operations
-5. **Test configuration** - Use `git flow overview` to verify your setup
+5. **Test configuration** - Use `git pour overview` to verify your setup
 6. **Backup configuration** - Export configuration before major changes:
    ```bash
-   git config --get-regexp '^gitflow\.' > gitflow-backup.txt
+   git config --get-regexp '^gitpour\.' > gitpour-backup.txt
    ```

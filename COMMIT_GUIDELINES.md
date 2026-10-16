@@ -1,6 +1,6 @@
 # Commit Guidelines
 
-This document establishes standards for commit messages in the git-flow-next project to ensure clear, consistent, and informative version history.
+This document establishes standards for commit messages in the git-pour-now project to ensure clear, consistent, and informative version history.
 
 ## Commit Message Format
 
@@ -71,7 +71,7 @@ feat: Add support for custom merge strategies in finish command
 Implements configurable merge strategies per branch type allowing users to specify merge, rebase, or squash operations. The configuration follows the existing pattern of branch-specific settings and supports both command-line overrides and git config defaults.
 
 - Add merge strategy validation in config loader
-- Update finish command to respect strategy settings  
+- Update finish command to respect strategy settings
 - Add comprehensive tests for all strategy combinations
 
 Closes #234
@@ -108,7 +108,7 @@ Implements TestFinishWithConsecutiveConflicts which validates the system's abili
 ```
 docs: Update testing guidelines with default configuration details
 
-Adds comprehensive documentation about git-flow default branches and settings to help developers write consistent tests. Includes branch relationships, merge strategies, and examples of proper test setup using git-flow defaults rather than custom configurations.
+Adds comprehensive documentation about git-pour default branches and settings to help developers write consistent tests. Includes branch relationships, merge strategies, and examples of proper test setup using git-pour defaults rather than custom configurations.
 ```
 
 ## Best Practices

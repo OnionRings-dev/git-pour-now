@@ -7,24 +7,24 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
 // SharedConfigFileName is the name of the committable shared-config file that
 // lives at the repository work-tree root.
-const SharedConfigFileName = ".gitflow"
+const SharedConfigFileName = ".gitpour"
 
-// SharedConfigPath returns the absolute path to the repository's .gitflow file.
+// SharedConfigPath returns the absolute path to the repository's .gitpour file.
 func SharedConfigPath(repo *git.Repo) string {
 	return filepath.Join(repo.WorkTree(), SharedConfigFileName)
 }
 
-// SharedConfigExists reports whether a .gitflow file is present at the repo root.
+// SharedConfigExists reports whether a .gitpour file is present at the repo root.
 func SharedConfigExists(repo *git.Repo) bool {
 	return SharedConfigExistsIn(repo.WorkTree())
 }
 
-// SharedConfigExistsIn reports whether a .gitflow file is present in dir. It
+// SharedConfigExistsIn reports whether a .gitpour file is present in dir. It
 // serves callers that have no repository handle yet — notably `init --shared
 // --init`, which must probe the invocation directory before creating the
 // repository that would become its work-tree root.
@@ -59,63 +59,63 @@ func parseConfigEntries(lines []string) []configEntry {
 	return entries
 }
 
-// IsSharedManagedKey reports whether a gitflow.* key participates in the
-// shared-managed set that is copied between .gitflow and local .git/config.
+// IsSharedManagedKey reports whether a gitpour.* key participates in the
+// shared-managed set that is copied between .gitpour and local .git/config.
 //
-// A key is shared-managed iff it is under gitflow. AND is not a gitflow.shared.*
-// control key AND is not per-branch runtime metadata (gitflow.branch.<name>.base,
+// A key is shared-managed iff it is under gitpour. AND is not a gitpour.shared.*
+// control key AND is not per-branch runtime metadata (gitpour.branch.<name>.base,
 // written by Repo.SetBaseBranch) AND is not worktree provenance state
-// (gitflow.worktree.<branch>.managed). gitflow.version and gitflow.initialized
-// are shared-managed. Everything outside gitflow.* (core.*, alias.*, …) is not.
+// (gitpour.worktree.<branch>.managed). gitpour.version and gitpour.initialized
+// are shared-managed. Everything outside gitpour.* (core.*, alias.*, …) is not.
 func IsSharedManagedKey(key string) bool {
 	k := strings.ToLower(key)
-	if !strings.HasPrefix(k, "gitflow.") {
+	if !strings.HasPrefix(k, "gitpour.") {
 		return false
 	}
-	if strings.HasPrefix(k, "gitflow.shared.") {
+	if strings.HasPrefix(k, "gitpour.shared.") {
 		return false
 	}
-	// Worktree provenance: gitflow.worktree.<actual-branch>.managed, written by
-	// git-flow when it creates a worktree. It is machine-local state describing
-	// this checkout, not a setting a team shares — copying it into .gitflow would
+	// Worktree provenance: gitpour.worktree.<actual-branch>.managed, written by
+	// git-pour when it creates a worktree. It is machine-local state describing
+	// this checkout, not a setting a team shares — copying it into .gitpour would
 	// publish one developer's worktree layout and make it read as drift for
-	// everyone else. The trailing dot matters: gitflow.worktreePath IS a setting
+	// everyone else. The trailing dot matters: gitpour.worktreePath IS a setting
 	// and stays shared-managed.
-	if strings.HasPrefix(k, "gitflow.worktree.") {
+	if strings.HasPrefix(k, "gitpour.worktree.") {
 		return false
 	}
-	// Per-branch runtime metadata: gitflow.branch.<actual-branch>.base. The
+	// Per-branch runtime metadata: gitpour.branch.<actual-branch>.base. The
 	// branch name may contain dots, so match on the ".base" suffix — no real
 	// branch *definition* uses a ".base" property (definitions use type/parent/
 	// prefix/strategies).
-	if strings.HasPrefix(k, "gitflow.branch.") && strings.HasSuffix(k, ".base") {
+	if strings.HasPrefix(k, "gitpour.branch.") && strings.HasSuffix(k, ".base") {
 		return false
 	}
 	return true
 }
 
 // isHookPathKey reports whether a key points at an executable hook/filter path
-// that must not be copied from a committed .gitflow unless explicitly trusted.
+// that must not be copied from a committed .gitpour unless explicitly trusted.
 func isHookPathKey(key string) bool {
-	return strings.EqualFold(key, "gitflow.path.hooks")
+	return strings.EqualFold(key, "gitpour.path.hooks")
 }
 
-// SharedTrustHooks reports whether gitflow.shared.trustHooks is set true in the
+// SharedTrustHooks reports whether gitpour.shared.trustHooks is set true in the
 // repository's merged git config.
 func SharedTrustHooks(repo *git.Repo) bool {
-	v, err := repo.GetConfig("gitflow.shared.trustHooks")
+	v, err := repo.GetConfig("gitpour.shared.trustHooks")
 	return err == nil && ParseBool(v)
 }
 
-// SharedAutoInit reports whether gitflow.shared.autoInit is set true in the
+// SharedAutoInit reports whether gitpour.shared.autoInit is set true in the
 // repository's merged git config.
 func SharedAutoInit(repo *git.Repo) bool {
-	v, err := repo.GetConfig("gitflow.shared.autoInit")
+	v, err := repo.GetConfig("gitpour.shared.autoInit")
 	return err == nil && ParseBool(v)
 }
 
-// SharedConfigValid parses the .gitflow file and reports whether it is a valid
-// shared config: it must parse AND declare a non-empty gitflow.version. A parse
+// SharedConfigValid parses the .gitpour file and reports whether it is a valid
+// shared config: it must parse AND declare a non-empty gitpour.version. A parse
 // failure is returned as an error naming the file.
 func SharedConfigValid(repo *git.Repo) (bool, error) {
 	entries, err := readSharedEntriesRaw(repo)
@@ -123,18 +123,18 @@ func SharedConfigValid(repo *git.Repo) (bool, error) {
 		return false, err
 	}
 	for _, e := range entries {
-		if strings.EqualFold(e.key, "gitflow.version") && e.value != "" {
+		if strings.EqualFold(e.key, "gitpour.version") && e.value != "" {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-// readSharedEntriesRaw returns every gitflow.* entry in the .gitflow file, in
+// readSharedEntriesRaw returns every gitpour.* entry in the .gitpour file, in
 // order, or a parse error naming the file.
 func readSharedEntriesRaw(repo *git.Repo) ([]configEntry, error) {
 	path := SharedConfigPath(repo)
-	lines, err := git.GetConfigFileRegexpLines(path, "^gitflow\\.")
+	lines, err := git.GetConfigFileRegexpLines(path, "^gitpour\\.")
 	if err != nil {
 		return nil, fmt.Errorf("shared config file %s is invalid or unparsable: %w", path, err)
 	}
@@ -142,7 +142,7 @@ func readSharedEntriesRaw(repo *git.Repo) ([]configEntry, error) {
 }
 
 // readSharedManagedEntries returns the ordered shared-managed entries from the
-// .gitflow file (filtered by IsSharedManagedKey), or a parse error naming the
+// .gitpour file (filtered by IsSharedManagedKey), or a parse error naming the
 // file.
 func readSharedManagedEntries(repo *git.Repo) ([]configEntry, error) {
 	entries, err := readSharedEntriesRaw(repo)
@@ -159,7 +159,7 @@ func readSharedManagedEntries(repo *git.Repo) ([]configEntry, error) {
 }
 
 // SharedConfigHookPathKeys returns the distinct hook/filter path keys present in
-// the .gitflow file (e.g. gitflow.path.hooks). Used to refuse non-interactive
+// the .gitpour file (e.g. gitpour.path.hooks). Used to refuse non-interactive
 // auto-init when an untrusted shared hook path is present.
 func SharedConfigHookPathKeys(repo *git.Repo) ([]string, error) {
 	entries, err := readSharedManagedEntries(repo)
@@ -179,19 +179,19 @@ func SharedConfigHookPathKeys(repo *git.Repo) ([]string, error) {
 
 // CopyResult reports the outcome of a shared -> local copy.
 type CopyResult struct {
-	// SkippedHookKeys lists hook/filter path keys present in .gitflow that were
-	// not copied because gitflow.shared.trustHooks was not enabled.
+	// SkippedHookKeys lists hook/filter path keys present in .gitpour that were
+	// not copied because gitpour.shared.trustHooks was not enabled.
 	SkippedHookKeys []string
 }
 
-// CopySharedToLocal copies the shared-managed gitflow.* keys from the repo's
-// .gitflow file into its local .git/config: it overwrites differing values,
+// CopySharedToLocal copies the shared-managed gitpour.* keys from the repo's
+// .gitpour file into its local .git/config: it overwrites differing values,
 // reproduces multi-value order, and removes local shared-managed keys that are
 // absent from the effective shared set (stale removal). Hook/filter path keys are
-// copied only when gitflow.shared.trustHooks is enabled; otherwise they are
+// copied only when gitpour.shared.trustHooks is enabled; otherwise they are
 // skipped (and stale-removed from local if previously copied) and reported in
-// CopyResult.SkippedHookKeys. Non-shared-managed keys (gitflow.shared.*, runtime
-// .base keys, and anything outside gitflow.*) are never touched.
+// CopyResult.SkippedHookKeys. Non-shared-managed keys (gitpour.shared.*, runtime
+// .base keys, and anything outside gitpour.*) are never touched.
 func CopySharedToLocal(repo *git.Repo) (CopyResult, error) {
 	var result CopyResult
 
@@ -233,7 +233,7 @@ func CopySharedToLocal(repo *git.Repo) (CopyResult, error) {
 	}
 
 	// Stale removal: drop local shared-managed keys not in the effective set.
-	localLines, err := repo.GetConfigLocalRegexpLines("^gitflow\\.")
+	localLines, err := repo.GetConfigLocalRegexpLines("^gitpour\\.")
 	if err != nil {
 		return result, err
 	}
@@ -258,7 +258,7 @@ func CopySharedToLocal(repo *git.Repo) (CopyResult, error) {
 }
 
 // SharedStatus compares the shared-managed keys in the repo's local config
-// against its .gitflow file, applying the same hook-trust filter as the copy.
+// against its .gitpour file, applying the same hook-trust filter as the copy.
 // It returns whether the two are in sync, a sorted list of drifting keys, an
 // optional security note describing an intentionally-skipped untrusted hook path
 // (which is NOT counted as drift), and any parse error naming the file.
@@ -273,14 +273,14 @@ func SharedStatus(repo *git.Repo) (inSync bool, diffs []string, note string, err
 	for _, e := range fileEntries {
 		if isHookPathKey(e.key) && !trust {
 			if note == "" {
-				note = fmt.Sprintf("shared hook path %q is present in .gitflow but skipped (set gitflow.shared.trustHooks=true to apply it)", e.key)
+				note = fmt.Sprintf("shared hook path %q is present in .gitpour but skipped (set gitpour.shared.trustHooks=true to apply it)", e.key)
 			}
 			continue
 		}
 		fileValues[e.key] = append(fileValues[e.key], e.value)
 	}
 
-	localLines, err := repo.GetConfigLocalRegexpLines("^gitflow\\.")
+	localLines, err := repo.GetConfigLocalRegexpLines("^gitpour\\.")
 	if err != nil {
 		return false, nil, "", err
 	}
@@ -332,21 +332,21 @@ func equalStringSlice(a, b []string) bool {
 }
 
 // IsUnconfiguredIgnoringShared reports whether the repository has no effective
-// git-flow configuration, deliberately ignoring gitflow.shared.* control keys.
+// git-pour configuration, deliberately ignoring gitpour.shared.* control keys.
 //
 // The repo counts as configured (returns false) if merged git config has a
-// non-empty gitflow.version, valid git-flow-avh config, or any git-flow-next
-// branch *definition* (a gitflow.branch.<name>.type key). A stray command key
-// (e.g. gitflow.feature.start.fetch) or a shared-control key alone does not count
+// non-empty gitpour.version, valid git-flow-avh config, or any git-pour-now
+// branch *definition* (a gitpour.branch.<name>.type key). A stray command key
+// (e.g. gitpour.feature.start.fetch) or a shared-control key alone does not count
 // as configuration, so the repo still reads as unconfigured (returns true).
 func IsUnconfiguredIgnoringShared(repo *git.Repo) (bool, error) {
-	if v, err := repo.GetConfig("gitflow.version"); err == nil && v != "" {
+	if v, err := repo.GetConfig("gitpour.version"); err == nil && v != "" {
 		return false, nil
 	}
 	if CheckGitFlowAVHConfig(repo) {
 		return false, nil
 	}
-	lines, err := repo.GetConfigRegexpLines("^gitflow\\.branch\\.")
+	lines, err := repo.GetConfigRegexpLines("^gitpour\\.branch\\.")
 	if err != nil {
 		return false, err
 	}
@@ -358,12 +358,12 @@ func IsUnconfiguredIgnoringShared(repo *git.Repo) (bool, error) {
 	return true, nil
 }
 
-// LoadSharedConfig loads the structured git-flow configuration from the .gitflow
+// LoadSharedConfig loads the structured git-pour configuration from the .gitpour
 // file itself (not from git config). Used by the `config … --shared` CRUD verbs,
 // which edit the shared file and then re-sync it into local.
 func LoadSharedConfig(repo *git.Repo) (*Config, error) {
 	path := SharedConfigPath(repo)
-	allLines, err := git.GetConfigFileRegexpLines(path, "^gitflow\\.")
+	allLines, err := git.GetConfigFileRegexpLines(path, "^gitpour\\.")
 	if err != nil {
 		return nil, fmt.Errorf("shared config file %s is invalid or unparsable: %w", path, err)
 	}
@@ -376,15 +376,15 @@ func LoadSharedConfig(repo *git.Repo) (*Config, error) {
 	}
 	for _, e := range parseConfigEntries(allLines) {
 		cfg.CommandConfig[e.key] = e.value
-		if strings.EqualFold(e.key, "gitflow.version") && e.value != "" {
+		if strings.EqualFold(e.key, "gitpour.version") && e.value != "" {
 			cfg.Version = e.value
 		}
-		if strings.EqualFold(e.key, "gitflow.origin") && e.value != "" {
+		if strings.EqualFold(e.key, "gitpour.origin") && e.value != "" {
 			cfg.Remote = e.value
 		}
 	}
 
-	branchLines, err := git.GetConfigFileRegexpLines(path, "^gitflow\\.branch\\.")
+	branchLines, err := git.GetConfigFileRegexpLines(path, "^gitpour\\.branch\\.")
 	if err != nil {
 		return nil, fmt.Errorf("shared config file %s is invalid or unparsable: %w", path, err)
 	}
@@ -393,7 +393,7 @@ func LoadSharedConfig(repo *git.Repo) (*Config, error) {
 }
 
 // SharedTopicTypes returns the names of topic branch types declared in the
-// repository's .gitflow file, or nil when the file is absent, unparsable, or
+// repository's .gitpour file, or nil when the file is absent, unparsable, or
 // declares none. It is tolerant of errors so it can be called during command
 // registration on a fresh clone before activation.
 func SharedTopicTypes(repo *git.Repo) []string {

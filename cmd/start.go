@@ -3,15 +3,17 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
-	"github.com/gittower/git-flow-next/internal/navigate"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/internal/navigate"
+	"github.com/OnionRings-dev/git-pour-now/internal/semver"
 )
 
-// StartOptions carries the flags of 'git flow <type> start'.
+// StartOptions carries the flags of 'git pour <type> start'.
 type StartOptions struct {
 	// ShouldFetch overrides the resolved fetch behavior; nil means "use config".
 	ShouldFetch *bool
@@ -33,8 +35,8 @@ func StartCommand(branchType string, name string, base string, opts StartOptions
 	repo := mustOpenRepo()
 	if err := start(repo, branchType, name, base, opts); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -45,17 +47,17 @@ func StartCommand(branchType string, name string, base string, opts StartOptions
 
 // start performs the actual branch creation logic with optional fetch and returns any errors
 func start(repo *git.Repo, branchType string, name string, base string, opts StartOptions) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}
 	}
 
 	// Apply version filter for any branch type. The filter script
-	// (filter-flow-{branchType}-start-version) decides what to do; when no name
+	// (filter-pour-{branchType}-start-version) decides what to do; when no name
 	// was provided, it runs with an empty version argument and may supply one.
 	filteredName, err := hooks.RunVersionFilter(repo, branchType, name)
 	if err != nil {
@@ -74,6 +76,10 @@ func start(repo *git.Repo, branchType string, name string, base string, opts Sta
 	// version filter supplied one.
 	if name == "" {
 		return &errors.EmptyBranchNameError{}
+	}
+
+	if branchType == "prerelease" && (!semver.Valid(name) || strings.ContainsAny(name, "-+")) {
+		return &errors.InvalidInputError{Message: "prerelease branch name must be a release core version, such as 1.2.0"}
 	}
 
 	// Get configuration
@@ -167,7 +173,7 @@ func validateWorktreeTarget(cfg *config.Config, repo *git.Repo, branch string, p
 // executeStart performs the actual start operation (called within hooks wrapper)
 func executeStart(repo *git.Repo, branchType string, name string, base string, opts StartOptions, createWorktree bool, cfg *config.Config, branchConfig config.BranchConfig, fullBranchName string, startPoint string) error {
 	// Determine if we should fetch using the shared resolver (default true for start):
-	// Layer 1 default -> gitflow.<type>.start.fetch config -> CLI flag.
+	// Layer 1 default -> gitpour.<type>.start.fetch config -> CLI flag.
 	remoteName := cfg.Remote
 	if config.ResolveStartShouldFetch(cfg, branchType, opts.ShouldFetch) {
 		// Skip silently when no remote is configured (no "Fetching" line, no error).
@@ -215,7 +221,7 @@ func executeStart(repo *git.Repo, branchType string, name string, base string, o
 		if err != nil {
 			// The branch and its base config already exist. They are left alone:
 			// deleting a branch on an error path risks destroying more than it
-			// repairs, and the user can retry with 'git flow worktree add'.
+			// repairs, and the user can retry with 'git pour worktree add'.
 			return err
 		}
 		fmt.Printf("Created worktree for branch '%s' at %s\n", fullBranchName, target)

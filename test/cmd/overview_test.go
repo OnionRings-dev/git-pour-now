@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestOverviewWithDefaultConfig tests the overview command with default configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs the overview command
 // 3. Verifies the output contains all expected sections:
 //   - Base branches section
@@ -24,16 +24,16 @@ func TestOverviewWithDefaultConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow overview
+	// Run git-pour overview
 	output, err = testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow overview: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour overview: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected sections
@@ -71,7 +71,7 @@ func TestOverviewWithDefaultConfig(t *testing.T) {
 
 // TestOverviewWithActiveBranches tests the overview command with active branches.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch and a release branch
 // 3. Runs the overview command
 // 4. Verifies the output contains both active branches:
@@ -85,10 +85,10 @@ func TestOverviewWithActiveBranches(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -103,10 +103,10 @@ func TestOverviewWithActiveBranches(t *testing.T) {
 		t.Fatalf("Failed to create release branch: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow overview
+	// Run git-pour overview
 	output, err = testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow overview: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour overview: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the active branches
@@ -121,7 +121,7 @@ func TestOverviewWithActiveBranches(t *testing.T) {
 
 // TestOverviewWithCustomConfig tests the overview command with custom configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with custom config:
+// 1. Sets up a test repository and initializes git-pour with custom config:
 //   - Custom main and develop branch names
 //   - Custom prefixes for all branch types
 //   - Custom tag prefix
@@ -136,8 +136,8 @@ func TestOverviewWithCustomConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with custom configuration
-	output, err := testutil.RunGitFlow(t, dir, "init",
+	// Initialize git-pour with custom configuration
+	output, err := testutil.RunGitFlow(t, dir, "init", "--preset=classic",
 		"--main", "custom-main", // custom main branch name
 		"--develop", "custom-dev", // custom develop branch name
 		"--feature", "f/", // custom feature prefix
@@ -147,13 +147,13 @@ func TestOverviewWithCustomConfig(t *testing.T) {
 		"--support", "s/", // custom support prefix
 		"--tag", "v") // custom tag prefix
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow overview
+	// Run git-pour overview
 	output, err = testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow overview: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour overview: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the custom base branches
@@ -185,7 +185,7 @@ func TestOverviewWithCustomConfig(t *testing.T) {
 
 // TestOverviewWithCurrentBranch tests the overview command with the current branch highlighted.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates and checks out a feature branch
 // 3. Runs the overview command
 // 4. Verifies the current branch is marked with an asterisk (*)
@@ -196,10 +196,10 @@ func TestOverviewWithCurrentBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch and stay on it
@@ -208,10 +208,10 @@ func TestOverviewWithCurrentBranch(t *testing.T) {
 		t.Fatalf("Failed to create feature branch: %v\nOutput: %s", err, output)
 	}
 
-	// Run git-flow overview
+	// Run git-pour overview
 	output, err = testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow overview: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour overview: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output shows the current branch with an asterisk
@@ -237,37 +237,37 @@ func TestOverviewWithAVHConfig(t *testing.T) {
 	// Set branch structure
 	_, err := testutil.RunGit(t, dir, "config", "gitflow.branch.master", "main")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.branch.master config: %v", err)
+		t.Fatalf("Failed to set gitpour.branch.master config: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.develop", "develop")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.branch.develop config: %v", err)
+		t.Fatalf("Failed to set gitpour.branch.develop config: %v", err)
 	}
 
 	// Set branch prefixes
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.prefix.feature", "feature/")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.feature config: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.feature config: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.prefix.bugfix", "bugfix/")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.bugfix config: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.bugfix config: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.prefix.release", "release/")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.release config: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.release config: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.prefix.hotfix", "hotfix/")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.hotfix config: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.hotfix config: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.prefix.support", "support/")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.support config: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.support config: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "gitflow.prefix.versiontag", "v")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.versiontag config: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.versiontag config: %v", err)
 	}
 
 	// Create the develop branch
@@ -282,10 +282,10 @@ func TestOverviewWithAVHConfig(t *testing.T) {
 		t.Fatalf("Failed to create feature branch: %v", err)
 	}
 
-	// Run git-flow overview
+	// Run git-pour overview
 	output, err := testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow overview: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour overview: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected sections
@@ -339,7 +339,7 @@ func runOverviewRepeatedly(t *testing.T, dir string, runs int) []string {
 	for i := 0; i < runs; i++ {
 		output, err := testutil.RunGitFlow(t, dir, "overview")
 		if err != nil {
-			t.Fatalf("Failed to run git-flow overview (run %d): %v\nOutput: %s", i+1, err, output)
+			t.Fatalf("Failed to run git-pour overview (run %d): %v\nOutput: %s", i+1, err, output)
 		}
 		outputs = append(outputs, output)
 	}
@@ -383,7 +383,7 @@ func createOverviewBranch(t *testing.T, dir string, name string, startPoint stri
 // TestOverviewTopicTypeOrderIsDeterministic tests that the topic branch type
 // sections are listed in a stable, alphabetical order across identical runs.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs the overview command several times
 // 3. Verifies every run lists the topic type sections sorted by branch type name
 func TestOverviewTopicTypeOrderIsDeterministic(t *testing.T) {
@@ -392,10 +392,10 @@ func TestOverviewTopicTypeOrderIsDeterministic(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// The default topic types, sorted by branch type name. Their prefixes carry
@@ -416,7 +416,7 @@ func TestOverviewTopicTypeOrderIsDeterministic(t *testing.T) {
 // are stable across identical runs. The default configuration has a single
 // trunk and a single child base branch, so a second one of each is configured.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds a second trunk branch and a second child base branch
 // 3. Runs the overview command several times
 // 4. Verifies every run lists both trunks and both children in sorted order
@@ -426,20 +426,20 @@ func TestOverviewBaseBranchOrderIsDeterministic(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// A second trunk (no parent), sorting before the default main
 	createOverviewBranch(t, dir, "archive", "main")
-	setOverviewConfig(t, dir, "gitflow.branch.archive.type", "base")
+	setOverviewConfig(t, dir, "gitpour.branch.archive.type", "base")
 
 	// A second child base branch, sorting after the default develop
 	createOverviewBranch(t, dir, "staging", "main")
-	setOverviewConfig(t, dir, "gitflow.branch.staging.type", "base")
-	setOverviewConfig(t, dir, "gitflow.branch.staging.parent", "main")
+	setOverviewConfig(t, dir, "gitpour.branch.staging.type", "base")
+	setOverviewConfig(t, dir, "gitpour.branch.staging.parent", "main")
 
 	expectedTrunks := []string{"  archive (root)", "  main (root)"}
 	expectedChildren := []string{"  develop → main [auto-update]", "  staging → main"}
@@ -465,7 +465,7 @@ func TestOverviewBaseBranchOrderIsDeterministic(t *testing.T) {
 // reported for an active topic branch is stable when more than one configured
 // prefix matches it. The first match in sorted branch type order wins.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds a topic type whose prefix extends the default feature prefix
 // 3. Creates a branch matching both prefixes
 // 4. Runs the overview command several times
@@ -476,17 +476,17 @@ func TestOverviewActiveBranchTypeIsDeterministic(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// A topic type whose prefix extends the default 'feature/' prefix, so a
 	// branch below it matches two configured types
-	setOverviewConfig(t, dir, "gitflow.branch.exp.type", "topic")
-	setOverviewConfig(t, dir, "gitflow.branch.exp.parent", "develop")
-	setOverviewConfig(t, dir, "gitflow.branch.exp.prefix", "feature/exp/")
+	setOverviewConfig(t, dir, "gitpour.branch.exp.type", "topic")
+	setOverviewConfig(t, dir, "gitpour.branch.exp.parent", "develop")
+	setOverviewConfig(t, dir, "gitpour.branch.exp.prefix", "feature/exp/")
 
 	createOverviewBranch(t, dir, "feature/exp/trial", "develop")
 

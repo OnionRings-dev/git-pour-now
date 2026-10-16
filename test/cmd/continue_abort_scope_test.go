@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // =============================================================================
@@ -30,7 +30,7 @@ const (
 // .git/MERGE_HEAD present, HEAD on develop.
 func setupFinishInProgress(t *testing.T, dir string) {
 	t.Helper()
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "x"); err != nil {
@@ -54,10 +54,10 @@ func setupFinishInProgress(t *testing.T, dir string) {
 // Action=update, .git/MERGE_HEAD present, HEAD on feature/x (downstream=merge).
 func setupUpdateInProgressMerge(t *testing.T, dir string) {
 	t.Helper()
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.downstreamStrategy", "merge"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.downstreamStrategy", "merge"); err != nil {
 		t.Fatalf("failed to set downstream merge strategy: %v", err)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "x"); err != nil {
@@ -81,7 +81,7 @@ func setupUpdateInProgressMerge(t *testing.T, dir string) {
 // Action=update, .git/rebase-merge present (default feature downstream=rebase).
 func setupUpdateInProgressRebase(t *testing.T, dir string) {
 	t.Helper()
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "x"); err != nil {
@@ -105,7 +105,7 @@ func setupUpdateInProgressRebase(t *testing.T, dir string) {
 // Action=integrate, .git/MERGE_HEAD present, HEAD on main.
 func setupIntegrateInProgress(t *testing.T, dir string) {
 	t.Helper()
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 	integSetupConflict(t, dir, "conflict.txt")
@@ -135,7 +135,7 @@ func scopeExitCode(err error) int {
 // readStateBytes returns the raw bytes of the merge-state file (fatal if absent).
 func readStateBytes(t *testing.T, dir string) string {
 	t.Helper()
-	p := filepath.Join(integGitDir(t, dir), "gitflow", "state", "merge.json")
+	p := filepath.Join(integGitDir(t, dir), "gitpour", "state", "merge.json")
 	b, err := os.ReadFile(p)
 	if err != nil {
 		t.Fatalf("failed to read merge state file: %v", err)
@@ -230,9 +230,9 @@ func assertNonDestructiveRefusal(t *testing.T, dir string, cmdArgs []string, wan
 // refused over a finish conflict and the finish owner remains resumable.
 // Steps:
 // 1. Sets up a finish merge conflict (Action=finish, MERGE_HEAD present).
-// 2. Runs 'git flow integrate --continue'.
+// 2. Runs 'git pour integrate --continue'.
 // 3. Verifies non-destructive refusal naming the finish owner (set F, exit 3).
-// 4. Resolves + stages, runs 'git flow feature finish --continue x'.
+// 4. Resolves + stages, runs 'git pour feature finish --continue x'.
 // 5. Verifies the finish still completes (branch deleted, exit 0).
 func TestFinishConflictRefusesIntegrateContinue(t *testing.T) {
 	t.Parallel()
@@ -261,7 +261,7 @@ func TestFinishConflictRefusesIntegrateContinue(t *testing.T) {
 // refused over a finish conflict.
 // Steps:
 // 1. Sets up a finish merge conflict (Action=finish).
-// 2. Runs 'git flow feature update --continue x'.
+// 2. Runs 'git pour feature update --continue x'.
 // 3. Verifies non-destructive refusal naming the finish owner (set F, exit 3).
 func TestFinishConflictRefusesUpdateContinue(t *testing.T) {
 	t.Parallel()
@@ -277,7 +277,7 @@ func TestFinishConflictRefusesUpdateContinue(t *testing.T) {
 // "unknown branch type" error).
 // Steps:
 // 1. Sets up an update merge conflict (Action=update).
-// 2. Runs 'git flow feature finish --continue x'.
+// 2. Runs 'git pour feature finish --continue x'.
 // 3. Verifies non-destructive refusal naming the update owner (set F, exit 3).
 // 4. Verifies the message is NOT an InvalidBranchTypeError.
 func TestUpdateConflictRefusesFinishContinue(t *testing.T) {
@@ -296,7 +296,7 @@ func TestUpdateConflictRefusesFinishContinue(t *testing.T) {
 // refused over an update conflict.
 // Steps:
 // 1. Sets up an update merge conflict (Action=update).
-// 2. Runs 'git flow integrate --continue'.
+// 2. Runs 'git pour integrate --continue'.
 // 3. Verifies non-destructive refusal naming the update owner (set F, exit 3).
 func TestUpdateConflictRefusesIntegrateContinue(t *testing.T) {
 	t.Parallel()
@@ -311,9 +311,9 @@ func TestUpdateConflictRefusesIntegrateContinue(t *testing.T) {
 // is refused over an integrate conflict and the integrate owner remains resumable.
 // Steps:
 // 1. Sets up an integrate merge conflict (Action=integrate, MERGE_HEAD present).
-// 2. Runs 'git flow feature finish --continue x'.
+// 2. Runs 'git pour feature finish --continue x'.
 // 3. Verifies non-destructive refusal naming the integrate owner (set F, exit 3).
-// 4. Runs 'git flow integrate --abort' and verifies it cleanly aborts (exit 0).
+// 4. Runs 'git pour integrate --abort' and verifies it cleanly aborts (exit 0).
 func TestIntegrateConflictRefusesFinishContinue(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -323,7 +323,7 @@ func TestIntegrateConflictRefusesFinishContinue(t *testing.T) {
 	preDevelop := integRevParse(t, dir, "develop")
 
 	out := assertNonDestructiveRefusal(t, dir, []string{"feature", "finish", "--continue", "x"}, "integrate", markerMergeHead)
-	if !strings.Contains(out, "git flow integrate --continue") {
+	if !strings.Contains(out, "git pour integrate --continue") {
 		t.Errorf("expected integrate recovery command in message, got:\n%s", out)
 	}
 
@@ -349,7 +349,7 @@ func TestIntegrateConflictRefusesFinishContinue(t *testing.T) {
 // is refused over an integrate conflict.
 // Steps:
 // 1. Sets up an integrate merge conflict (Action=integrate).
-// 2. Runs 'git flow feature update --continue x'.
+// 2. Runs 'git pour feature update --continue x'.
 // 3. Verifies non-destructive refusal naming the integrate owner (set F, exit 3).
 func TestIntegrateConflictRefusesUpdateContinue(t *testing.T) {
 	t.Parallel()
@@ -368,7 +368,7 @@ func TestIntegrateConflictRefusesUpdateContinue(t *testing.T) {
 // over a finish conflict and does not abort the finish merge.
 // Steps:
 // 1. Sets up a finish merge conflict (Action=finish, MERGE_HEAD present).
-// 2. Runs 'git flow integrate --abort'.
+// 2. Runs 'git pour integrate --abort'.
 // 3. Verifies non-destructive refusal (set F, exit 3) and MERGE_HEAD still present.
 func TestFinishConflictRefusesIntegrateAbort(t *testing.T) {
 	t.Parallel()
@@ -383,7 +383,7 @@ func TestFinishConflictRefusesIntegrateAbort(t *testing.T) {
 // over a finish conflict.
 // Steps:
 // 1. Sets up a finish merge conflict (Action=finish).
-// 2. Runs 'git flow feature update --abort x'.
+// 2. Runs 'git pour feature update --abort x'.
 // 3. Verifies non-destructive refusal naming the finish owner (set F, exit 3).
 func TestFinishConflictRefusesUpdateAbort(t *testing.T) {
 	t.Parallel()
@@ -398,10 +398,10 @@ func TestFinishConflictRefusesUpdateAbort(t *testing.T) {
 // over an update conflict (the core bug fix) and the update owner stays abortable.
 // Steps:
 //  1. Sets up an update merge conflict (Action=update, MERGE_HEAD present).
-//  2. Runs 'git flow feature finish --abort x'.
+//  2. Runs 'git pour feature finish --abort x'.
 //  3. Verifies non-destructive refusal naming the update owner (set F, exit 3);
 //     the update merge is NOT aborted.
-//  4. Runs 'git flow feature update --abort x' and verifies it cleanly aborts.
+//  4. Runs 'git pour feature update --abort x' and verifies it cleanly aborts.
 func TestUpdateConflictRefusesFinishAbort(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -429,7 +429,7 @@ func TestUpdateConflictRefusesFinishAbort(t *testing.T) {
 // over an update conflict.
 // Steps:
 // 1. Sets up an update merge conflict (Action=update).
-// 2. Runs 'git flow integrate --abort'.
+// 2. Runs 'git pour integrate --abort'.
 // 3. Verifies non-destructive refusal naming the update owner (set F, exit 3).
 func TestUpdateConflictRefusesIntegrateAbort(t *testing.T) {
 	t.Parallel()
@@ -444,7 +444,7 @@ func TestUpdateConflictRefusesIntegrateAbort(t *testing.T) {
 // refused over an integrate conflict.
 // Steps:
 // 1. Sets up an integrate merge conflict (Action=integrate).
-// 2. Runs 'git flow feature finish --abort x'.
+// 2. Runs 'git pour feature finish --abort x'.
 // 3. Verifies non-destructive refusal naming the integrate owner (set F, exit 3).
 func TestIntegrateConflictRefusesFinishAbort(t *testing.T) {
 	t.Parallel()
@@ -459,7 +459,7 @@ func TestIntegrateConflictRefusesFinishAbort(t *testing.T) {
 // refused over an integrate conflict.
 // Steps:
 // 1. Sets up an integrate merge conflict (Action=integrate).
-// 2. Runs 'git flow feature update --abort x'.
+// 2. Runs 'git pour feature update --abort x'.
 // 3. Verifies non-destructive refusal naming the integrate owner (set F, exit 3).
 func TestIntegrateConflictRefusesUpdateAbort(t *testing.T) {
 	t.Parallel()
@@ -478,7 +478,7 @@ func TestIntegrateConflictRefusesUpdateAbort(t *testing.T) {
 // refused while an integrate op is in progress (guard fires before a new finish).
 // Steps:
 // 1. Sets up an integrate merge conflict (Action=integrate).
-// 2. Runs 'git flow feature finish x' (no continue/abort flags).
+// 2. Runs 'git pour feature finish x' (no continue/abort flags).
 // 3. Verifies non-destructive refusal naming the integrate owner (set F, exit 3).
 func TestPlainFinishRefusedDuringIntegrate(t *testing.T) {
 	t.Parallel()
@@ -493,7 +493,7 @@ func TestPlainFinishRefusedDuringIntegrate(t *testing.T) {
 // while a finish op is in progress (the previously unguarded path).
 // Steps:
 // 1. Sets up a finish merge conflict (Action=finish).
-// 2. Runs 'git flow feature update x' (no continue/abort flags).
+// 2. Runs 'git pour feature update x' (no continue/abort flags).
 // 3. Verifies non-destructive refusal naming the finish owner (set F, exit 3).
 func TestPlainUpdateRefusedDuringFinish(t *testing.T) {
 	t.Parallel()
@@ -512,13 +512,13 @@ func TestPlainUpdateRefusedDuringFinish(t *testing.T) {
 // progress errors with "no merge in progress" and exit 3.
 // Steps:
 // 1. init --defaults; feature start x (no conflict, no in-progress op).
-// 2. Runs 'git flow feature finish --continue x'.
+// 2. Runs 'git pour feature finish --continue x'.
 // 3. Verifies "no merge in progress" and exit 3.
 func TestFinishContinueNoMergeInProgress(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "x"); err != nil {
@@ -538,13 +538,13 @@ func TestFinishContinueNoMergeInProgress(t *testing.T) {
 // nothing in progress errors with "no merge in progress" and exit 3.
 // Steps:
 // 1. init --defaults (nothing in progress).
-// 2. Runs 'git flow integrate --continue'.
+// 2. Runs 'git pour integrate --continue'.
 // 3. Verifies "no merge in progress" and exit 3.
 func TestIntegrateContinueNoMergeInProgress(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 
@@ -578,7 +578,7 @@ func setupBogusActionState(t *testing.T, dir, action string) {
 }
 
 // assertUnrecognizedRefusal runs cmdArgs and asserts an unrecognized-operation
-// refusal: exit 3, a generic "unrecognized git-flow operation" message, the
+// refusal: exit 3, a generic "unrecognized git-pour operation" message, the
 // state-file bytes unchanged, and MERGE_HEAD still present. Nothing is cleared.
 func assertUnrecognizedRefusal(t *testing.T, dir string, cmdArgs []string) {
 	t.Helper()
@@ -588,8 +588,8 @@ func assertUnrecognizedRefusal(t *testing.T, dir string, cmdArgs []string) {
 	if code := scopeExitCode(err); code != 3 {
 		t.Fatalf("expected exit 3, got %d (err=%v)\n%s", code, err, out)
 	}
-	if !strings.Contains(out, "unrecognized git-flow operation") {
-		t.Errorf("expected 'unrecognized git-flow operation' message, got:\n%s", out)
+	if !strings.Contains(out, "unrecognized git-pour operation") {
+		t.Errorf("expected 'unrecognized git-pour operation' message, got:\n%s", out)
 	}
 	if got := readStateBytes(t, dir); got != stateBefore {
 		t.Errorf("state file changed.\nbefore: %s\nafter:  %s", stateBefore, got)
@@ -603,7 +603,7 @@ func assertUnrecognizedRefusal(t *testing.T, dir string, cmdArgs []string) {
 // non-destructively (never auto-cleared).
 // Steps:
 // 1. Sets up a finish conflict, then overwrites Action="" (MERGE_HEAD kept).
-// 2. Runs 'git flow feature finish --continue x'.
+// 2. Runs 'git pour feature finish --continue x'.
 // 3. Verifies a generic unrecognized-operation refusal (exit 3), state kept.
 func TestEmptyActionRefusedNonDestructively(t *testing.T) {
 	t.Parallel()
@@ -618,7 +618,7 @@ func TestEmptyActionRefusedNonDestructively(t *testing.T) {
 // non-destructively (never auto-cleared).
 // Steps:
 // 1. Sets up a finish conflict, then overwrites Action="bogus" (MERGE_HEAD kept).
-// 2. Runs 'git flow integrate --continue'.
+// 2. Runs 'git pour integrate --continue'.
 // 3. Verifies a generic unrecognized-operation refusal (exit 3), state kept.
 func TestBogusActionRefusedNonDestructively(t *testing.T) {
 	t.Parallel()
@@ -634,15 +634,15 @@ func TestBogusActionRefusedNonDestructively(t *testing.T) {
 // the file exists but fails to parse.
 func writeRawState(t *testing.T, dir, content string) {
 	t.Helper()
-	p := filepath.Join(integGitDir(t, dir), "gitflow", "state", "merge.json")
+	p := filepath.Join(integGitDir(t, dir), "gitpour", "state", "merge.json")
 	if err := os.WriteFile(p, []byte(content), 0644); err != nil {
 		t.Fatalf("failed to write raw state file: %v", err)
 	}
 }
 
 // assertUnparseableStateRefusal runs cmdArgs against a genuine git operation whose
-// git-flow state file is unparseable (truncated). It asserts the spec's set F for
-// the unrecognized case: exit 3, a generic "unrecognized git-flow operation"
+// git-pour state file is unparseable (truncated). It asserts the spec's set F for
+// the unrecognized case: exit 3, a generic "unrecognized git-pour operation"
 // message, the state-file bytes byte-identical, MERGE_HEAD still present, and the
 // current branch, HEAD, and all refs unchanged. Nothing is auto-cleared.
 func assertUnparseableStateRefusal(t *testing.T, dir string, cmdArgs []string) {
@@ -659,8 +659,8 @@ func assertUnparseableStateRefusal(t *testing.T, dir string, cmdArgs []string) {
 	if code := scopeExitCode(err); code != 3 {
 		t.Fatalf("expected exit 3, got %d (err=%v)\n%s", code, err, out)
 	}
-	if !strings.Contains(out, "unrecognized git-flow operation") {
-		t.Errorf("expected 'unrecognized git-flow operation' message, got:\n%s", out)
+	if !strings.Contains(out, "unrecognized git-pour operation") {
+		t.Errorf("expected 'unrecognized git-pour operation' message, got:\n%s", out)
 	}
 	if got := readStateBytes(t, dir); got != stateBefore {
 		t.Errorf("state file changed (should be byte-identical).\nbefore: %s\nafter:  %s", stateBefore, got)
@@ -686,7 +686,7 @@ func assertUnparseableStateRefusal(t *testing.T, dir string, cmdArgs []string) {
 // Steps:
 //  1. Sets up a finish merge conflict (MERGE_HEAD present), then overwrites the
 //     state file with truncated JSON.
-//  2. Runs 'git flow feature finish --continue x'.
+//  2. Runs 'git pour feature finish --continue x'.
 //  3. Verifies exit 3, a generic unrecognized-operation refusal, state bytes
 //     byte-identical, MERGE_HEAD kept, HEAD/branch/refs unchanged.
 func TestTruncatedStateRefusesContinueNonDestructively(t *testing.T) {
@@ -705,7 +705,7 @@ func TestTruncatedStateRefusesContinueNonDestructively(t *testing.T) {
 // Steps:
 //  1. Sets up a finish merge conflict (MERGE_HEAD present), then overwrites the
 //     state file with truncated JSON.
-//  2. Runs 'git flow feature finish --abort x'.
+//  2. Runs 'git pour feature finish --abort x'.
 //  3. Verifies exit 3, a generic unrecognized-operation refusal, state bytes
 //     byte-identical, MERGE_HEAD kept, HEAD/branch/refs unchanged.
 func TestTruncatedStateRefusesAbortNonDestructively(t *testing.T) {
@@ -722,9 +722,9 @@ func TestTruncatedStateRefusesAbortNonDestructively(t *testing.T) {
 // owner and prints the exact recovery commands.
 // Steps:
 //  1. Sets up an integrate merge conflict (Action=integrate).
-//  2. Runs 'git flow feature finish --continue x'.
-//  3. Verifies the message contains 'integrate', 'git flow integrate --continue',
-//     and 'git flow integrate --abort'.
+//  2. Runs 'git pour feature finish --continue x'.
+//  3. Verifies the message contains 'integrate', 'git pour integrate --continue',
+//     and 'git pour integrate --abort'.
 func TestForeignRefusalMessageContent(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -735,7 +735,7 @@ func TestForeignRefusalMessageContent(t *testing.T) {
 	if code := scopeExitCode(err); code != 3 {
 		t.Fatalf("expected exit 3, got %d (err=%v)\n%s", code, err, out)
 	}
-	for _, want := range []string{"integrate", "git flow integrate --continue", "git flow integrate --abort"} {
+	for _, want := range []string{"integrate", "git pour integrate --continue", "git pour integrate --abort"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("expected message to contain %q, got:\n%s", want, out)
 		}
@@ -746,7 +746,7 @@ func TestForeignRefusalMessageContent(t *testing.T) {
 // exits 3 (not 1) when refusing a foreign integrate op.
 // Steps:
 // 1. Sets up an integrate merge conflict (Action=integrate, HEAD on main).
-// 2. Runs 'git flow update --continue' (top-level surface).
+// 2. Runs 'git pour update --continue' (top-level surface).
 // 3. Verifies non-destructive refusal naming the integrate owner (set F, exit 3).
 func TestTopLevelUpdateForeignRefusalExitsThree(t *testing.T) {
 	t.Parallel()
@@ -789,7 +789,7 @@ func setupLegacyUpdateState(t *testing.T, dir string) {
 // Steps:
 //  1. Sets up a genuine update merge conflict, then overwrites the state with a
 //     legacy update state (Action=update, BranchType="", CurrentStep=merge).
-//  2. Runs 'git flow feature update --continue x' (the owner surface).
+//  2. Runs 'git pour feature update --continue x' (the owner surface).
 //  3. Verifies exit 3, a generic unrecognized-operation refusal, state bytes
 //     byte-identical, MERGE_HEAD kept, HEAD/branch/refs unchanged.
 func TestLegacyUpdateStateRefusesOwnerContinueNonDestructively(t *testing.T) {
@@ -808,7 +808,7 @@ func TestLegacyUpdateStateRefusesOwnerContinueNonDestructively(t *testing.T) {
 // Steps:
 //  1. Sets up a genuine update merge conflict, then overwrites the state with a
 //     legacy update state (Action=update, BranchType="", CurrentStep=merge).
-//  2. Runs 'git flow feature update --abort x' (the owner surface).
+//  2. Runs 'git pour feature update --abort x' (the owner surface).
 //  3. Verifies exit 3, a generic unrecognized-operation refusal, state bytes
 //     byte-identical, MERGE_HEAD kept, HEAD/branch/refs unchanged.
 func TestLegacyUpdateStateRefusesOwnerAbortNonDestructively(t *testing.T) {
@@ -830,7 +830,7 @@ func TestUnrecognizedOperationErrorOmitsEmptyBranchName(t *testing.T) {
 	if strings.Contains(empty, "for ''") {
 		t.Errorf("empty-BranchName message must not contain \"for ''\", got:\n%s", empty)
 	}
-	if !strings.Contains(empty, "unrecognized git-flow operation") {
+	if !strings.Contains(empty, "unrecognized git-pour operation") {
 		t.Errorf("expected unrecognized-operation message, got:\n%s", empty)
 	}
 

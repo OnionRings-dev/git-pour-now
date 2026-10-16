@@ -43,7 +43,7 @@ applyTo: "test/**/*.go,**/*_test.go"
 
 - MUST: For conflicts: (1) start branch from clean base, (2) commit on topic branch, (3) switch to base, (4) commit different content to same file
 - SHOULD: Check `.git/rebase-merge/` for active rebase state, `.git/MERGE_HEAD` for merge conflicts
-- SHOULD: Use `testutil.LoadMergeState(t, dir)` for git-flow-next's own state — verify both Git state and application state
+- SHOULD: Use `testutil.LoadMergeState(t, dir)` for git-pour-now's own state — verify both Git state and application state
 - SHOULD: Use `testutil.SetupTestRepoWithRemote(t)` when testing remote-aware operations
 - SHOULD: Simulate remote-ahead by cloning bare remote to second copy, committing and pushing there, then fetching
 

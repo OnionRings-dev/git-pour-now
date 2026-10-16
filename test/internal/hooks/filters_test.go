@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // createExecutableScript creates an executable script in the hooks directory.
@@ -54,7 +54,7 @@ else
     echo "$VERSION"
 fi
 `
-	createExecutableScript(t, dir, "filter-flow-release-start-version", script)
+	createExecutableScript(t, dir, "filter-pour-release-start-version", script)
 
 	repo := openRepo(t, dir)
 	result, err := hooks.RunVersionFilter(repo, "release", "1.0.0")
@@ -81,7 +81,7 @@ else
     echo "$VERSION"
 fi
 `
-	createExecutableScript(t, dir, "filter-flow-release-start-version", script)
+	createExecutableScript(t, dir, "filter-pour-release-start-version", script)
 
 	repo := openRepo(t, dir)
 	result, err := hooks.RunVersionFilter(repo, "release", "v1.0.0")
@@ -122,7 +122,7 @@ func TestVersionFilterNonExecutableSkipped(t *testing.T) {
 	script := `#!/bin/sh
 echo "modified-$1"
 `
-	createNonExecutableScript(t, dir, "filter-flow-release-start-version", script)
+	createNonExecutableScript(t, dir, "filter-pour-release-start-version", script)
 
 	repo := openRepo(t, dir)
 	result, err := hooks.RunVersionFilter(repo, "release", "1.0.0")
@@ -146,7 +146,7 @@ func TestVersionFilterNonZeroExitReturnsError(t *testing.T) {
 echo "Error: invalid version" >&2
 exit 1
 `
-	createExecutableScript(t, dir, "filter-flow-release-start-version", script)
+	createExecutableScript(t, dir, "filter-pour-release-start-version", script)
 
 	repo := openRepo(t, dir)
 	_, err := hooks.RunVersionFilter(repo, "release", "1.0.0")
@@ -164,7 +164,7 @@ func TestVersionFilterEmptyOutputReturnsOriginal(t *testing.T) {
 	script := `#!/bin/sh
 # Do nothing
 `
-	createExecutableScript(t, dir, "filter-flow-release-start-version", script)
+	createExecutableScript(t, dir, "filter-pour-release-start-version", script)
 
 	repo := openRepo(t, dir)
 	result, err := hooks.RunVersionFilter(repo, "release", "1.0.0")
@@ -187,7 +187,7 @@ func TestVersionFilterHotfix(t *testing.T) {
 	script := `#!/bin/sh
 echo "hotfix-$1"
 `
-	createExecutableScript(t, dir, "filter-flow-hotfix-start-version", script)
+	createExecutableScript(t, dir, "filter-pour-hotfix-start-version", script)
 
 	repo := openRepo(t, dir)
 	result, err := hooks.RunVersionFilter(repo, "hotfix", "1.0.1")
@@ -209,7 +209,7 @@ func TestVersionFilterCustomBranchType(t *testing.T) {
 	script := `#!/bin/sh
 echo "custom-$1"
 `
-	createExecutableScript(t, dir, "filter-flow-epic-start-version", script)
+	createExecutableScript(t, dir, "filter-pour-epic-start-version", script)
 
 	repo := openRepo(t, dir)
 	result, err := hooks.RunVersionFilter(repo, "epic", "my-epic")
@@ -235,7 +235,7 @@ echo "${MESSAGE}
 
 Release ${VERSION} - Auto-generated"
 `
-	createExecutableScript(t, dir, "filter-flow-release-finish-tag-message", script)
+	createExecutableScript(t, dir, "filter-pour-release-finish-tag-message", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.FilterContext{
@@ -293,7 +293,7 @@ func TestTagMessageFilterNonExecutableSkipped(t *testing.T) {
 	script := `#!/bin/sh
 echo "modified message"
 `
-	createNonExecutableScript(t, dir, "filter-flow-release-finish-tag-message", script)
+	createNonExecutableScript(t, dir, "filter-pour-release-finish-tag-message", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.FilterContext{
@@ -324,7 +324,7 @@ func TestTagMessageFilterNonZeroExitReturnsError(t *testing.T) {
 	script := `#!/bin/sh
 exit 1
 `
-	createExecutableScript(t, dir, "filter-flow-release-finish-tag-message", script)
+	createExecutableScript(t, dir, "filter-pour-release-finish-tag-message", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.FilterContext{
@@ -351,7 +351,7 @@ func TestTagMessageFilterHotfix(t *testing.T) {
 VERSION="$1"
 echo "Hotfix ${VERSION}"
 `
-	createExecutableScript(t, dir, "filter-flow-hotfix-finish-tag-message", script)
+	createExecutableScript(t, dir, "filter-pour-hotfix-finish-tag-message", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.FilterContext{
@@ -382,7 +382,7 @@ func TestTagMessageFilterCustomBranchType(t *testing.T) {
 VERSION="$1"
 echo "Epic ${VERSION} completed"
 `
-	createExecutableScript(t, dir, "filter-flow-epic-finish-tag-message", script)
+	createExecutableScript(t, dir, "filter-pour-epic-finish-tag-message", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.FilterContext{
@@ -412,7 +412,7 @@ func TestTagMessageFilterReceivesEnvironmentVariables(t *testing.T) {
 	script := `#!/bin/sh
 echo "Type: ${BRANCH_TYPE}, Name: ${BRANCH_NAME}, Base: ${BASE_BRANCH}, Version: ${VERSION}"
 `
-	createExecutableScript(t, dir, "filter-flow-release-finish-tag-message", script)
+	createExecutableScript(t, dir, "filter-pour-release-finish-tag-message", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.FilterContext{
@@ -435,14 +435,14 @@ echo "Type: ${BRANCH_TYPE}, Name: ${BRANCH_NAME}, Base: ${BASE_BRANCH}, Version:
 }
 
 // TestFilterDiscoveredAndRunInTargetRepoOffCwd verifies that a filter configured
-// in repo B (via gitflow.path.hooks) is both discovered through B's handle-bound
+// in repo B (via gitpour.path.hooks) is both discovered through B's handle-bound
 // config and executed with its working directory set to B's work tree, off-CWD.
 func TestFilterDiscoveredAndRunInTargetRepoOffCwd(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	customHooksDir, err := os.MkdirTemp("", "git-flow-offcwd-filter-*")
+	customHooksDir, err := os.MkdirTemp("", "git-pour-offcwd-filter-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -454,11 +454,11 @@ func TestFilterDiscoveredAndRunInTargetRepoOffCwd(t *testing.T) {
 pwd > "` + markerFile + `"
 echo "v$1"
 `
-	createExecutableScript2(t, customHooksDir, "filter-flow-release-start-version", script)
+	createExecutableScript2(t, customHooksDir, "filter-pour-release-start-version", script)
 
 	// Point B's config at the custom hooks dir; discovery must read B's config.
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.path.hooks", customHooksDir); err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.path.hooks", customHooksDir); err != nil {
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	repo, err := git.Open(dir)
@@ -504,13 +504,13 @@ func TestGetFilterName(t *testing.T) {
 		target     hooks.FilterTarget
 		expected   string
 	}{
-		{"release", "start", hooks.FilterTargetVersion, "filter-flow-release-start-version"},
-		{"hotfix", "start", hooks.FilterTargetVersion, "filter-flow-hotfix-start-version"},
-		{"feature", "start", hooks.FilterTargetVersion, "filter-flow-feature-start-version"},
-		{"epic", "start", hooks.FilterTargetVersion, "filter-flow-epic-start-version"},
-		{"release", "finish", hooks.FilterTargetTagMessage, "filter-flow-release-finish-tag-message"},
-		{"hotfix", "finish", hooks.FilterTargetTagMessage, "filter-flow-hotfix-finish-tag-message"},
-		{"custom", "finish", hooks.FilterTargetTagMessage, "filter-flow-custom-finish-tag-message"},
+		{"release", "start", hooks.FilterTargetVersion, "filter-pour-release-start-version"},
+		{"hotfix", "start", hooks.FilterTargetVersion, "filter-pour-hotfix-start-version"},
+		{"feature", "start", hooks.FilterTargetVersion, "filter-pour-feature-start-version"},
+		{"epic", "start", hooks.FilterTargetVersion, "filter-pour-epic-start-version"},
+		{"release", "finish", hooks.FilterTargetTagMessage, "filter-pour-release-finish-tag-message"},
+		{"hotfix", "finish", hooks.FilterTargetTagMessage, "filter-pour-hotfix-finish-tag-message"},
+		{"custom", "finish", hooks.FilterTargetTagMessage, "filter-pour-custom-finish-tag-message"},
 	}
 
 	for _, tt := range tests {
@@ -531,7 +531,7 @@ func TestVersionFilterWorksInGitWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
 	// Create a worktree
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-filter-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-filter-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -548,7 +548,7 @@ func TestVersionFilterWorksInGitWorktree(t *testing.T) {
 VERSION="$1"
 echo "v${VERSION}"
 `
-	createExecutableScript(t, mainRepo, "filter-flow-release-start-version", script)
+	createExecutableScript(t, mainRepo, "filter-pour-release-start-version", script)
 
 	// Open a git.Repo handle for the worktree.
 	repo, err := git.Open(worktreePath)
@@ -574,7 +574,7 @@ func TestTagMessageFilterWorksInGitWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
 	// Create a worktree
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-tagfilter-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-tagfilter-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -591,7 +591,7 @@ func TestTagMessageFilterWorksInGitWorktree(t *testing.T) {
 VERSION="$1"
 echo "Release ${VERSION} from worktree"
 `
-	createExecutableScript(t, mainRepo, "filter-flow-release-finish-tag-message", script)
+	createExecutableScript(t, mainRepo, "filter-pour-release-finish-tag-message", script)
 
 	// Open a git.Repo handle for the worktree.
 	repo, err := git.Open(worktreePath)
@@ -619,7 +619,7 @@ echo "Release ${VERSION} from worktree"
 }
 
 // TestVersionFilterRelativePathResolvesInWorktree (Scenario 6) verifies that a
-// version filter configured via a relative gitflow.path.hooks is discovered and
+// version filter configured via a relative gitpour.path.hooks is discovered and
 // executed against the active worktree root: the worktree filter transforms the
 // version and runs with cwd == worktree root, while the main-checkout control
 // filter never runs.
@@ -637,11 +637,11 @@ echo "v$1"
 pwd > "` + mainMarker + `"
 echo "MAIN$1"
 `
-	createExecutableScript2(t, filepath.Join(worktreePath, ".githooks"), "filter-flow-release-start-version", wtScript)
-	createExecutableScript2(t, filepath.Join(mainRepo, ".githooks"), "filter-flow-release-start-version", mainScript)
+	createExecutableScript2(t, filepath.Join(worktreePath, ".githooks"), "filter-pour-release-start-version", wtScript)
+	createExecutableScript2(t, filepath.Join(mainRepo, ".githooks"), "filter-pour-release-start-version", mainScript)
 
-	if _, err := testutil.RunGit(t, worktreePath, "config", "gitflow.path.hooks", ".githooks"); err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+	if _, err := testutil.RunGit(t, worktreePath, "config", "gitpour.path.hooks", ".githooks"); err != nil {
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	result, err := hooks.RunVersionFilter(repo, "release", "1.0.0")
@@ -682,11 +682,11 @@ echo "Release $1 from worktree"
 pwd > "` + mainMarker + `"
 echo "MAIN $1"
 `
-	createExecutableScript2(t, filepath.Join(worktreePath, ".githooks"), "filter-flow-release-finish-tag-message", wtScript)
-	createExecutableScript2(t, filepath.Join(mainRepo, ".githooks"), "filter-flow-release-finish-tag-message", mainScript)
+	createExecutableScript2(t, filepath.Join(worktreePath, ".githooks"), "filter-pour-release-finish-tag-message", wtScript)
+	createExecutableScript2(t, filepath.Join(mainRepo, ".githooks"), "filter-pour-release-finish-tag-message", mainScript)
 
-	if _, err := testutil.RunGit(t, worktreePath, "config", "gitflow.path.hooks", ".githooks"); err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+	if _, err := testutil.RunGit(t, worktreePath, "config", "gitpour.path.hooks", ".githooks"); err != nil {
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	ctx := hooks.FilterContext{

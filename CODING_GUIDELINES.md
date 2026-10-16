@@ -1,6 +1,6 @@
 # Coding Guidelines
 
-This document outlines the coding standards and conventions used in the git-flow-next project. Following these guidelines ensures consistency and maintainability across the codebase.
+This document outlines the coding standards and conventions used in the git-pour-now project. Following these guidelines ensures consistency and maintainability across the codebase.
 
 ## Documentation Requirements
 
@@ -9,10 +9,10 @@ This document outlines the coding standards and conventions used in the git-flow
 ### Documentation Update Rules
 
 1. **New Commands**: Create new manpage documentation in `docs/`
-2. **Modified Commands**: Update existing manpage files with current behavior  
+2. **Modified Commands**: Update existing manpage files with current behavior
 3. **New Options**: Add to relevant command documentation with examples
 4. **Changed Behavior**: Update descriptions, examples, and exit codes
-5. **Configuration Changes**: Update `gitflow-config.5.md` with new keys/values
+5. **Configuration Changes**: Update `gitpour-config.5.md` with new keys/values
 
 ### Documentation Standards
 
@@ -30,7 +30,7 @@ Always verify documentation is current:
 git diff --name-only | grep -E '(cmd/|internal/)' && echo "Review docs/ for updates"
 
 # Ensure examples work
-cd docs && grep -r "git flow" *.md | head -10  # Spot-check examples
+cd docs && grep -r "git pour" *.md | head -10  # Spot-check examples
 ```
 
 ## Development Philosophy
@@ -68,7 +68,7 @@ cd docs && grep -r "git flow" *.md | head -10  # Spot-check examples
 
 ```go
 // GOOD: Complex function with many parameters that reflect the real problem
-func FinishCommand(branchType string, name string, continueOp bool, abortOp bool, 
+func FinishCommand(branchType string, name string, continueOp bool, abortOp bool,
     force bool, tagOptions *TagOptions, retentionOptions *BranchRetentionOptions)
 
 // GOOD: Option struct groups related concepts
@@ -122,9 +122,9 @@ import (
     "github.com/spf13/cobra"
 
     // 3. Local packages (alphabetical)
-    "github.com/gittower/git-flow-next/internal/config"
-    "github.com/gittower/git-flow-next/internal/errors"
-    "github.com/gittower/git-flow-next/internal/git"
+    "github.com/OnionRings-dev/git-pour-now/internal/config"
+    "github.com/OnionRings-dev/git-pour-now/internal/errors"
+    "github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 ```
 
@@ -249,7 +249,7 @@ RunE: func(cmd *cobra.Command, args []string) error {
     // Parse flags and arguments
     param1, _ := cmd.Flags().GetString("flag1")
     param2, _ := cmd.Flags().GetBool("flag2")
-    
+
     // Call command wrapper
     CommandName(branchType, name, param1, param2)
     return nil
@@ -288,7 +288,7 @@ func executeCommand(params...) error {
     if err != nil {
         return &errors.GitError{Operation: "load configuration", Err: err}
     }
-    
+
     // Pass cfg to all subsequent function calls
     return doWork(cfg, params...)
 }
@@ -304,10 +304,10 @@ func executeCommand(params...) error {
 Every command (except `init`) must start with this exact pattern:
 
 ```go
-// Validate that git-flow is initialized
+// Validate that git-pour is initialized
 initialized, err := config.IsInitialized()
 if err != nil {
-    return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+    return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 }
 if !initialized {
     return &errors.NotInitializedError{}
@@ -365,10 +365,10 @@ if name == "" {
 **CRITICAL**: All commands must implement a **three-layer precedence hierarchy** where command-line arguments always win. Branch defaults are reserved for essential branch-type configuration; some options intentionally skip Layer 1 and use only Layer 2 + Layer 3 (e.g., publish push-options).
 
 #### **Layer 1: Branch Configuration Defaults**
-Default values from branch type configuration in Git config under `gitflow.branch.*`
+Default values from branch type configuration in Git config under `gitpour.branch.*`
 
 #### **Layer 2: Command-Specific Git Config Overrides**
-Branch-specific overrides in Git config under `gitflow.<branchtype>.*`
+Branch-specific overrides in Git config under `gitpour.<branchtype>.*`
 
 #### **Layer 3: Command-Line Arguments (HIGHEST PRIORITY)**
 Explicit flags passed to the command - **THESE ALWAYS WIN**
@@ -380,7 +380,7 @@ Explicit flags passed to the command - **THESE ALWAYS WIN**
 shouldTag := branchConfig.Tag
 
 // 2. Check for branch-specific config override (Layer 2)
-branchSpecificConfig, err := git.GetConfig(fmt.Sprintf("gitflow.%s.finish.notag", branchType))
+branchSpecificConfig, err := git.GetConfig(fmt.Sprintf("gitpour.%s.finish.notag", branchType))
 if err == nil && branchSpecificConfig == "true" {
     shouldTag = false
 }
@@ -396,25 +396,25 @@ if tagOptions != nil && tagOptions.ShouldTag != nil {
 **Tag Creation Example:**
 ```bash
 # Layer 1: Branch config default
-git config gitflow.branch.release.tag true
+git config gitpour.branch.release.tag true
 
 # Layer 2: Command-specific override
-git config gitflow.release.finish.notag true  # Disables tags
+git config gitpour.release.finish.notag true  # Disables tags
 
 # Layer 3: Command-line override (WINS)
-git flow release finish v1.0 --tag  # Forces tag creation despite config
+git pour release finish v1.0 --tag  # Forces tag creation despite config
 ```
 
 **Merge Strategy Example:**
 ```bash
 # Layer 1: Branch config default
-git config gitflow.branch.feature.upstreamStrategy merge
+git config gitpour.branch.feature.upstreamStrategy merge
 
 # Layer 2: Command-specific override
-git config gitflow.feature.finish.rebase true
+git config gitpour.feature.finish.rebase true
 
 # Layer 3: Command-line override (WINS)
-git flow feature finish my-feature --squash  # Forces squash merge
+git pour feature finish my-feature --squash  # Forces squash merge
 ```
 
 #### **Required Implementation:**
@@ -428,7 +428,7 @@ git flow feature finish my-feature --squash  # Forces squash merge
 
 When adding a new option, the key question is: **does this describe what the branch type *is*, or how a command *executes*?**
 
-**Most new options need only Layer 2 + Layer 3.** Operational settings like `fetch`, `sign`, `keep`, `push-options`, or `force-delete` control command behavior — they don't define a branch type characteristic. These belong in `gitflow.<branchtype>.<command>.<option>` (Layer 2) with a corresponding CLI flag (Layer 3).
+**Most new options need only Layer 2 + Layer 3.** Operational settings like `fetch`, `sign`, `keep`, `push-options`, or `force-delete` control command behavior — they don't define a branch type characteristic. These belong in `gitpour.<branchtype>.<command>.<option>` (Layer 2) with a corresponding CLI flag (Layer 3).
 
 **Add Layer 1 support only if the option defines a branch type's identity or process characteristic** — something inherent to what the branch type *is*. Ask yourself: "Would this make sense as part of the branch type's definition when someone sets up a new workflow?" Examples:
 - `tag` — "releases produce tags" describes the release process → Layer 1
@@ -439,11 +439,11 @@ When adding a new option, the key question is: **does this describe what the bra
 **Checklist for new options:**
 
 1. **Always** add Layer 3 (CLI flag) — users must be able to override per-invocation
-2. **Always** add Layer 2 (`gitflow.<type>.<command>.<option>`) — users must be able to set persistent command behavior
-3. **Only if it's a branch type characteristic** add Layer 1 (`gitflow.branch.<type>.<property>`) — and add it to the `BranchConfig` struct
-4. **Update documentation** — add to `docs/gitflow-config.5.md` and `CONFIGURATION.md` in the appropriate layer sections
+2. **Always** add Layer 2 (`gitpour.<type>.<command>.<option>`) — users must be able to set persistent command behavior
+3. **Only if it's a branch type characteristic** add Layer 1 (`gitpour.branch.<type>.<property>`) — and add it to the `BranchConfig` struct
+4. **Update documentation** — add to `docs/gitpour-config.5.md` and `CONFIGURATION.md` in the appropriate layer sections
 
-**Narrow exception to rule 2 — a pure Layer-1 identity property.** When an option belongs to Layer 1 *and* a Layer-2 twin would mean exactly the same thing for exactly one command, ship Layer 1 + Layer 3 only. A second key with identical meaning is a resolution trap: users cannot tell which one wins, and the resolver has to invent a precedence that carries no information. The shipped example is `gitflow.branch.<type>.worktree` (`git flow <type> start --worktree`/`--no-worktree`), where `gitflow.<type>.start.worktree` would have been that twin.
+**Narrow exception to rule 2 — a pure Layer-1 identity property.** When an option belongs to Layer 1 *and* a Layer-2 twin would mean exactly the same thing for exactly one command, ship Layer 1 + Layer 3 only. A second key with identical meaning is a resolution trap: users cannot tell which one wins, and the resolver has to invent a precedence that carries no information. The shipped example is `gitpour.branch.<type>.worktree` (`git pour <type> start --worktree`/`--no-worktree`), where `gitpour.<type>.start.worktree` would have been that twin.
 
 This is the exception, not an escape hatch. It does **not** apply when Layer 2 would say something Layer 1 cannot — a different value per command (`fetch` on `start` vs `finish`), or a command behavior that is not part of the branch type's identity. If in doubt, add Layer 2. When the exception is taken, say why in the resolver's godoc so the omission reads as deliberate.
 
@@ -536,14 +536,14 @@ func RenameBaseBranch(oldName, newName string) error {
 // ✅ GOOD: Removes old config before saving new config
 func RenameBaseBranch(oldName, newName string) error {
     // Remove old git config section first
-    if err := git.UnsetConfigSection(fmt.Sprintf("gitflow.branch.%s", oldName)); err != nil {
+    if err := git.UnsetConfigSection(fmt.Sprintf("gitpour.branch.%s", oldName)); err != nil {
         return fmt.Errorf("failed to remove old branch config: %w", err)
     }
-    
+
     // Update in-memory configuration
     cfg.Branches[newName] = cfg.Branches[oldName]
     delete(cfg.Branches, oldName)
-    
+
     // Save new configuration
     return config.SaveConfig(cfg)
 }
@@ -557,7 +557,7 @@ func UnsetConfigSection(pattern string) error {
     cmd := exec.Command("git", "config", "--remove-section", pattern)
     _, err := cmd.Output()
     if err != nil {
-        // Don't treat "section not found" as an error  
+        // Don't treat "section not found" as an error
         if strings.Contains(err.Error(), "exit status 128") {
             return nil
         }
@@ -570,7 +570,7 @@ func UnsetConfigSection(pattern string) error {
 **Configuration Management Guidelines:**
 - **Always remove old config** before saving new config during rename/delete operations
 - **Handle missing sections gracefully** - `git config --remove-section` returns exit status 128 if section doesn't exist
-- **Use complete section patterns** - `gitflow.branch.branchname` removes all keys under that branch
+- **Use complete section patterns** - `gitpour.branch.branchname` removes all keys under that branch
 - **Clean up atomically** - Remove old config before saving new to avoid inconsistent state
 
 ### Command-Line Interface Design
@@ -579,7 +579,7 @@ When implementing CLI commands that can operate in different modes:
 
 ```go
 // Detect configuration flags to determine command mode
-hasConfigFlags := mainBranch != "" || developBranch != "" || featurePrefix != "" || 
+hasConfigFlags := mainBranch != "" || developBranch != "" || featurePrefix != "" ||
                   releasePrefix != "" || hotfixPrefix != "" || supportPrefix != ""
 
 if hasConfigFlags {
@@ -641,7 +641,7 @@ fmt.Printf("Merging using strategy: %s\n", strategy)
 fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 
 // Success messages with context
-fmt.Printf("Successfully finished branch '%s' and updated %d child branches\n", 
+fmt.Printf("Successfully finished branch '%s' and updated %d child branches\n",
     branchName, len(updatedBranches))
 ```
 
@@ -651,7 +651,7 @@ Provide clear, actionable error messages:
 
 ```go
 func (e *MergeConflictError) Error() string {
-    return fmt.Sprintf("Merge conflicts detected. Resolve conflicts and run 'git flow %s finish --continue %s'", 
+    return fmt.Sprintf("Merge conflicts detected. Resolve conflicts and run 'git pour %s finish --continue %s'",
         e.BranchType, e.BranchName)
 }
 ```
@@ -673,15 +673,15 @@ func TestExample(t *testing.T) {
     // Setup
     dir := testutil.SetupTestRepo(t)
     defer testutil.CleanupTestRepo(t, dir)
-    
+
     // Execute
     output, err := testutil.RunGitFlow(t, dir, "feature", "start", "test")
-    
+
     // Assert
     if err != nil {
         t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
     }
-    
+
     // Verify state
     if !testutil.BranchExists(t, dir, "feature/test") {
         t.Error("Expected feature branch to be created")
@@ -715,8 +715,8 @@ if !testutil.BranchExists(t, dir, "feature/test") {
 Document all exported functions with clear descriptions:
 
 ```go
-// LoadConfig loads the git-flow configuration from git config.
-// It reads all gitflow.branch.* configuration keys and constructs
+// LoadConfig loads the git-pour configuration from git config.
+// It reads all gitpour.branch.* configuration keys and constructs
 // a Config struct with branch definitions and settings.
 func LoadConfig() (*Config, error) {
     // Implementation
@@ -728,7 +728,7 @@ func LoadConfig() (*Config, error) {
 Provide package-level documentation at the top of main package files:
 
 ```go
-// Package config provides git-flow configuration management.
+// Package config provides git-pour configuration management.
 // It handles loading branch type definitions and workflow settings
 // from Git configuration files.
 package config
@@ -741,7 +741,7 @@ Document complex algorithms and state machines:
 ```go
 // The finish operation progresses through sequential steps:
 // 1. merge: Merge topic branch into parent
-// 2. create_tag: Create tag if configured  
+// 2. create_tag: Create tag if configured
 // 3. update_children: Update dependent child branches
 // 4. delete_branch: Clean up topic branch
 //
@@ -812,4 +812,4 @@ The project uses:
 - Use efficient data structures for branch operations
 - Avoid unnecessary string allocations in hot paths
 
-These guidelines help maintain code quality and ensure consistency across the git-flow-next project. When in doubt, follow the patterns established in existing code and prioritize clarity and maintainability.
+These guidelines help maintain code quality and ensure consistency across the git-pour-now project. When in doubt, follow the patterns established in existing code and prioritize clarity and maintainability.

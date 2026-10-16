@@ -6,14 +6,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestConfigAddBase tests adding base branch configurations.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Adds various base branches with different configurations
 // 3. Verifies branches are created and configuration is saved correctly
 // 4. Tests error conditions like duplicate branches and invalid parents
@@ -23,11 +23,11 @@ func TestConfigAddBase(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	// Initialize git-flow with defaults
+	// Initialize git-pour with defaults
 	var err error
-	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	tests := []struct {
@@ -84,7 +84,7 @@ func TestConfigAddBase(t *testing.T) {
 
 // TestConfigAddTopic tests adding topic branch type configurations.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Adds various topic branch types with different prefixes and settings
 // 3. Verifies configurations are saved correctly with proper defaults
 // 4. Tests error conditions like invalid parents and duplicate types
@@ -94,11 +94,11 @@ func TestConfigAddTopic(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	// Initialize git-flow with defaults
+	// Initialize git-pour with defaults
 	var err error
-	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	tests := []struct {
@@ -160,7 +160,7 @@ func TestConfigAddTopic(t *testing.T) {
 
 // TestConfigRenameBase tests renaming base branch configurations.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Renames the develop branch to integration
 // 3. Verifies both Git branch and configuration are updated
 // 4. Verifies child branch references are updated
@@ -171,11 +171,11 @@ func TestConfigRenameBase(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	// Initialize git-flow with defaults
+	// Initialize git-pour with defaults
 	var err error
-	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Rename develop to integration
@@ -227,7 +227,7 @@ func TestConfigRenameBase(t *testing.T) {
 
 // TestConfigDeleteBase tests deleting base branch configurations.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Adds a staging branch without dependents
 // 3. Tests deletion of branch with dependents (should fail)
 // 4. Tests deletion of branch without dependents (should succeed)
@@ -238,11 +238,11 @@ func TestConfigDeleteBase(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	// Initialize git-flow with defaults and add staging branch
+	// Initialize git-pour with defaults and add staging branch
 	var err error
-	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	captureConfigAddBase(t, tempDir, "staging", "main", "", "", false)
 
@@ -283,7 +283,7 @@ func TestConfigDeleteBase(t *testing.T) {
 
 // TestConfigDeleteTopic tests deleting topic branch type configurations.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Adds a custom topic branch type (e.g., support)
 // 3. Verifies the topic branch type was added correctly
 // 4. Deletes the topic branch type
@@ -294,10 +294,10 @@ func TestConfigDeleteTopic(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Add a custom topic branch type
@@ -318,7 +318,7 @@ func TestConfigDeleteTopic(t *testing.T) {
 		}
 
 		// Verify it was saved to git config
-		output, err := testutil.RunGit(t, tempDir, "config", "--get-regexp", "^gitflow\\.branch\\.experimental")
+		output, err := testutil.RunGit(t, tempDir, "config", "--get-regexp", "^gitpour\\.branch\\.experimental")
 		if err != nil {
 			t.Errorf("Experimental branch type was not saved to git config")
 		}
@@ -345,7 +345,7 @@ func TestConfigDeleteTopic(t *testing.T) {
 		}
 
 		// Verify it was removed from git config
-		output, err := testutil.RunGit(t, tempDir, "config", "--get-regexp", "^gitflow\\.branch\\.experimental")
+		output, err := testutil.RunGit(t, tempDir, "config", "--get-regexp", "^gitpour\\.branch\\.experimental")
 		// Should return error because config doesn't exist
 		if err == nil {
 			t.Errorf("Expected error when getting deleted git config, but got none. Output: %s", output)
@@ -373,7 +373,7 @@ func TestConfigDeleteTopic(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository without initialization
 // 2. Tests listing configuration in uninitialized repository
-// 3. Initializes git-flow and adds custom configuration
+// 3. Initializes git-pour and adds custom configuration
 // 4. Tests listing configuration with branches and settings
 // 5. Verifies all branch types and hierarchies are displayed correctly
 func TestConfigList(t *testing.T) {
@@ -391,11 +391,11 @@ func TestConfigList(t *testing.T) {
 		// Should show message about not being initialized
 	})
 
-	// Initialize git-flow
+	// Initialize git-pour
 	var err error
-	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Add some custom configuration
@@ -415,7 +415,7 @@ func TestConfigList(t *testing.T) {
 // TestPresetConfigurations tests the built-in workflow presets.
 // Steps:
 // 1. Sets up test repositories for each preset type
-// 2. Initializes git-flow with each preset (classic, github, gitlab)
+// 2. Initializes git-pour with each preset (classic, github, gitlab)
 // 3. Verifies that expected branches are configured for each preset
 // 4. Validates that preset-specific configurations are applied correctly
 func TestPresetConfigurations(t *testing.T) {
@@ -436,11 +436,11 @@ func TestPresetConfigurations(t *testing.T) {
 			tempDir := testutil.SetupTestRepo(t)
 			defer testutil.CleanupTestRepo(t, tempDir)
 
-			// Initialize git-flow with preset
+			// Initialize git-pour with preset
 			var err error
 			_, err = testutil.RunGitFlow(t, tempDir, "init", "--preset="+tt.preset)
 			if err != nil {
-				t.Fatalf("Failed to initialize git-flow with preset %s: %v", tt.preset, err)
+				t.Fatalf("Failed to initialize git-pour with preset %s: %v", tt.preset, err)
 			}
 
 			// Verify configuration
@@ -460,7 +460,7 @@ func TestPresetConfigurations(t *testing.T) {
 
 // TestCircularDependencyValidation tests validation of circular dependencies in branch configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Adds a staging branch with main as parent
 // 3. Attempts to create circular dependency by making main depend on staging
 // 4. Verifies that circular dependencies are detected and prevented
@@ -471,11 +471,11 @@ func TestCircularDependencyValidation(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	// Initialize git-flow with defaults
+	// Initialize git-pour with defaults
 	var err error
-	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults")
+	_, err = testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Add staging branch
@@ -592,12 +592,12 @@ func captureConfigDeleteTopic(t *testing.T, dir string, name string) error {
 	return err
 }
 
-// gitflowBranchConfig returns the output of
-// `git config --get-regexp '^gitflow\.branch\.'` for the test repo. On no
+// gitpourBranchConfig returns the output of
+// `git config --get-regexp '^gitpour\.branch\.'` for the test repo. On no
 // matches git exits non-zero and returns an empty string; the tests treat an
 // empty result as "no branch config lines" rather than a fatal error.
-func gitflowBranchConfig(t *testing.T, dir string) string {
-	output, _ := testutil.RunGit(t, dir, "config", "--get-regexp", "^gitflow\\.branch\\.")
+func gitpourBranchConfig(t *testing.T, dir string) string {
+	output, _ := testutil.RunGit(t, dir, "config", "--get-regexp", "^gitpour\\.branch\\.")
 	return output
 }
 
@@ -625,27 +625,27 @@ func assertNoLineContains(t *testing.T, output, substr, context string) {
 
 // TestConfigAddBaseUppercaseName tests adding a base branch with an uppercase name.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config add base V9_Release'
-// 3. Verifies gitflow.branch.V9_Release.type base is written (exact case)
-// 4. Verifies no lowercase gitflow.branch.v9_release.* variant section exists
+// 3. Verifies gitpour.branch.V9_Release.type base is written (exact case)
+// 4. Verifies no lowercase gitpour.branch.v9_release.* variant section exists
 // 5. Verifies refs/heads/V9_Release was created
 func TestConfigAddBaseUppercaseName(t *testing.T) {
 	t.Parallel()
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Release.type base", "add base uppercase")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "add base uppercase")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Release.type base", "add base uppercase")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "add base uppercase")
 	if !refExists(t, tempDir, "V9_Release") {
 		t.Errorf("Expected refs/heads/V9_Release to exist")
 	}
@@ -654,7 +654,7 @@ func TestConfigAddBaseUppercaseName(t *testing.T) {
 // TestConfigAddBaseExactCaseParent tests adding a base branch referencing an
 // existing uppercase parent by its exact case (the core #122 regression).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config add base V10_Release V9_Release'
 // 4. Verifies success (no "does not exist" error) and the stored parent is V9_Release
@@ -664,8 +664,8 @@ func TestConfigAddBaseExactCaseParent(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -676,8 +676,8 @@ func TestConfigAddBaseExactCaseParent(t *testing.T) {
 		t.Fatalf("Expected exact-case parent reference to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V10_Release.parent V9_Release", "exact-case parent")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V10_Release.parent V9_Release", "exact-case parent")
 	if !refExists(t, tempDir, "V10_Release") {
 		t.Errorf("Expected refs/heads/V10_Release to exist")
 	}
@@ -687,7 +687,7 @@ func TestConfigAddBaseExactCaseParent(t *testing.T) {
 // parent reference resolves to the canonical name and the git op uses the
 // canonical ref (guards case-sensitive filesystems / Linux CI).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config add base V11_Release v9_release' (lowercase parent)
 // 4. Verifies stored parent is canonical V9_Release, no v9_release section
@@ -697,8 +697,8 @@ func TestConfigAddBaseDifferentCaseParentUsesCanonicalRef(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -709,9 +709,9 @@ func TestConfigAddBaseDifferentCaseParentUsesCanonicalRef(t *testing.T) {
 		t.Fatalf("Expected different-case parent reference to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V11_Release.parent V9_Release", "different-case parent")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "different-case parent")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V11_Release.parent V9_Release", "different-case parent")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "different-case parent")
 	if !refExists(t, tempDir, "V11_Release") {
 		t.Errorf("Expected refs/heads/V11_Release to exist (created from canonical ref)")
 	}
@@ -720,7 +720,7 @@ func TestConfigAddBaseDifferentCaseParentUsesCanonicalRef(t *testing.T) {
 // TestConfigAddBaseMixedCaseParentResolves tests arbitrary mixed casing on a
 // parent reference resolves to the canonical name.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config add base V12_Release v9_RELEASE'
 // 4. Verifies stored parent is canonical V9_Release, no case-variant section
@@ -729,8 +729,8 @@ func TestConfigAddBaseMixedCaseParentResolves(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -741,16 +741,16 @@ func TestConfigAddBaseMixedCaseParentResolves(t *testing.T) {
 		t.Fatalf("Expected mixed-case parent reference to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V12_Release.parent V9_Release", "mixed-case parent")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "mixed-case parent")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_RELEASE.", "mixed-case parent")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V12_Release.parent V9_Release", "mixed-case parent")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "mixed-case parent")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_RELEASE.", "mixed-case parent")
 }
 
 // TestConfigAddTopicStartingPointResolvesCaseInsensitively tests that a topic
 // --starting-point resolves case-insensitively to the canonical name.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config add topic candidate develop --starting-point v9_release'
 // 4. Verifies the stored start point is canonical V9_Release, no v9_release section
@@ -759,8 +759,8 @@ func TestConfigAddTopicStartingPointResolvesCaseInsensitively(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -771,15 +771,15 @@ func TestConfigAddTopicStartingPointResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected topic add with case-insensitive starting point to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.candidate.startpoint V9_Release", "topic starting point")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "topic starting point")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.candidate.startpoint V9_Release", "topic starting point")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "topic starting point")
 }
 
 // TestConfigAddTopicParentResolvesCaseInsensitively tests that a topic parent
 // resolves case-insensitively and the defaulted start point also reads canonical.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config add topic hotpatch v9_release --prefix hp/'
 // 4. Verifies parent is canonical V9_Release
@@ -790,8 +790,8 @@ func TestConfigAddTopicParentResolvesCaseInsensitively(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -802,16 +802,16 @@ func TestConfigAddTopicParentResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected topic add with case-insensitive parent to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.hotpatch.parent V9_Release", "topic parent")
-	assertContainsLine(t, cfg, "gitflow.branch.hotpatch.startpoint V9_Release", "topic defaulted start point")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "topic parent")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.hotpatch.parent V9_Release", "topic parent")
+	assertContainsLine(t, cfg, "gitpour.branch.hotpatch.startpoint V9_Release", "topic defaulted start point")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "topic parent")
 }
 
 // TestConfigAddTopicCaseOnlyReAddRejected tests that re-adding a topic whose name
 // differs only in case from an existing one is rejected.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds topic QA_Feature (prefix qa/)
 // 3. Runs 'config add topic qa_feature develop --prefix qa2/'
 // 4. Verifies the command fails with an "already exists" error naming QA_Feature
@@ -821,8 +821,8 @@ func TestConfigAddTopicCaseOnlyReAddRejected(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "topic", "QA_Feature", "develop", "--prefix", "qa/"); err != nil {
 		t.Fatalf("Failed to add topic QA_Feature: %v", err)
@@ -836,15 +836,15 @@ func TestConfigAddTopicCaseOnlyReAddRejected(t *testing.T) {
 		t.Errorf("Expected error to name existing canonical 'QA_Feature', got:\n%s", output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.qa_feature.", "case-only re-add rejected")
-	assertContainsLine(t, cfg, "gitflow.branch.QA_Feature.prefix qa/", "case-only re-add rejected (original unchanged)")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.qa_feature.", "case-only re-add rejected")
+	assertContainsLine(t, cfg, "gitpour.branch.QA_Feature.prefix qa/", "case-only re-add rejected (original unchanged)")
 }
 
 // TestConfigAddBaseCaseOnlyVariantRejected tests that adding a case-only variant
 // of an existing base name is rejected without mutating the existing entry.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config add base v9_release main'
 // 4. Verifies the command fails with an "already exists" error naming V9_Release
@@ -854,8 +854,8 @@ func TestConfigAddBaseCaseOnlyVariantRejected(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -869,27 +869,27 @@ func TestConfigAddBaseCaseOnlyVariantRejected(t *testing.T) {
 		t.Errorf("Expected error to name existing canonical 'V9_Release', got:\n%s", output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "case-only variant rejected")
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Release.type base", "case-only variant rejected (existing intact)")
-	assertNoLineContains(t, cfg, "gitflow.branch.V9_Release.parent main", "case-only variant rejected (no partial mutation)")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "case-only variant rejected")
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Release.type base", "case-only variant rejected (existing intact)")
+	assertNoLineContains(t, cfg, "gitpour.branch.V9_Release.parent main", "case-only variant rejected (no partial mutation)")
 }
 
 // TestConfigEditBaseResolvesCaseInsensitively tests that editing a base branch
 // resolves the name case-insensitively to the canonical section.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config edit base v9_release --upstream-strategy rebase'
-// 4. Verifies gitflow.branch.V9_Release.upstreamStrategy reads rebase
+// 4. Verifies gitpour.branch.V9_Release.upstreamStrategy reads rebase
 // 5. Verifies no v9_release duplicate section
 func TestConfigEditBaseResolvesCaseInsensitively(t *testing.T) {
 	t.Parallel()
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -900,26 +900,26 @@ func TestConfigEditBaseResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected case-insensitive edit to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Release.upstreamstrategy rebase", "edit base case-insensitive")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "edit base case-insensitive")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Release.upstreamstrategy rebase", "edit base case-insensitive")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "edit base case-insensitive")
 }
 
 // TestConfigEditTopicResolvesCaseInsensitively tests that editing a topic type
 // resolves the name case-insensitively.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds topic QA_Feature (prefix qa/)
 // 3. Runs 'config edit topic qa_feature --upstream-strategy rebase'
-// 4. Verifies gitflow.branch.QA_Feature.upstreamStrategy reads rebase
+// 4. Verifies gitpour.branch.QA_Feature.upstreamStrategy reads rebase
 // 5. Verifies no qa_feature case-variant section
 func TestConfigEditTopicResolvesCaseInsensitively(t *testing.T) {
 	t.Parallel()
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "topic", "QA_Feature", "develop", "--prefix", "qa/"); err != nil {
 		t.Fatalf("Failed to add topic QA_Feature: %v", err)
@@ -930,15 +930,15 @@ func TestConfigEditTopicResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected case-insensitive topic edit to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.QA_Feature.upstreamstrategy rebase", "edit topic case-insensitive")
-	assertNoLineContains(t, cfg, "gitflow.branch.qa_feature.", "edit topic case-insensitive")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.QA_Feature.upstreamstrategy rebase", "edit topic case-insensitive")
+	assertNoLineContains(t, cfg, "gitpour.branch.qa_feature.", "edit topic case-insensitive")
 }
 
 // TestConfigDeleteBaseResolvesCaseInsensitively tests deleting a base branch by a
 // case-variant name removes the canonical section.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base branch V9_Release
 // 3. Runs 'config delete base v9_release'
 // 4. Verifies the V9_Release section is fully removed (no V9_Release or v9_release lines)
@@ -947,8 +947,8 @@ func TestConfigDeleteBaseResolvesCaseInsensitively(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -959,15 +959,15 @@ func TestConfigDeleteBaseResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected case-insensitive delete to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.V9_Release.", "delete base case-insensitive")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "delete base case-insensitive")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.V9_Release.", "delete base case-insensitive")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "delete base case-insensitive")
 }
 
 // TestConfigRenameBaseResolvesAndUpdatesChildren tests renaming a base branch by a
 // case-variant name resolves to canonical, updates children, and renames the ref.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release and base V10_Release with parent V9_Release
 // 3. Runs 'config rename base v9_release V9_Stable'
 // 4. Verifies V9_Release section removed, V9_Stable section present
@@ -978,8 +978,8 @@ func TestConfigRenameBaseResolvesAndUpdatesChildren(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -993,10 +993,10 @@ func TestConfigRenameBaseResolvesAndUpdatesChildren(t *testing.T) {
 		t.Fatalf("Expected case-insensitive rename to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.V9_Release.", "rename base resolves")
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Stable.type base", "rename base resolves")
-	assertContainsLine(t, cfg, "gitflow.branch.V10_Release.parent V9_Stable", "rename base updates children")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.V9_Release.", "rename base resolves")
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Stable.type base", "rename base resolves")
+	assertContainsLine(t, cfg, "gitpour.branch.V10_Release.parent V9_Stable", "rename base updates children")
 	if !refExists(t, tempDir, "V9_Stable") {
 		t.Errorf("Expected refs/heads/V9_Stable to exist after rename")
 	}
@@ -1008,7 +1008,7 @@ func TestConfigRenameBaseResolvesAndUpdatesChildren(t *testing.T) {
 // TestConfigRenameBaseCaseCollisionRejected tests renaming a base to a case-variant
 // of a *different* existing branch is rejected without touching config or refs.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release and base Preprod
 // 3. Runs 'config rename base Preprod v9_release'
 // 4. Verifies the command fails with an "already exists" error naming V9_Release
@@ -1018,8 +1018,8 @@ func TestConfigRenameBaseCaseCollisionRejected(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -1036,10 +1036,10 @@ func TestConfigRenameBaseCaseCollisionRejected(t *testing.T) {
 		t.Errorf("Expected error to name existing canonical 'V9_Release', got:\n%s", output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Release.type base", "rename collision rejected (V9 intact)")
-	assertContainsLine(t, cfg, "gitflow.branch.Preprod.type base", "rename collision rejected (Preprod intact)")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "rename collision rejected (no variant)")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Release.type base", "rename collision rejected (V9 intact)")
+	assertContainsLine(t, cfg, "gitpour.branch.Preprod.type base", "rename collision rejected (Preprod intact)")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "rename collision rejected (no variant)")
 	if !refExists(t, tempDir, "V9_Release") {
 		t.Errorf("Expected refs/heads/V9_Release to still exist")
 	}
@@ -1051,7 +1051,7 @@ func TestConfigRenameBaseCaseCollisionRejected(t *testing.T) {
 // TestConfigRenameBaseCaseOnlySelfRename tests a case-only self-rename
 // re-canonicalizes the entry in place.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release
 // 3. Runs 'config rename base V9_Release v9_release'
 // 4. Verifies exactly one section, now v9_release, and no V9_Release section
@@ -1060,8 +1060,8 @@ func TestConfigRenameBaseCaseOnlySelfRename(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -1072,9 +1072,9 @@ func TestConfigRenameBaseCaseOnlySelfRename(t *testing.T) {
 		t.Fatalf("Expected case-only self-rename to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.v9_release.type base", "case-only self-rename")
-	assertNoLineContains(t, cfg, "gitflow.branch.V9_Release.", "case-only self-rename")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.v9_release.type base", "case-only self-rename")
+	assertNoLineContains(t, cfg, "gitpour.branch.V9_Release.", "case-only self-rename")
 
 	// The Git ref must be re-cased too (the RenameBranchForce -M path). On a
 	// case-sensitive filesystem the old-case ref must be gone and the new-case
@@ -1087,7 +1087,7 @@ func TestConfigRenameBaseCaseOnlySelfRename(t *testing.T) {
 // TestConfigAddBaseAbsentParentErrors tests a genuinely-absent reference still errors
 // without mutating the unrelated existing entry.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release
 // 3. Runs 'config add base X NoSuchBranch'
 // 4. Verifies the command fails with a "does not exist" error for NoSuchBranch
@@ -1097,8 +1097,8 @@ func TestConfigAddBaseAbsentParentErrors(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -1112,15 +1112,15 @@ func TestConfigAddBaseAbsentParentErrors(t *testing.T) {
 		t.Errorf("Expected error to name missing 'NoSuchBranch', got:\n%s", output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.X.", "absent parent errors (no X section)")
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Release.type base", "absent parent errors (V9 intact)")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.X.", "absent parent errors (no X section)")
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Release.type base", "absent parent errors (V9 intact)")
 }
 
 // TestConfigNoDuplicateFromReloadRoundTrip tests that a load+save round trip does
 // not produce the #117 duplicate lowercase section.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release
 // 3. Runs 'config add base V10_Release v9_release' (triggers load+save)
 // 4. Verifies success and V10_Release created with canonical parent V9_Release
@@ -1130,8 +1130,8 @@ func TestConfigNoDuplicateFromReloadRoundTrip(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -1142,19 +1142,19 @@ func TestConfigNoDuplicateFromReloadRoundTrip(t *testing.T) {
 		t.Fatalf("Expected reload round-trip add to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.V10_Release.parent V9_Release", "reload round-trip")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.V10_Release.parent V9_Release", "reload round-trip")
 	if !refExists(t, tempDir, "V10_Release") {
 		t.Errorf("Expected refs/heads/V10_Release to exist")
 	}
-	assertContainsLine(t, cfg, "gitflow.branch.V9_Release.type base", "reload round-trip (V9 present)")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "reload round-trip (#117 no duplicate)")
+	assertContainsLine(t, cfg, "gitpour.branch.V9_Release.type base", "reload round-trip (V9 present)")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "reload round-trip (#117 no duplicate)")
 }
 
 // TestConfigListShowsCanonicalCase tests that list shows canonical case and
 // renders relationships in canonical case.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release and base V10_Release with parent V9_Release
 // 3. Runs 'config list'
 // 4. Verifies output lists both names in original case
@@ -1164,8 +1164,8 @@ func TestConfigListShowsCanonicalCase(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -1190,7 +1190,7 @@ func TestConfigListShowsCanonicalCase(t *testing.T) {
 // TestConfigLowercaseNamesNoRegression tests that all-lowercase names still work
 // end-to-end (add, edit, delete).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config add base staging main'
 // 3. Runs 'config edit base staging --upstream-strategy rebase'
 // 4. Runs 'config delete base staging'
@@ -1200,8 +1200,8 @@ func TestConfigLowercaseNamesNoRegression(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "staging", "main"); err != nil {
@@ -1211,21 +1211,21 @@ func TestConfigLowercaseNamesNoRegression(t *testing.T) {
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "edit", "base", "staging", "--upstream-strategy", "rebase"); err != nil {
 		t.Fatalf("Expected edit base staging to succeed, got error: %v", err)
 	}
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.staging.upstreamstrategy rebase", "lowercase no regression (edit)")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.staging.upstreamstrategy rebase", "lowercase no regression (edit)")
 
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "delete", "base", "staging"); err != nil {
 		t.Fatalf("Expected delete base staging to succeed, got error: %v", err)
 	}
-	cfg = gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.staging.", "lowercase no regression (delete)")
+	cfg = gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.staging.", "lowercase no regression (delete)")
 }
 
 // TestConfigInitDefaultsUnaffected tests that default init is unaffected by the
 // case-insensitive changes.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults'
+// 2. Runs 'git pour init --defaults'
 // 3. Verifies standard main/develop/feature/release/hotfix config is produced
 // 4. Verifies no lowercase-variant duplicate sections appear
 func TestConfigInitDefaultsUnaffected(t *testing.T) {
@@ -1233,22 +1233,22 @@ func TestConfigInitDefaultsUnaffected(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.main.type base", "init defaults (main)")
-	assertContainsLine(t, cfg, "gitflow.branch.develop.type base", "init defaults (develop)")
-	assertContainsLine(t, cfg, "gitflow.branch.feature.type topic", "init defaults (feature)")
-	assertContainsLine(t, cfg, "gitflow.branch.release.type topic", "init defaults (release)")
-	assertContainsLine(t, cfg, "gitflow.branch.hotfix.type topic", "init defaults (hotfix)")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.main.type base", "init defaults (main)")
+	assertContainsLine(t, cfg, "gitpour.branch.develop.type base", "init defaults (develop)")
+	assertContainsLine(t, cfg, "gitpour.branch.feature.type topic", "init defaults (feature)")
+	assertContainsLine(t, cfg, "gitpour.branch.release.type topic", "init defaults (release)")
+	assertContainsLine(t, cfg, "gitpour.branch.hotfix.type topic", "init defaults (hotfix)")
 }
 
 // TestConfigRenameTopicResolvesCaseInsensitively tests renaming a topic type by a
 // case-variant name resolves to canonical and carries over settings.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds topic QA_Feature (prefix qa/)
 // 3. Runs 'config rename topic qa_feature QA_Regression'
 // 4. Verifies QA_Feature section removed and QA_Regression present with prefix qa/
@@ -1258,8 +1258,8 @@ func TestConfigRenameTopicResolvesCaseInsensitively(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "topic", "QA_Feature", "develop", "--prefix", "qa/"); err != nil {
 		t.Fatalf("Failed to add topic QA_Feature: %v", err)
@@ -1270,16 +1270,16 @@ func TestConfigRenameTopicResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected case-insensitive topic rename to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.QA_Feature.", "rename topic resolves")
-	assertNoLineContains(t, cfg, "gitflow.branch.qa_feature.", "rename topic resolves (no variant)")
-	assertContainsLine(t, cfg, "gitflow.branch.QA_Regression.prefix qa/", "rename topic carries prefix")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.QA_Feature.", "rename topic resolves")
+	assertNoLineContains(t, cfg, "gitpour.branch.qa_feature.", "rename topic resolves (no variant)")
+	assertContainsLine(t, cfg, "gitpour.branch.QA_Regression.prefix qa/", "rename topic carries prefix")
 }
 
 // TestConfigDeleteTopicResolvesCaseInsensitively tests deleting a topic type by a
 // case-variant name removes the canonical section.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds topic QA_Feature (prefix qa/)
 // 3. Runs 'config delete topic qa_feature'
 // 4. Verifies the QA_Feature section is fully removed (no QA_Feature or qa_feature lines)
@@ -1288,8 +1288,8 @@ func TestConfigDeleteTopicResolvesCaseInsensitively(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "topic", "QA_Feature", "develop", "--prefix", "qa/"); err != nil {
 		t.Fatalf("Failed to add topic QA_Feature: %v", err)
@@ -1300,15 +1300,15 @@ func TestConfigDeleteTopicResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected case-insensitive topic delete to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.QA_Feature.", "delete topic resolves")
-	assertNoLineContains(t, cfg, "gitflow.branch.qa_feature.", "delete topic resolves")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.QA_Feature.", "delete topic resolves")
+	assertNoLineContains(t, cfg, "gitpour.branch.qa_feature.", "delete topic resolves")
 }
 
 // TestConfigEditTopicStartingPointResolvesCaseInsensitively tests that editing a
 // topic --starting-point resolves the value case-insensitively to canonical.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds base V9_Release and topic QA_Feature (prefix qa/)
 // 3. Runs 'config edit topic QA_Feature --starting-point v9_release'
 // 4. Verifies stored start point is canonical V9_Release, no v9_release section
@@ -1317,8 +1317,8 @@ func TestConfigEditTopicStartingPointResolvesCaseInsensitively(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, tempDir)
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGitFlow(t, tempDir, "config", "add", "base", "V9_Release"); err != nil {
 		t.Fatalf("Failed to add base branch V9_Release: %v", err)
@@ -1332,9 +1332,9 @@ func TestConfigEditTopicStartingPointResolvesCaseInsensitively(t *testing.T) {
 		t.Fatalf("Expected case-insensitive edit topic starting-point to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.QA_Feature.startpoint V9_Release", "edit topic starting point")
-	assertNoLineContains(t, cfg, "gitflow.branch.v9_release.", "edit topic starting point")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.QA_Feature.startpoint V9_Release", "edit topic starting point")
+	assertNoLineContains(t, cfg, "gitpour.branch.v9_release.", "edit topic starting point")
 }
 
 func setupConfigAddBaseMissingParentRef(t *testing.T) string {
@@ -1342,8 +1342,8 @@ func setupConfigAddBaseMissingParentRef(t *testing.T) string {
 	tempDir := testutil.SetupTestRepo(t)
 	t.Cleanup(func() { testutil.CleanupTestRepo(t, tempDir) })
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGit(t, tempDir, "checkout", "main"); err != nil {
 		t.Fatalf("Failed to check out main: %v", err)
@@ -1358,7 +1358,7 @@ func setupConfigAddBaseMissingParentRef(t *testing.T) string {
 // TestConfigAddBaseRollsBackConfigWhenBranchCreationFails tests that a failed
 // branch creation removes the saved base configuration.
 // Steps:
-// 1. Initializes git-flow and removes the configured develop ref
+// 1. Initializes git-pour and removes the configured develop ref
 // 2. Attempts to add qa with the missing develop ref
 // 3. Verifies branch creation fails and the qa configuration is absent
 // 4. Verifies config list does not show qa
@@ -1374,8 +1374,8 @@ func TestConfigAddBaseRollsBackConfigWhenBranchCreationFails(t *testing.T) {
 		t.Errorf("Expected branch creation error, got:\n%s", output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertNoLineContains(t, cfg, "gitflow.branch.qa.", "failed add rollback")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertNoLineContains(t, cfg, "gitpour.branch.qa.", "failed add rollback")
 
 	listOutput, err := testutil.RunGitFlow(t, tempDir, "config", "list")
 	if err != nil {
@@ -1387,7 +1387,7 @@ func TestConfigAddBaseRollsBackConfigWhenBranchCreationFails(t *testing.T) {
 // TestConfigAddBaseCanRetryAfterBranchCreationFails tests that a failed base
 // addition can be retried after restoring the missing parent ref.
 // Steps:
-// 1. Initializes git-flow with the configured develop ref removed
+// 1. Initializes git-pour with the configured develop ref removed
 // 2. Verifies adding qa fails while develop is missing
 // 3. Restores develop and retries the add
 // 4. Verifies the qa configuration and ref are created
@@ -1407,9 +1407,9 @@ func TestConfigAddBaseCanRetryAfterBranchCreationFails(t *testing.T) {
 		t.Fatalf("Expected retry to succeed, got error: %v\nOutput: %s", err, output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.qa.type base", "retry after failed add")
-	assertContainsLine(t, cfg, "gitflow.branch.qa.parent develop", "retry after failed add")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.qa.type base", "retry after failed add")
+	assertContainsLine(t, cfg, "gitpour.branch.qa.parent develop", "retry after failed add")
 	if !refExists(t, tempDir, "qa") {
 		t.Error("Expected refs/heads/qa to exist after retry")
 	}
@@ -1418,7 +1418,7 @@ func TestConfigAddBaseCanRetryAfterBranchCreationFails(t *testing.T) {
 // TestConfigAddBaseUsesExistingRef tests that an existing branch bypasses
 // branch creation while saving the base configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a plain qa branch from main
 // 3. Adds qa as a base branch with main as its parent
 // 4. Verifies no branch is created and the base configuration is saved
@@ -1427,8 +1427,8 @@ func TestConfigAddBaseUsesExistingRef(t *testing.T) {
 	tempDir := testutil.SetupTestRepo(t)
 	t.Cleanup(func() { testutil.CleanupTestRepo(t, tempDir) })
 
-	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, tempDir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 	if _, err := testutil.RunGit(t, tempDir, "branch", "qa", "main"); err != nil {
 		t.Fatalf("Failed to create qa branch: %v", err)
@@ -1442,23 +1442,23 @@ func TestConfigAddBaseUsesExistingRef(t *testing.T) {
 		t.Errorf("Expected existing qa ref to skip branch creation, got:\n%s", output)
 	}
 
-	cfg := gitflowBranchConfig(t, tempDir)
-	assertContainsLine(t, cfg, "gitflow.branch.qa.type base", "existing ref add")
+	cfg := gitpourBranchConfig(t, tempDir)
+	assertContainsLine(t, cfg, "gitpour.branch.qa.type base", "existing ref add")
 }
 
 // TestConfigEditTopicTagFalsePersists covers scenario 1: an explicit --tag=false
 // on 'config edit topic' must be persisted, clearing a stored true.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (release.tag=true)
+// 1. Sets up a test repository and initializes git-pour with defaults (release.tag=true)
 // 2. Runs 'config edit topic release --tag=false'
-// 3. Verifies local gitflow.branch.release.tag is "false"
+// 3. Verifies local gitpour.branch.release.tag is "false"
 func TestConfigEditTopicTagFalsePersists(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "topic", "release", "--tag=false")
@@ -1466,7 +1466,7 @@ func TestConfigEditTopicTagFalsePersists(t *testing.T) {
 		t.Fatalf("config edit topic --tag=false failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.release.tag"); v != "false" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.release.tag"); v != "false" {
 		t.Errorf("Expected local release.tag=false, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1474,16 +1474,16 @@ func TestConfigEditTopicTagFalsePersists(t *testing.T) {
 // TestConfigEditTopicTagTruePersists covers scenario 2: an explicit --tag=true on
 // 'config edit topic' must be persisted, setting a stored false.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (feature does not tag)
+// 1. Sets up a test repository and initializes git-pour with defaults (feature does not tag)
 // 2. Runs 'config edit topic feature --tag=true'
-// 3. Verifies local gitflow.branch.feature.tag is "true"
+// 3. Verifies local gitpour.branch.feature.tag is "true"
 func TestConfigEditTopicTagTruePersists(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "topic", "feature", "--tag=true")
@@ -1491,7 +1491,7 @@ func TestConfigEditTopicTagTruePersists(t *testing.T) {
 		t.Fatalf("config edit topic --tag=true failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.feature.tag"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.feature.tag"); v != "true" {
 		t.Errorf("Expected local feature.tag=true, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1499,7 +1499,7 @@ func TestConfigEditTopicTagTruePersists(t *testing.T) {
 // TestConfigEditTopicPreservesTagWhenFlagOmitted covers scenario 3: an omitted
 // --tag on 'config edit topic' must preserve the stored value.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (release.tag=true)
+// 1. Sets up a test repository and initializes git-pour with defaults (release.tag=true)
 // 2. Runs 'config edit topic release --prefix=rel/' without --tag
 // 3. Verifies local release.prefix is "rel/" and release.tag is still "true"
 func TestConfigEditTopicPreservesTagWhenFlagOmitted(t *testing.T) {
@@ -1507,8 +1507,8 @@ func TestConfigEditTopicPreservesTagWhenFlagOmitted(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "topic", "release", "--prefix=rel/")
@@ -1516,10 +1516,10 @@ func TestConfigEditTopicPreservesTagWhenFlagOmitted(t *testing.T) {
 		t.Fatalf("config edit topic --prefix=rel/ failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.release.prefix"); v != "rel/" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.release.prefix"); v != "rel/" {
 		t.Errorf("Expected local release.prefix=rel/, got %q\nOutput: %s", v, out)
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.release.tag"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.release.tag"); v != "true" {
 		t.Errorf("Expected omitted --tag to preserve release.tag=true, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1527,7 +1527,7 @@ func TestConfigEditTopicPreservesTagWhenFlagOmitted(t *testing.T) {
 // TestConfigEditBasePreservesAutoUpdateWhenFlagOmitted covers scenario 4: an
 // omitted --auto-update on 'config edit base' must preserve the stored value.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (develop.autoUpdate=true)
+// 1. Sets up a test repository and initializes git-pour with defaults (develop.autoUpdate=true)
 // 2. Runs 'config edit base develop --upstream-strategy=merge' without --auto-update
 // 3. Verifies local develop.upstreamStrategy is "merge" and develop.autoUpdate is still "true"
 func TestConfigEditBasePreservesAutoUpdateWhenFlagOmitted(t *testing.T) {
@@ -1535,8 +1535,8 @@ func TestConfigEditBasePreservesAutoUpdateWhenFlagOmitted(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "base", "develop", "--upstream-strategy=merge")
@@ -1544,10 +1544,10 @@ func TestConfigEditBasePreservesAutoUpdateWhenFlagOmitted(t *testing.T) {
 		t.Fatalf("config edit base --upstream-strategy=merge failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.develop.upstreamStrategy"); v != "merge" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.develop.upstreamStrategy"); v != "merge" {
 		t.Errorf("Expected local develop.upstreamStrategy=merge, got %q\nOutput: %s", v, out)
 	}
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.develop.autoUpdate"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.develop.autoUpdate"); v != "true" {
 		t.Errorf("Expected omitted --auto-update to preserve develop.autoUpdate=true, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1555,7 +1555,7 @@ func TestConfigEditBasePreservesAutoUpdateWhenFlagOmitted(t *testing.T) {
 // TestConfigEditBaseAutoUpdateFalsePersists covers scenario 5: an explicit
 // --auto-update=false on 'config edit base' must still win over the stored true.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (develop.autoUpdate=true)
+// 1. Sets up a test repository and initializes git-pour with defaults (develop.autoUpdate=true)
 // 2. Runs 'config edit base develop --auto-update=false'
 // 3. Verifies local develop.autoUpdate is "false"
 func TestConfigEditBaseAutoUpdateFalsePersists(t *testing.T) {
@@ -1563,8 +1563,8 @@ func TestConfigEditBaseAutoUpdateFalsePersists(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "base", "develop", "--auto-update=false")
@@ -1572,7 +1572,7 @@ func TestConfigEditBaseAutoUpdateFalsePersists(t *testing.T) {
 		t.Fatalf("config edit base --auto-update=false failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.develop.autoUpdate"); v != "false" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.develop.autoUpdate"); v != "false" {
 		t.Errorf("Expected local develop.autoUpdate=false, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1580,7 +1580,7 @@ func TestConfigEditBaseAutoUpdateFalsePersists(t *testing.T) {
 // TestConfigEditBaseAutoUpdateTrueOverridesAddedFalse covers scenario 6: an edit
 // can flip a boolean added as false back to true.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config add base staging main --auto-update=false'
 // 3. Runs 'config edit base staging --auto-update=true'
 // 4. Verifies local staging.autoUpdate is "true"
@@ -1589,8 +1589,8 @@ func TestConfigEditBaseAutoUpdateTrueOverridesAddedFalse(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "config", "add", "base", "staging", "main", "--auto-update=false"); err != nil {
 		t.Fatalf("config add base staging failed: %v\nOutput: %s", err, out)
@@ -1601,7 +1601,7 @@ func TestConfigEditBaseAutoUpdateTrueOverridesAddedFalse(t *testing.T) {
 		t.Fatalf("config edit base --auto-update=true failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.staging.autoUpdate"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.staging.autoUpdate"); v != "true" {
 		t.Errorf("Expected local staging.autoUpdate=true, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1610,14 +1610,14 @@ func TestConfigEditBaseAutoUpdateTrueOverridesAddedFalse(t *testing.T) {
 // local false must shadow a true inherited from the global config scope.
 // Steps:
 // 1. Isolates the global and system git config through the subprocess env
-// 2. Sets up a test repository and initializes git-flow with defaults
-// 3. Unsets the local release.tag key and sets gitflow.branch.release.tag=true globally
+// 2. Sets up a test repository and initializes git-pour with defaults
+// 3. Unsets the local release.tag key and sets gitpour.branch.release.tag=true globally
 // 4. Runs 'config edit topic release --tag=false'
 // 5. Verifies the local read is "false" and the merged read is "false" too
 func TestConfigEditTopicTagFalseShadowsGlobalTrue(t *testing.T) {
 	t.Parallel()
 	// Isolate global AND system config through the subprocess env so no ambient
-	// gitflow.* key can leak in, and nothing touches the developer's real config.
+	// gitpour.* key can leak in, and nothing touches the developer's real config.
 	env := []string{
 		"GIT_CONFIG_GLOBAL=" + filepath.Join(t.TempDir(), "global-gitconfig"),
 		"GIT_CONFIG_SYSTEM=" + os.DevNull,
@@ -1626,13 +1626,13 @@ func TestConfigEditTopicTagFalseShadowsGlobalTrue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	if out, err := testutil.RunGitWithEnv(t, dir, env, "config", "--local", "--unset", "gitflow.branch.release.tag"); err != nil {
+	if out, err := testutil.RunGitWithEnv(t, dir, env, "config", "--local", "--unset", "gitpour.branch.release.tag"); err != nil {
 		t.Fatalf("Failed to unset local release.tag: %v\nOutput: %s", err, out)
 	}
-	if out, err := testutil.RunGitWithEnv(t, dir, env, "config", "--global", "gitflow.branch.release.tag", "true"); err != nil {
+	if out, err := testutil.RunGitWithEnv(t, dir, env, "config", "--global", "gitpour.branch.release.tag", "true"); err != nil {
 		t.Fatalf("Failed to set global release.tag: %v\nOutput: %s", err, out)
 	}
 
@@ -1641,7 +1641,7 @@ func TestConfigEditTopicTagFalseShadowsGlobalTrue(t *testing.T) {
 		t.Fatalf("config edit topic --tag=false failed: %v\nOutput: %s", err, out)
 	}
 
-	local, err := testutil.RunGitWithEnv(t, dir, env, "config", "--local", "--get", "gitflow.branch.release.tag")
+	local, err := testutil.RunGitWithEnv(t, dir, env, "config", "--local", "--get", "gitpour.branch.release.tag")
 	if err != nil {
 		t.Fatalf("Failed to read local release.tag: %v\nOutput: %s", err, local)
 	}
@@ -1649,7 +1649,7 @@ func TestConfigEditTopicTagFalseShadowsGlobalTrue(t *testing.T) {
 		t.Errorf("Expected local release.tag=false, got %q\nOutput: %s", v, out)
 	}
 
-	merged, err := testutil.RunGitWithEnv(t, dir, env, "config", "--get", "gitflow.branch.release.tag")
+	merged, err := testutil.RunGitWithEnv(t, dir, env, "config", "--get", "gitpour.branch.release.tag")
 	if err != nil {
 		t.Fatalf("Failed to read merged release.tag: %v\nOutput: %s", err, merged)
 	}
@@ -1661,16 +1661,16 @@ func TestConfigEditTopicTagFalseShadowsGlobalTrue(t *testing.T) {
 // TestConfigAddTopicWritesExplicitTagFalse covers scenario 12: 'config add' still
 // treats an omitted boolean as false, and now writes that false explicitly.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config add topic docs develop' without --tag
-// 3. Verifies local gitflow.branch.docs.tag is the explicit string "false"
+// 3. Verifies local gitpour.branch.docs.tag is the explicit string "false"
 func TestConfigAddTopicWritesExplicitTagFalse(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "add", "topic", "docs", "develop")
@@ -1678,7 +1678,7 @@ func TestConfigAddTopicWritesExplicitTagFalse(t *testing.T) {
 		t.Fatalf("config add topic docs failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.docs.tag"); v != "false" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.docs.tag"); v != "false" {
 		t.Errorf("Expected local docs.tag=false written explicitly, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1686,16 +1686,16 @@ func TestConfigAddTopicWritesExplicitTagFalse(t *testing.T) {
 // TestConfigEditTopicBareTagFlagSetsTrue covers scenario 13: the bare --tag form
 // (no =value) counts as a supplied true.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults (feature does not tag)
+// 1. Sets up a test repository and initializes git-pour with defaults (feature does not tag)
 // 2. Runs 'config edit topic feature --tag'
-// 3. Verifies local gitflow.branch.feature.tag is "true"
+// 3. Verifies local gitpour.branch.feature.tag is "true"
 func TestConfigEditTopicBareTagFlagSetsTrue(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "topic", "feature", "--tag")
@@ -1703,7 +1703,7 @@ func TestConfigEditTopicBareTagFlagSetsTrue(t *testing.T) {
 		t.Fatalf("config edit topic --tag failed: %v\nOutput: %s", err, out)
 	}
 
-	if v := testutil.GitConfigValue(t, dir, "gitflow.branch.feature.tag"); v != "true" {
+	if v := testutil.GitConfigValue(t, dir, "gitpour.branch.feature.tag"); v != "true" {
 		t.Errorf("Expected bare --tag to set feature.tag=true, got %q\nOutput: %s", v, out)
 	}
 }
@@ -1713,7 +1713,7 @@ func TestConfigEditTopicBareTagFlagSetsTrue(t *testing.T) {
 // The writer rewrites all branches on every save, so the blast radius reaches
 // well beyond the edited branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config edit topic feature --prefix=feat/'
 // 3. Verifies local release.tag and hotfix.tag are "true"
 // 4. Verifies local feature.tag, main.tag and develop.tag are "false"
@@ -1722,8 +1722,8 @@ func TestConfigEditTopicPreservesOtherBranchTypeTags(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "config", "edit", "topic", "feature", "--prefix=feat/")
@@ -1732,12 +1732,12 @@ func TestConfigEditTopicPreservesOtherBranchTypeTags(t *testing.T) {
 	}
 
 	for _, branch := range []string{"release", "hotfix"} {
-		if v := testutil.GitConfigValue(t, dir, "gitflow.branch."+branch+".tag"); v != "true" {
+		if v := testutil.GitConfigValue(t, dir, "gitpour.branch."+branch+".tag"); v != "true" {
 			t.Errorf("Expected local %s.tag=true after an unrelated edit, got %q\nOutput: %s", branch, v, out)
 		}
 	}
 	for _, branch := range []string{"feature", "main", "develop"} {
-		if v := testutil.GitConfigValue(t, dir, "gitflow.branch."+branch+".tag"); v != "false" {
+		if v := testutil.GitConfigValue(t, dir, "gitpour.branch."+branch+".tag"); v != "false" {
 			t.Errorf("Expected local %s.tag=false after an unrelated edit, got %q\nOutput: %s", branch, v, out)
 		}
 	}

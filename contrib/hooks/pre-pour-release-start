@@ -1,5 +1,5 @@
 #!/bin/sh
-# pre-flow-release-start
+# pre-pour-release-start
 #
 # This hook performs checks before starting a release branch.
 # It verifies:
@@ -8,8 +8,8 @@
 #   3. (Optional) CI is passing on develop
 #
 # Usage: Copy to .git/hooks/ and make executable:
-#   cp contrib/hooks/pre-flow-release-start .git/hooks/
-#   chmod +x .git/hooks/pre-flow-release-start
+#   cp contrib/hooks/pre-pour-release-start .git/hooks/
+#   chmod +x .git/hooks/pre-pour-release-start
 #
 # Environment variables:
 #   BRANCH_TYPE  - The branch type (release)

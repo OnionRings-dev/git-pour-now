@@ -7,22 +7,22 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestIntegrateWithTag verifies --tag creates an annotated tag on the parent tip.
 //
 // Steps:
 //  1. init --defaults; add commit C to develop.
-//  2. Run: git flow integrate develop --tag v2.0.0.
+//  2. Run: git pour integrate develop --tag v2.0.0.
 //  3. Assert main advanced to C and annotated tag v2.0.0 points at main's tip.
 func TestIntegrateWithTag(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	cCommit := integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
@@ -54,7 +54,7 @@ func TestIntegrateWithTag(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; add commit C to develop; configure an ephemeral GPG key.
-//  2. Run: git flow integrate develop --tag v2.0.0 --sign.
+//  2. Run: git pour integrate develop --tag v2.0.0 --sign.
 //  3. Assert v2.0.0 is a signed annotated tag on main's tip.
 func TestIntegrateSignedTag(t *testing.T) {
 	t.Parallel()
@@ -65,8 +65,8 @@ func TestIntegrateSignedTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	// Ephemeral GPG home so we never touch the developer's keyring. It is
@@ -115,20 +115,20 @@ func TestIntegrateSignedTag(t *testing.T) {
 // Steps:
 //  1. init --defaults; add C to develop; set integrate.tag true and
 //     integrate.tagname v9.
-//  2. Run: git flow integrate develop --notag.
+//  2. Run: git pour integrate develop --notag.
 //  3. Assert main advanced to C but no tag was created.
 func TestIntegrateNotagOverridesConfig(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	cCommit := integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tag", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tagname", "v9")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tag", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tagname", "v9")
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop", "--notag")
 	if err != nil {
@@ -148,20 +148,20 @@ func TestIntegrateNotagOverridesConfig(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; add C to develop; set integrate.tag true (no tagname, no --tag).
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert non-zero exit, main unchanged, no tag created.
 func TestIntegrateTagEnabledNoNameErrors(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
 	preMain := integRevParse(t, dir, "main")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tag", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tag", "true")
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop")
 	if err == nil {
@@ -180,7 +180,7 @@ func TestIntegrateTagEnabledNoNameErrors(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; add C to develop; write msg.txt with distinct content.
-//  2. Run: git flow integrate develop --tag v2.0.0 --message "inline"
+//  2. Run: git pour integrate develop --tag v2.0.0 --message "inline"
 //     --messagefile msg.txt.
 //  3. Assert the tag message comes from msg.txt, not "inline".
 func TestIntegrateMessagefileWinsOverMessage(t *testing.T) {
@@ -188,8 +188,8 @@ func TestIntegrateMessagefileWinsOverMessage(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
@@ -219,20 +219,20 @@ func TestIntegrateMessagefileWinsOverMessage(t *testing.T) {
 // Steps:
 //  1. init --defaults; add C to develop; set integrate.tag true and
 //     integrate.tagname v3.0.0 (no --tag/--notag).
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert annotated tag v3.0.0 on main's tip.
 func TestIntegrateLayer2TagCreatesConfiguredTag(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tag", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tagname", "v3.0.0")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tag", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tagname", "v3.0.0")
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop")
 	if err != nil {
@@ -256,20 +256,20 @@ func TestIntegrateLayer2TagCreatesConfiguredTag(t *testing.T) {
 // Steps:
 //  1. init --defaults; add C to develop; set integrate.tag true and
 //     integrate.tagname v3.0.0.
-//  2. Run: git flow integrate develop --tag v4.0.0.
+//  2. Run: git pour integrate develop --tag v4.0.0.
 //  3. Assert v4.0.0 exists on main and configured v3.0.0 does not.
 func TestIntegrateCliTagNameOverridesConfig(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tag", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tagname", "v3.0.0")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tag", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tagname", "v3.0.0")
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop", "--tag", "v4.0.0")
 	if err != nil {
@@ -291,15 +291,15 @@ func TestIntegrateCliTagNameOverridesConfig(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; add C to develop.
-//  2. Run: git flow integrate develop --tag v2.0.0 --message "integrate note".
+//  2. Run: git pour integrate develop --tag v2.0.0 --message "integrate note".
 //  3. Assert the tag message contains "integrate note".
 func TestIntegrateMessageSetsTagMessage(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
@@ -315,28 +315,28 @@ func TestIntegrateMessageSetsTagMessage(t *testing.T) {
 	}
 }
 
-// TestIntegrateTagConfigOnCreatesTag verifies that gitflow.<base>.integrate.tag=on
+// TestIntegrateTagConfigOnCreatesTag verifies that gitpour.<base>.integrate.tag=on
 // creates the configured tag, matching git-config's truthy "on" spelling.
 //
 // Steps:
 //  1. init --defaults; add C to develop; set integrate.tag on and
 //     integrate.tagname v3.0.0 (no --tag/--notag).
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert annotated tag v3.0.0 on main's tip.
 func TestIntegrateTagConfigOnCreatesTag(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tag", "on"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tag", "on"); err != nil {
 		t.Fatalf("Failed to set integrate.tag config: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.tagname", "v3.0.0"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.tagname", "v3.0.0"); err != nil {
 		t.Fatalf("Failed to set integrate.tagname config: %v", err)
 	}
 

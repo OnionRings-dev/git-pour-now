@@ -1,24 +1,30 @@
-# git-flow-next Documentation
+# git-pour-now Documentation
 
-This directory contains comprehensive manpage-style documentation for all git-flow-next commands and configuration options.
+Examples using `develop`, release branches, or hotfix branches refer to the
+explicit `--preset=classic` compatibility workflow. The default workflow uses
+`main`, `feature/`, and temporary `prerelease/<version>` branches, with releases
+identified by SemVer tags.
+
+This directory contains comprehensive manpage-style documentation for all git-pour-now commands and configuration options.
 
 ## Documentation Structure
 
 ### Command Documentation (Section 1)
-- **git-flow.1.md** - Main git-flow command overview and global options
-- **git-flow-init.1.md** - Repository initialization and workflow setup
-- **git-flow-config.1.md** - Configuration management commands  
-- **git-flow-integrate.1.md** - Integrate a base branch into its parent
-- **git-flow-worktree.1.md** - Worktree management for branches
-- **git-flow-feature.1.md** - Feature branch management
-- **git-flow-release.1.md** - Release branch management
-- **git-flow-hotfix.1.md** - Hotfix branch management
-- **git-flow-overview.1.md** - Repository workflow overview
-- **git-flow-completion.1.md** - Shell completion script generation
-- **git-flow-shell-init.1.md** - Shell integration script for directory switching
+- **git-pour.1.md** - Main git-pour command overview and global options
+- **git-pour-init.1.md** - Repository initialization and workflow setup
+- **git-pour-config.1.md** - Configuration management commands
+- **git-pour-integrate.1.md** - Integrate a base branch into its parent
+- **git-pour-worktree.1.md** - Worktree management for branches
+- **git-pour-feature.1.md** - Feature branch management
+- **git-pour-release.1.md** - SemVer release tags
+- **git-pour-prerelease.1.md** - Temporary release preparation branches
+- **git-pour-hotfix.1.md** - Hotfix branch management
+- **git-pour-overview.1.md** - Repository workflow overview
+- **git-pour-completion.1.md** - Shell completion script generation
+- **git-pour-shell-init.1.md** - Shell integration script for directory switching
 
 ### Configuration Documentation (Section 5)
-- **gitflow-config.5.md** - Complete configuration reference and examples
+- **gitpour-config.5.md** - Complete configuration reference and examples
 
 ## Documentation Standards
 
@@ -36,7 +42,7 @@ All documentation follows Unix manpage conventions:
 
 ### Formatting
 - **Bold** for command names, options, and important terms
-- *Italics* for parameters, placeholders, and emphasis  
+- *Italics* for parameters, placeholders, and emphasis
 - `Code blocks` for configuration examples and commands
 - Clear section hierarchies with proper heading levels
 
@@ -45,9 +51,9 @@ All documentation follows Unix manpage conventions:
 The documentation covers all supported workflows:
 
 ### Classic GitFlow
-Traditional git-flow with main, develop, feature/, release/, and hotfix/ branches.
+Traditional git-pour with main, develop, feature/, release/, and hotfix/ branches.
 
-### GitHub Flow  
+### GitHub Flow
 Simplified workflow with main and feature/ branches only.
 
 ### GitLab Flow
@@ -58,7 +64,7 @@ Fully customizable branch configurations through the config system.
 
 ## Dynamic Commands
 
-git-flow-next generates commands dynamically based on configuration. The documentation covers:
+git-pour-now generates commands dynamically based on configuration. The documentation covers:
 
 - **Standard topic types**: feature, release, hotfix, support
 - **Custom topic types**: Any user-defined topic branch configurations
@@ -69,7 +75,7 @@ git-flow-next generates commands dynamically based on configuration. The documen
 The configuration system documentation includes:
 
 - **Three-layer hierarchy**: Branch defaults → Command overrides → CLI flags
-- **Complete option reference**: All gitflow.* configuration keys
+- **Complete option reference**: All gitpour.* configuration keys
 - **Merge strategy guide**: none, merge, rebase, squash strategies
 - **git-flow-avh compatibility**: Automatic translation of legacy configurations
 - **Workflow examples**: Complete configuration for each supported workflow
@@ -97,25 +103,25 @@ See **CODING_GUIDELINES.md** for specific requirements about maintaining documen
 brew install pandoc
 
 # View as formatted manpage
-pandoc docs/git-flow.1.md | man -l -
+pandoc docs/git-pour.1.md | man -l -
 
 # Or use a manpage viewer
-man docs/git-flow.1.md
+man docs/git-pour.1.md
 ```
 
 ### As Markdown
 ```bash
 # View in terminal
-cat docs/git-flow.1.md | less
+cat docs/git-pour.1.md | less
 
 # View in browser (with Markdown viewer)
-open docs/git-flow.1.md
+open docs/git-pour.1.md
 ```
 
 ### Generate HTML
 ```bash
 # Convert to HTML for web viewing
-pandoc docs/git-flow.1.md -o docs/git-flow.1.html
+pandoc docs/git-pour.1.md -o docs/git-pour.1.html
 ```
 
 ## Documentation Development
@@ -124,7 +130,7 @@ When adding new commands or changing existing ones:
 
 1. **Update relevant manpages** - Modify existing documentation
 2. **Add new manpages** - Create new .1.md files for new commands
-3. **Update cross-references** - Ensure SEE ALSO sections are current  
+3. **Update cross-references** - Ensure SEE ALSO sections are current
 4. **Test examples** - Verify all examples work with current implementation
 5. **Update this README** - Keep the overview current
 

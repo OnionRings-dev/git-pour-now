@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // openRepo opens a git.Repo handle for dir, failing the test on error.
@@ -32,7 +32,7 @@ func setupWorktree(t *testing.T, branch string) (mainRepo, worktreePath string, 
 	t.Cleanup(func() { testutil.CleanupTestRepo(t, mainRepo) })
 
 	var err error
-	worktreePath, err = os.MkdirTemp("", "git-flow-worktree-*")
+	worktreePath, err = os.MkdirTemp("", "git-pour-worktree-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -102,7 +102,7 @@ func TestPreHookSuccess(t *testing.T) {
 echo "Pre-hook executed for $BRANCH_TYPE/$BRANCH_NAME"
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -129,7 +129,7 @@ func TestPreHookFails(t *testing.T) {
 echo "Error: CI is not passing" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-release-start", script)
+	createHookScript(t, dir, "pre-pour-release-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -182,7 +182,7 @@ func TestPreHookNonExecutable(t *testing.T) {
 	script := `#!/bin/sh
 exit 1
 `
-	createNonExecutableHookScript(t, dir, "pre-flow-feature-start", script)
+	createNonExecutableHookScript(t, dir, "pre-pour-feature-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -209,7 +209,7 @@ func TestPostHookExecutes(t *testing.T) {
 	script := `#!/bin/sh
 echo "Post-hook: $BRANCH_TYPE/$BRANCH_NAME completed with exit code $EXIT_CODE"
 `
-	createHookScript(t, dir, "post-flow-feature-finish", script)
+	createHookScript(t, dir, "post-pour-feature-finish", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -263,7 +263,7 @@ func TestPostHookFailureIgnored(t *testing.T) {
 	script := `#!/bin/sh
 exit 1
 `
-	createHookScript(t, dir, "post-flow-feature-finish", script)
+	createHookScript(t, dir, "post-pour-feature-finish", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -300,13 +300,13 @@ func TestWithHooksRunsPreAndPost(t *testing.T) {
 	preScript := `#!/bin/sh
 echo "pre" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "pre-flow-feature-start", preScript)
+	createHookScript(t, dir, "pre-pour-feature-start", preScript)
 
 	// Create post-hook
 	postScript := `#!/bin/sh
 echo "post-$EXIT_CODE" >> "` + markerFile + `"
 `
-	createHookScript(t, dir, "post-flow-feature-start", postScript)
+	createHookScript(t, dir, "post-pour-feature-start", postScript)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -358,7 +358,7 @@ func TestWithHooksPreHookBlocks(t *testing.T) {
 echo "blocking operation" >&2
 exit 1
 `
-	createHookScript(t, dir, "pre-flow-release-start", preScript)
+	createHookScript(t, dir, "pre-pour-release-start", preScript)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -398,7 +398,7 @@ echo "BASE_BRANCH=$BASE_BRANCH"
 echo "ORIGIN=$ORIGIN"
 echo "VERSION=$VERSION"
 `
-	createHookScript(t, dir, "pre-flow-release-start", script)
+	createHookScript(t, dir, "pre-pour-release-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -431,7 +431,7 @@ func TestHookDifferentActions(t *testing.T) {
 
 	for _, action := range actions {
 		t.Run(string(action), func(t *testing.T) {
-			hookName := "pre-flow-feature-" + string(action)
+			hookName := "pre-pour-feature-" + string(action)
 			script := `#!/bin/sh
 echo "action: ` + string(action) + `"
 exit 0
@@ -465,7 +465,7 @@ func TestHooksWorkInGitWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
 	// Create a worktree
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-hooks-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-hooks-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -491,7 +491,7 @@ echo "BRANCH_TYPE=$BRANCH_TYPE"
 echo "BRANCH_NAME=$BRANCH_NAME"
 exit 0
 `
-	createHookScript(t, mainRepo, "pre-flow-feature-start", script)
+	createHookScript(t, mainRepo, "pre-pour-feature-start", script)
 
 	// Open a git.Repo handle for the worktree.
 	repo, err := git.Open(worktreePath)
@@ -531,7 +531,7 @@ func TestPostHookWorksInGitWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
 	// Create a worktree
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-posthook-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-posthook-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -548,7 +548,7 @@ func TestPostHookWorksInGitWorktree(t *testing.T) {
 echo "Post-hook: exit_code=$EXIT_CODE branch=$BRANCH_TYPE/$BRANCH_NAME"
 exit 0
 `
-	createHookScript(t, mainRepo, "post-flow-feature-finish", script)
+	createHookScript(t, mainRepo, "post-pour-feature-finish", script)
 
 	// Open a git.Repo handle for the worktree.
 	repo, err := git.Open(worktreePath)
@@ -687,7 +687,7 @@ func TestBuildHookArgsDelete(t *testing.T) {
 	}
 }
 
-// TestBuildHookArgsUpdate tests that update action returns 4 arguments (git-flow-next extension).
+// TestBuildHookArgsUpdate tests that update action returns 4 arguments (git-pour-now extension).
 func TestBuildHookArgsUpdate(t *testing.T) {
 	ctx := hooks.HookContext{
 		BranchName: "my-feature",
@@ -727,7 +727,7 @@ echo "ARG2=$2"
 echo "ARG3=$3"
 echo "ARG4=$4"
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -779,7 +779,7 @@ fi
 echo "All args match env vars"
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -810,7 +810,7 @@ fi
 echo "Received 3 args: $1 $2 $3"
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-feature-finish", script)
+	createHookScript(t, dir, "pre-pour-feature-finish", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -841,7 +841,7 @@ fi
 echo "Received 4 args: $1 $2 $3 $4"
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-release-start", script)
+	createHookScript(t, dir, "pre-pour-release-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -872,7 +872,7 @@ func TestRunPreHookExecutesInTargetWorkTreeOffCwd(t *testing.T) {
 pwd > "` + markerFile + `"
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	repo, err := git.Open(dir)
 	if err != nil {
@@ -913,7 +913,7 @@ func TestRunPostHookExecutesInTargetWorkTreeOffCwd(t *testing.T) {
 pwd > "` + markerFile + `"
 exit 0
 `
-	createHookScript(t, dir, "post-flow-feature-finish", script)
+	createHookScript(t, dir, "post-pour-feature-finish", script)
 
 	repo, err := git.Open(dir)
 	if err != nil {
@@ -972,7 +972,7 @@ func TestGetHooksDirDefault(t *testing.T) {
 echo "default" > "` + markerFile + `"
 exit 0
 `
-	createHookScript(t, dir, "pre-flow-feature-start", script)
+	createHookScript(t, dir, "pre-pour-feature-start", script)
 
 	repo := openRepo(t, dir)
 	ctx := hooks.HookContext{
@@ -997,17 +997,17 @@ exit 0
 	}
 }
 
-// TestGetHooksDirGitflowPathHooksAbsolute tests that gitflow.path.hooks with an absolute path is used.
+// TestGetHooksDirGitflowPathHooksAbsolute tests that gitpour.path.hooks with an absolute path is used.
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates a custom hooks directory outside the repo with a hook script
-// 3. Sets gitflow.path.hooks to the absolute path of the custom directory
+// 3. Sets gitpour.path.hooks to the absolute path of the custom directory
 // 4. Runs a pre-hook and verifies it executes from the custom directory
 func TestGetHooksDirGitflowPathHooksAbsolute(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	customHooksDir, err := os.MkdirTemp("", "git-flow-custom-hooks-*")
+	customHooksDir, err := os.MkdirTemp("", "git-pour-custom-hooks-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -1018,11 +1018,11 @@ func TestGetHooksDirGitflowPathHooksAbsolute(t *testing.T) {
 echo "custom-absolute" > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, customHooksDir, "pre-flow-feature-start", script)
+	createHookScriptInDir(t, customHooksDir, "pre-pour-feature-start", script)
 
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.path.hooks", customHooksDir)
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.path.hooks", customHooksDir)
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	repo := openRepo(t, dir)
@@ -1041,18 +1041,18 @@ exit 0
 
 	content, err := os.ReadFile(markerFile)
 	if err != nil {
-		t.Fatal("Hook did not execute from gitflow.path.hooks absolute path")
+		t.Fatal("Hook did not execute from gitpour.path.hooks absolute path")
 	}
 	if strings.TrimSpace(string(content)) != "custom-absolute" {
 		t.Errorf("Expected 'custom-absolute', got '%s'", strings.TrimSpace(string(content)))
 	}
 }
 
-// TestGetHooksDirGitflowPathHooksRelative tests that gitflow.path.hooks with a relative path is resolved from repo root.
+// TestGetHooksDirGitflowPathHooksRelative tests that gitpour.path.hooks with a relative path is resolved from repo root.
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates a .githooks directory inside the repo with a hook script
-// 3. Sets gitflow.path.hooks to the relative path ".githooks"
+// 3. Sets gitpour.path.hooks to the relative path ".githooks"
 // 4. Runs a pre-hook and verifies it executes from .githooks
 func TestGetHooksDirGitflowPathHooksRelative(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
@@ -1064,11 +1064,11 @@ func TestGetHooksDirGitflowPathHooksRelative(t *testing.T) {
 echo "custom-relative" > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, relativeHooksDir, "pre-flow-feature-start", script)
+	createHookScriptInDir(t, relativeHooksDir, "pre-pour-feature-start", script)
 
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.path.hooks", ".githooks")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.path.hooks", ".githooks")
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	repo := openRepo(t, dir)
@@ -1087,7 +1087,7 @@ exit 0
 
 	content, err := os.ReadFile(markerFile)
 	if err != nil {
-		t.Fatal("Hook did not execute from gitflow.path.hooks relative path")
+		t.Fatal("Hook did not execute from gitpour.path.hooks relative path")
 	}
 	if strings.TrimSpace(string(content)) != "custom-relative" {
 		t.Errorf("Expected 'custom-relative', got '%s'", strings.TrimSpace(string(content)))
@@ -1104,7 +1104,7 @@ func TestGetHooksDirCoreHooksPathAbsolute(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	customHooksDir, err := os.MkdirTemp("", "git-flow-corehooks-*")
+	customHooksDir, err := os.MkdirTemp("", "git-pour-corehooks-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -1115,7 +1115,7 @@ func TestGetHooksDirCoreHooksPathAbsolute(t *testing.T) {
 echo "core-absolute" > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, customHooksDir, "pre-flow-feature-start", script)
+	createHookScriptInDir(t, customHooksDir, "pre-pour-feature-start", script)
 
 	_, err = testutil.RunGit(t, dir, "config", "core.hooksPath", customHooksDir)
 	if err != nil {
@@ -1161,7 +1161,7 @@ func TestGetHooksDirCoreHooksPathRelative(t *testing.T) {
 echo "core-relative" > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, relativeHooksDir, "pre-flow-feature-start", script)
+	createHookScriptInDir(t, relativeHooksDir, "pre-pour-feature-start", script)
 
 	_, err := testutil.RunGit(t, dir, "config", "core.hooksPath", ".githooks")
 	if err != nil {
@@ -1191,23 +1191,23 @@ exit 0
 	}
 }
 
-// TestGetHooksDirGitflowPathTakesPrecedence tests that gitflow.path.hooks takes precedence over core.hooksPath.
+// TestGetHooksDirGitflowPathTakesPrecedence tests that gitpour.path.hooks takes precedence over core.hooksPath.
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates two separate hook directories with different marker outputs
-// 3. Sets both gitflow.path.hooks and core.hooksPath
-// 4. Runs a pre-hook and verifies gitflow.path.hooks wins
+// 3. Sets both gitpour.path.hooks and core.hooksPath
+// 4. Runs a pre-hook and verifies gitpour.path.hooks wins
 func TestGetHooksDirGitflowPathTakesPrecedence(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	gitflowHooksDir, err := os.MkdirTemp("", "git-flow-gitflowhooks-*")
+	gitpourHooksDir, err := os.MkdirTemp("", "git-pour-gitpourhooks-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(gitflowHooksDir)
+	defer os.RemoveAll(gitpourHooksDir)
 
-	coreHooksDir, err := os.MkdirTemp("", "git-flow-corehooks-*")
+	coreHooksDir, err := os.MkdirTemp("", "git-pour-corehooks-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -1215,20 +1215,20 @@ func TestGetHooksDirGitflowPathTakesPrecedence(t *testing.T) {
 
 	markerFile := filepath.Join(dir, "precedence-marker.txt")
 
-	gitflowScript := `#!/bin/sh
-echo "gitflow-wins" > "` + markerFile + `"
+	gitpourScript := `#!/bin/sh
+echo "gitpour-wins" > "` + markerFile + `"
 exit 0
 `
 	coreScript := `#!/bin/sh
 echo "core-wins" > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, gitflowHooksDir, "pre-flow-feature-start", gitflowScript)
-	createHookScriptInDir(t, coreHooksDir, "pre-flow-feature-start", coreScript)
+	createHookScriptInDir(t, gitpourHooksDir, "pre-pour-feature-start", gitpourScript)
+	createHookScriptInDir(t, coreHooksDir, "pre-pour-feature-start", coreScript)
 
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.path.hooks", gitflowHooksDir)
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.path.hooks", gitpourHooksDir)
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 	_, err = testutil.RunGit(t, dir, "config", "core.hooksPath", coreHooksDir)
 	if err != nil {
@@ -1253,14 +1253,14 @@ exit 0
 	if err != nil {
 		t.Fatal("Hook did not execute — marker file not found")
 	}
-	if strings.TrimSpace(string(content)) != "gitflow-wins" {
-		t.Errorf("Expected 'gitflow-wins' (gitflow.path.hooks precedence), got '%s'", strings.TrimSpace(string(content)))
+	if strings.TrimSpace(string(content)) != "gitpour-wins" {
+		t.Errorf("Expected 'gitpour-wins' (gitpour.path.hooks precedence), got '%s'", strings.TrimSpace(string(content)))
 	}
 }
 
 // TestHookExecutionFromCoreHooksPath tests that a hook actually runs from a core.hooksPath configured directory.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a custom hooks directory with a pre-hook that writes a marker
 // 3. Sets core.hooksPath to point to the custom directory
 // 4. Verifies the hook executes and writes the marker file
@@ -1268,7 +1268,7 @@ func TestHookExecutionFromCoreHooksPath(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	customHooksDir, err := os.MkdirTemp("", "git-flow-exec-corehooks-*")
+	customHooksDir, err := os.MkdirTemp("", "git-pour-exec-corehooks-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -1279,7 +1279,7 @@ func TestHookExecutionFromCoreHooksPath(t *testing.T) {
 echo "BRANCH_TYPE=$BRANCH_TYPE BRANCH_NAME=$BRANCH_NAME" > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, customHooksDir, "pre-flow-release-start", script)
+	createHookScriptInDir(t, customHooksDir, "pre-pour-release-start", script)
 
 	_, err = testutil.RunGit(t, dir, "config", "core.hooksPath", customHooksDir)
 	if err != nil {
@@ -1311,31 +1311,31 @@ exit 0
 	}
 }
 
-// TestHookExecutionFromGitflowPathHooks tests that a hook actually runs from a gitflow.path.hooks configured directory.
+// TestHookExecutionFromGitflowPathHooks tests that a hook actually runs from a gitpour.path.hooks configured directory.
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates a custom hooks directory with a post-hook that writes a marker
-// 3. Sets gitflow.path.hooks to point to the custom directory
+// 3. Sets gitpour.path.hooks to point to the custom directory
 // 4. Verifies the hook executes and writes the marker file
 func TestHookExecutionFromGitflowPathHooks(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	customHooksDir, err := os.MkdirTemp("", "git-flow-exec-gitflowhooks-*")
+	customHooksDir, err := os.MkdirTemp("", "git-pour-exec-gitpourhooks-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
 	defer os.RemoveAll(customHooksDir)
 
-	markerFile := filepath.Join(dir, "exec-gitflow-hooks.txt")
+	markerFile := filepath.Join(dir, "exec-gitpour-hooks.txt")
 	script := `#!/bin/sh
 echo "BRANCH=$BRANCH EXIT_CODE=$EXIT_CODE" > "` + markerFile + `"
 `
-	createHookScriptInDir(t, customHooksDir, "post-flow-feature-finish", script)
+	createHookScriptInDir(t, customHooksDir, "post-pour-feature-finish", script)
 
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.path.hooks", customHooksDir)
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.path.hooks", customHooksDir)
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	repo := openRepo(t, dir)
@@ -1350,12 +1350,12 @@ echo "BRANCH=$BRANCH EXIT_CODE=$EXIT_CODE" > "` + markerFile + `"
 
 	result := hooks.RunPostHook(repo, "feature", hooks.HookActionFinish, ctx)
 	if !result.Executed {
-		t.Fatal("Expected post-hook to execute from gitflow.path.hooks")
+		t.Fatal("Expected post-hook to execute from gitpour.path.hooks")
 	}
 
 	content, err := os.ReadFile(markerFile)
 	if err != nil {
-		t.Fatal("Hook did not execute from gitflow.path.hooks")
+		t.Fatal("Hook did not execute from gitpour.path.hooks")
 	}
 	expected := "BRANCH=feature/my-feature EXIT_CODE=0"
 	if strings.TrimSpace(string(content)) != expected {
@@ -1367,13 +1367,13 @@ echo "BRANCH=$BRANCH EXIT_CODE=$EXIT_CODE" > "` + markerFile + `"
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates a custom hooks directory with a version filter script
-// 3. Sets gitflow.path.hooks to point to the custom directory
+// 3. Sets gitpour.path.hooks to point to the custom directory
 // 4. Runs the version filter and verifies it produces the expected output
 func TestFilterExecutionFromConfiguredHooksDir(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	customHooksDir, err := os.MkdirTemp("", "git-flow-exec-filter-*")
+	customHooksDir, err := os.MkdirTemp("", "git-pour-exec-filter-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -1383,11 +1383,11 @@ func TestFilterExecutionFromConfiguredHooksDir(t *testing.T) {
 VERSION="$1"
 echo "v${VERSION}"
 `
-	createHookScriptInDir(t, customHooksDir, "filter-flow-release-start-version", script)
+	createHookScriptInDir(t, customHooksDir, "filter-pour-release-start-version", script)
 
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.path.hooks", customHooksDir)
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.path.hooks", customHooksDir)
 	if err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	repo := openRepo(t, dir)
@@ -1408,7 +1408,7 @@ func TestWithHooksInWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
 	// Create a worktree
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-withhooks-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-withhooks-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -1427,13 +1427,13 @@ func TestWithHooksInWorktree(t *testing.T) {
 	preScript := `#!/bin/sh
 echo "pre" >> "` + markerFile + `"
 `
-	createHookScript(t, mainRepo, "pre-flow-release-start", preScript)
+	createHookScript(t, mainRepo, "pre-pour-release-start", preScript)
 
 	// Create post-hook
 	postScript := `#!/bin/sh
 echo "post-$EXIT_CODE" >> "` + markerFile + `"
 `
-	createHookScript(t, mainRepo, "post-flow-release-start", postScript)
+	createHookScript(t, mainRepo, "post-pour-release-start", postScript)
 
 	// Open a git.Repo handle for the worktree.
 	repo, err := git.Open(worktreePath)
@@ -1495,7 +1495,7 @@ pwd > "` + markerFile + `"
 exit 0
 `
 	// Shared common hooks location (main repo's .git/hooks).
-	createHookScript(t, mainRepo, "pre-flow-feature-start", script)
+	createHookScript(t, mainRepo, "pre-pour-feature-start", script)
 
 	ctx := hooks.HookContext{
 		BranchType: "feature",
@@ -1521,11 +1521,11 @@ exit 0
 }
 
 // TestPreHookRelativeGitflowPathHooksResolvesInWorktree (Scenario 2) verifies
-// that a relative gitflow.path.hooks resolves against the active worktree root,
+// that a relative gitpour.path.hooks resolves against the active worktree root,
 // so the worktree hook runs and the main-checkout control hook does not.
 func TestPreHookRelativeGitflowPathHooksResolvesInWorktree(t *testing.T) {
 	t.Parallel()
-	mainRepo, worktreePath, repo := setupWorktree(t, "wt-prehook-gitflowpath")
+	mainRepo, worktreePath, repo := setupWorktree(t, "wt-prehook-gitpourpath")
 
 	wtMarker := filepath.Join(worktreePath, "wt-marker.txt")
 	mainMarker := filepath.Join(mainRepo, "main-marker.txt")
@@ -1537,11 +1537,11 @@ exit 0
 pwd > "` + mainMarker + `"
 exit 0
 `
-	createHookScriptInDir(t, filepath.Join(worktreePath, ".githooks"), "pre-flow-feature-start", wtScript)
-	createHookScriptInDir(t, filepath.Join(mainRepo, ".githooks"), "pre-flow-feature-start", mainScript)
+	createHookScriptInDir(t, filepath.Join(worktreePath, ".githooks"), "pre-pour-feature-start", wtScript)
+	createHookScriptInDir(t, filepath.Join(mainRepo, ".githooks"), "pre-pour-feature-start", mainScript)
 
-	if _, err := testutil.RunGit(t, worktreePath, "config", "gitflow.path.hooks", ".githooks"); err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+	if _, err := testutil.RunGit(t, worktreePath, "config", "gitpour.path.hooks", ".githooks"); err != nil {
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	ctx := hooks.HookContext{
@@ -1586,8 +1586,8 @@ exit 0
 pwd > "` + mainMarker + `"
 exit 0
 `
-	createHookScriptInDir(t, filepath.Join(worktreePath, ".githooks"), "pre-flow-feature-start", wtScript)
-	createHookScriptInDir(t, filepath.Join(mainRepo, ".githooks"), "pre-flow-feature-start", mainScript)
+	createHookScriptInDir(t, filepath.Join(worktreePath, ".githooks"), "pre-pour-feature-start", wtScript)
+	createHookScriptInDir(t, filepath.Join(mainRepo, ".githooks"), "pre-pour-feature-start", mainScript)
 
 	if _, err := testutil.RunGit(t, worktreePath, "config", "core.hooksPath", ".githooks"); err != nil {
 		t.Fatalf("Failed to set core.hooksPath: %v", err)
@@ -1631,7 +1631,7 @@ func TestPostHookDefaultLocationRunsInWorktreeCwd(t *testing.T) {
 pwd > "` + markerFile + `"
 exit 0
 `
-	createHookScript(t, mainRepo, "post-flow-feature-finish", script)
+	createHookScript(t, mainRepo, "post-pour-feature-finish", script)
 
 	ctx := hooks.HookContext{
 		BranchType: "feature",
@@ -1662,7 +1662,7 @@ exit 0
 }
 
 // TestPreHookRelativeGitflowPathHooksInPlainRepo (Scenario 5) is the regression
-// guard: in a plain (non-worktree) repo a relative gitflow.path.hooks resolves
+// guard: in a plain (non-worktree) repo a relative gitpour.path.hooks resolves
 // against the checkout root, which equals the worktree root, so behavior is
 // unchanged.
 func TestPreHookRelativeGitflowPathHooksInPlainRepo(t *testing.T) {
@@ -1675,10 +1675,10 @@ func TestPreHookRelativeGitflowPathHooksInPlainRepo(t *testing.T) {
 pwd > "` + markerFile + `"
 exit 0
 `
-	createHookScriptInDir(t, filepath.Join(dir, ".githooks"), "pre-flow-feature-start", script)
+	createHookScriptInDir(t, filepath.Join(dir, ".githooks"), "pre-pour-feature-start", script)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.path.hooks", ".githooks"); err != nil {
-		t.Fatalf("Failed to set gitflow.path.hooks: %v", err)
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.path.hooks", ".githooks"); err != nil {
+		t.Fatalf("Failed to set gitpour.path.hooks: %v", err)
 	}
 
 	repo := openRepo(t, dir)

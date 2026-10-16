@@ -6,15 +6,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // Test functions
 
 // TestFinishFeatureBranch tests the basic feature branch finishing functionality.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Finishes the feature branch
@@ -26,10 +26,10 @@ func TestFinishFeatureBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -84,7 +84,7 @@ func TestFinishFeatureBranch(t *testing.T) {
 
 // TestFinishReleaseBranch tests the basic release branch finishing functionality.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a release branch
 // 3. Adds changes to the release branch
 // 4. Finishes the release branch
@@ -97,14 +97,14 @@ func TestFinishReleaseBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set tag prefix for release branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tagprefix", "v")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tagprefix", "v")
 	if err != nil {
 		t.Fatalf("Failed to set tag prefix: %v", err)
 	}
@@ -190,7 +190,7 @@ func TestFinishReleaseBranch(t *testing.T) {
 
 // TestFinishHotfixBranch tests the basic hotfix branch finishing functionality.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a hotfix branch
 // 3. Adds changes to the hotfix branch
 // 4. Finishes the hotfix branch
@@ -203,14 +203,14 @@ func TestFinishHotfixBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set tag prefix for hotfix branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.hotfix.tagprefix", "v")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.hotfix.tagprefix", "v")
 	if err != nil {
 		t.Fatalf("Failed to set tag prefix: %v", err)
 	}
@@ -290,7 +290,7 @@ func TestFinishHotfixBranch(t *testing.T) {
 
 // TestFinishWithCustomConfig tests finishing branches with custom configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with custom config
+// 1. Sets up a test repository and initializes git-pour with custom config
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Finishes the feature branch
@@ -302,8 +302,8 @@ func TestFinishWithCustomConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with custom configuration
-	output, err := testutil.RunGitFlow(t, dir, "init",
+	// Initialize git-pour with custom configuration
+	output, err := testutil.RunGitFlow(t, dir, "init", "--preset=classic",
 		"--main", "custom-main", // custom main branch name
 		"--develop", "custom-dev", // custom develop branch name
 		"--feature", "f/", // custom feature prefix
@@ -313,7 +313,7 @@ func TestFinishWithCustomConfig(t *testing.T) {
 		"--support", "s/", // custom support prefix
 		"--tag", "v") // custom tag prefix
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -364,7 +364,7 @@ func TestFinishWithCustomConfig(t *testing.T) {
 
 // TestFinishNonExistentBranch tests the behavior when attempting to finish a non-existent branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to finish a non-existent branch
 // 3. Verifies the operation fails with appropriate error
 func TestFinishNonExistentBranch(t *testing.T) {
@@ -373,10 +373,10 @@ func TestFinishNonExistentBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to finish a non-existent feature branch
@@ -393,7 +393,7 @@ func TestFinishNonExistentBranch(t *testing.T) {
 
 // TestFinishWithMergeConflict tests the behavior when finishing a branch with merge conflicts.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds conflicting changes to both feature and develop branches
 // 4. Attempts to finish the feature branch
@@ -404,14 +404,14 @@ func TestFinishWithMergeConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set merge strategy to merge for feature branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "merge")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "merge")
 	if err != nil {
 		t.Fatalf("Failed to set merge strategy: %v", err)
 	}
@@ -486,7 +486,7 @@ func TestFinishWithMergeConflict(t *testing.T) {
 
 // TestFinishWithMergeAbort tests aborting a merge during branch finishing.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds conflicting changes to both feature and develop branches
 // 4. Attempts to finish the feature branch
@@ -498,14 +498,14 @@ func TestFinishWithMergeAbort(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set merge strategy to merge for feature branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "merge")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "merge")
 	if err != nil {
 		t.Fatalf("Failed to set merge strategy: %v", err)
 	}
@@ -583,12 +583,12 @@ func TestFinishWithMergeAbort(t *testing.T) {
 	}
 }
 
-// TestFinishAbortAfterManualResolve reproduces gittower/git-flow-next#110,
+// TestFinishAbortAfterManualResolve reproduces OnionRings-dev/git-pour-now#110,
 // where a manually resolved conflict left merge.json stale. Salvaged from
 // PR #111 (@SAY-5) and adapted: --abort treats "nothing to abort" as a quiet
 // success (exit 0) rather than erroring.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch that conflicts with develop
 // 3. Finishes the feature, hitting a merge conflict (merge in progress)
 // 4. Resolves the conflict by hand and commits (drops MERGE_HEAD, leaves merge.json)
@@ -601,12 +601,12 @@ func TestFinishAbortAfterManualResolve(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "merge")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "merge")
 	if err != nil {
 		t.Fatalf("Failed to set merge strategy: %v", err)
 	}
@@ -695,7 +695,7 @@ func TestFinishAbortAfterManualResolve(t *testing.T) {
 
 // TestFinishWithRebaseConflict tests the behavior when finishing a branch with rebase conflicts.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to develop branch
 // 4. Adds conflicting changes to feature branch
@@ -707,10 +707,10 @@ func TestFinishWithRebaseConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and switch to feature branch (from clean develop)
@@ -778,7 +778,7 @@ func TestFinishWithRebaseConflict(t *testing.T) {
 
 // TestFinishWithMergeContinue tests continuing a merge after resolving conflicts.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds conflicting changes to both feature and develop branches
 // 4. Attempts to finish the feature branch
@@ -790,14 +790,14 @@ func TestFinishWithMergeContinue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set merge strategy to merge for feature branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.upstreamstrategy", "merge")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.upstreamstrategy", "merge")
 	if err != nil {
 		t.Fatalf("Failed to set merge strategy: %v", err)
 	}
@@ -884,7 +884,7 @@ func TestFinishWithMergeContinue(t *testing.T) {
 
 // TestFinishWithChildBranchConflict tests the behavior when finishing a branch with child branches.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Creates a child branch from the feature branch
 // 4. Attempts to finish the feature branch
@@ -895,10 +895,10 @@ func TestFinishWithChildBranchConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a release branch
@@ -1042,7 +1042,7 @@ func TestFinishWithChildBranchConflict(t *testing.T) {
 
 // TestFinishReleaseWithMergeContinue tests continuing a merge after resolving conflicts in a release branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a release branch
 // 3. Adds conflicting changes to both release and develop branches
 // 4. Attempts to finish the release branch
@@ -1054,14 +1054,14 @@ func TestFinishReleaseWithMergeContinue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set tag prefix for release branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.release.tagprefix", "v")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.release.tagprefix", "v")
 	if err != nil {
 		t.Fatalf("Failed to set tag prefix: %v", err)
 	}
@@ -1161,7 +1161,7 @@ func TestFinishReleaseWithMergeContinue(t *testing.T) {
 
 // TestFinishNonStandardBranchWithForce tests finishing a non-standard branch with force flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a non-standard branch
 // 3. Adds changes to the branch
 // 4. Finishes the branch with force flag
@@ -1173,10 +1173,10 @@ func TestFinishNonStandardBranchWithForce(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a non-standard branch from develop
@@ -1225,7 +1225,7 @@ func TestFinishNonStandardBranchWithForce(t *testing.T) {
 
 // TestFinishNonStandardBranchWithoutForce tests the behavior when finishing a non-standard branch without force flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a non-standard branch
 // 3. Attempts to finish the branch without force flag
 // 4. Verifies the operation fails with appropriate error
@@ -1235,10 +1235,10 @@ func TestFinishNonStandardBranchWithoutForce(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a non-standard branch from develop
@@ -1282,7 +1282,7 @@ func TestFinishNonStandardBranchWithoutForce(t *testing.T) {
 
 // TestFinishNonStandardBranchWithTag tests finishing a non-standard branch with tag creation.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a non-standard branch
 // 3. Adds changes to the branch
 // 4. Finishes the branch with tag flag
@@ -1295,10 +1295,10 @@ func TestFinishNonStandardBranchWithTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and tag configuration
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and tag configuration
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a non-standard branch from develop
@@ -1340,7 +1340,7 @@ func TestFinishNonStandardBranchWithTag(t *testing.T) {
 
 // TestFinishUsesConfiguredParent tests that finish command uses configured parent branch, not stored base.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch (which stores base as 'develop')
 // 3. Changes the feature branch type configuration to point to main
 // 4. Finishes the feature branch
@@ -1351,10 +1351,10 @@ func TestFinishUsesConfiguredParent(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores 'develop' as base)
@@ -1375,13 +1375,13 @@ func TestFinishUsesConfiguredParent(t *testing.T) {
 	}
 
 	// Change feature branch type configuration to point to main (should be ignored)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.parent", "main")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.parent", "main")
 	if err != nil {
 		t.Fatalf("Failed to change feature parent config: %v", err)
 	}
 
 	// Verify stored base is still develop
-	storedBase, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/stored-base-test.base")
+	storedBase, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/stored-base-test.base")
 	if err != nil {
 		t.Fatalf("Failed to get stored base: %v", err)
 	}
@@ -1442,7 +1442,7 @@ func TestFinishUsesConfiguredParent(t *testing.T) {
 
 // TestFinishCleansUpBaseBranch tests that finish command cleans up base branch config when deleting branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch (which stores base config)
 // 3. Adds changes and finishes the feature branch
 // 4. Verifies the base branch config is cleaned up after branch deletion
@@ -1452,10 +1452,10 @@ func TestFinishCleansUpBaseBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch
@@ -1465,7 +1465,7 @@ func TestFinishCleansUpBaseBranch(t *testing.T) {
 	}
 
 	// Verify base config exists
-	_, err = testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/cleanup-test.base")
+	_, err = testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/cleanup-test.base")
 	if err != nil {
 		t.Fatalf("Expected base config to exist after start: %v", err)
 	}
@@ -1488,7 +1488,7 @@ func TestFinishCleansUpBaseBranch(t *testing.T) {
 	}
 
 	// Verify base config is cleaned up
-	_, err = testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/cleanup-test.base")
+	_, err = testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/cleanup-test.base")
 	if err == nil {
 		t.Error("Expected base config to be cleaned up after finish, but it still exists")
 	}
@@ -1504,7 +1504,7 @@ func TestFinishCleansUpBaseBranch(t *testing.T) {
 // published branch instead of starting it) does not print a spurious base-config
 // cleanup warning, and that the merge itself still happens.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
+//  1. Sets up a test repository and initializes git-pour with defaults
 //  2. Creates a feature branch and adds a commit
 //  3. Removes the base config to simulate a checked-out (not started) branch
 //  4. Finishes the feature branch
@@ -1516,10 +1516,10 @@ func TestFinishWithMissingBaseConfigNoWarning(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores base config)
@@ -1542,7 +1542,7 @@ func TestFinishWithMissingBaseConfigNoWarning(t *testing.T) {
 	}
 
 	// Remove the base config to simulate a checked-out (not started) branch
-	_, err = testutil.RunGit(t, dir, "config", "--unset", "gitflow.branch.feature/missing-base.base")
+	_, err = testutil.RunGit(t, dir, "config", "--unset", "gitpour.branch.feature/missing-base.base")
 	if err != nil {
 		t.Fatalf("Failed to unset base config: %v", err)
 	}
@@ -1578,7 +1578,7 @@ func TestFinishWithMissingBaseConfigNoWarning(t *testing.T) {
 // with --keeplocal skips base-config cleanup entirely, leaving both the local
 // branch and its base config untouched.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch and adds a commit
 // 3. Finishes the feature branch with --keeplocal
 // 4. Verifies the local branch is kept and the base config is preserved
@@ -1588,10 +1588,10 @@ func TestFinishKeepLocalPreservesBaseConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores base config)
@@ -1625,7 +1625,7 @@ func TestFinishKeepLocalPreservesBaseConfig(t *testing.T) {
 	}
 
 	// Verify the base config is preserved (cleanup block skipped entirely)
-	value, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/keeplocal-base.base")
+	value, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/keeplocal-base.base")
 	if err != nil {
 		t.Errorf("Expected base config to be preserved with --keeplocal, but --get failed: %v", err)
 	}
@@ -1639,7 +1639,7 @@ func TestFinishKeepLocalPreservesBaseConfig(t *testing.T) {
 // The finish call site warns through a code path independent of delete, so the
 // "genuine failure still warns" contract is guarded here separately.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch and adds a commit
 // 3. Adds a second value to the base config key
 // 4. Finishes the feature branch
@@ -1650,10 +1650,10 @@ func TestFinishWithMultiValueBaseConfigWarns(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores base config)
@@ -1676,7 +1676,7 @@ func TestFinishWithMultiValueBaseConfigWarns(t *testing.T) {
 	}
 
 	// Add a second value so the key becomes multi-value
-	_, err = testutil.RunGit(t, dir, "config", "--add", "gitflow.branch.feature/multi-base.base", "other-base")
+	_, err = testutil.RunGit(t, dir, "config", "--add", "gitpour.branch.feature/multi-base.base", "other-base")
 	if err != nil {
 		t.Fatalf("Failed to add second base config value: %v", err)
 	}
@@ -1699,22 +1699,22 @@ func TestFinishWithMultiValueBaseConfigWarns(t *testing.T) {
 }
 
 // TestFinishWithoutInitialization tests the finish command in a repository where
-// git-flow has not been initialized.
+// git-pour has not been initialized.
 // Steps:
-//  1. Sets up a plain Git repository without running git flow init
+//  1. Sets up a plain Git repository without running git pour init
 //  2. Attempts to finish a feature branch
 //  3. Verifies the command fails with the "not initialized" error and exit code,
 //     rather than a misleading "branch does not exist" error
 func TestFinishWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Attempt to finish a feature branch without initialization
 	output, err := testutil.RunGitFlow(t, dir, "feature", "finish", "foo")
 	if err == nil {
-		t.Fatal("Expected finish to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected finish to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -1727,7 +1727,7 @@ func TestFinishWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message is the "not initialized" message, not "does not exist"
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 	if strings.Contains(output, "does not exist") {
@@ -1738,20 +1738,20 @@ func TestFinishWithoutInitialization(t *testing.T) {
 // TestFinishAbortWithoutInitialization tests that finish --abort in an
 // uninitialized repository reports "not initialized" before touching merge state.
 // Steps:
-//  1. Sets up a plain Git repository without running git flow init (no merge state)
+//  1. Sets up a plain Git repository without running git pour init (no merge state)
 //  2. Runs finish --abort
 //  3. Verifies the command fails with the "not initialized" error and exit code,
 //     confirming the gate fires before any merge-state handling
 func TestFinishAbortWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Run finish --abort without initialization
 	output, err := testutil.RunGitFlow(t, dir, "feature", "finish", "--abort")
 	if err == nil {
-		t.Fatal("Expected finish --abort to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected finish --abort to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -1764,7 +1764,7 @@ func TestFinishAbortWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 }
@@ -1772,20 +1772,20 @@ func TestFinishAbortWithoutInitialization(t *testing.T) {
 // TestFinishContinueWithoutInitialization tests that finish --continue in an
 // uninitialized repository reports "not initialized" before touching merge state.
 // Steps:
-//  1. Sets up a plain Git repository without running git flow init (no merge state)
+//  1. Sets up a plain Git repository without running git pour init (no merge state)
 //  2. Runs finish --continue
 //  3. Verifies the command fails with the "not initialized" error and exit code,
 //     confirming the gate fires before any merge-state handling
 func TestFinishContinueWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Run finish --continue without initialization
 	output, err := testutil.RunGitFlow(t, dir, "feature", "finish", "--continue")
 	if err == nil {
-		t.Fatal("Expected finish --continue to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected finish --continue to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -1798,27 +1798,27 @@ func TestFinishContinueWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 }
 
-// TestFinishReleaseWithoutInitialization tests that the finish command's
+// TestFinishPrereleaseWithoutInitialization tests that the finish command's
 // initialization gate is branch-type agnostic by exercising a non-feature type.
 // Steps:
-// 1. Sets up a plain Git repository without running git flow init
-// 2. Attempts to finish a release branch
+// 1. Sets up a plain Git repository without running git pour init
+// 2. Attempts to finish a prerelease branch
 // 3. Verifies the command fails with the "not initialized" error and exit code
-func TestFinishReleaseWithoutInitialization(t *testing.T) {
+func TestFinishPrereleaseWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Attempt to finish a release branch without initialization
-	output, err := testutil.RunGitFlow(t, dir, "release", "finish", "1.0.0")
+	// Attempt to finish a prerelease branch without initialization
+	output, err := testutil.RunGitFlow(t, dir, "prerelease", "finish", "1.0.0")
 	if err == nil {
-		t.Fatal("Expected release finish to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected prerelease finish to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -1831,21 +1831,21 @@ func TestFinishReleaseWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 }
 
 // TestFinishTagMessageFileRelativePathCli verifies that a relative
 // --messagefile argument is resolved against the invocation directory, not the
-// work-tree root, when git-flow finish creates the release tag.
+// work-tree root, when git-pour finish creates the release tag.
 func TestFinishTagMessageFileRelativePathCli(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to init git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to init git-pour: %v", err)
 	}
 
 	subDir := filepath.Join(dir, "sub")
@@ -1891,14 +1891,14 @@ func TestFinishTagMessageFileRelativePathCli(t *testing.T) {
 
 // TestFinishTagMessageFileRelativePathFromConfig verifies the same invocation-dir
 // resolution when the message file comes from Layer-2 config
-// (gitflow.release.finish.messagefile) rather than the CLI flag.
+// (gitpour.release.finish.messagefile) rather than the CLI flag.
 func TestFinishTagMessageFileRelativePathFromConfig(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to init git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to init git-pour: %v", err)
 	}
 
 	subDir := filepath.Join(dir, "sub")
@@ -1911,7 +1911,7 @@ func TestFinishTagMessageFileRelativePathFromConfig(t *testing.T) {
 	}
 
 	// Layer-2 config carries the relative path; it keeps invocation-dir meaning.
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.messagefile", "msg.txt"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.messagefile", "msg.txt"); err != nil {
 		t.Fatalf("Failed to set messagefile config: %v", err)
 	}
 

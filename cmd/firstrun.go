@@ -6,19 +6,19 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 	"github.com/spf13/cobra"
 )
 
 // firstRunActivation is the rootCmd PersistentPreRunE. On an otherwise
-// unconfigured repository that carries a committable .gitflow file, it activates
+// unconfigured repository that carries a committable .gitpour file, it activates
 // the shared config (prompt when interactive, auto-init when
-// gitflow.shared.autoInit=true, hint otherwise) by copying gitflow.* into local
+// gitpour.shared.autoInit=true, hint otherwise) by copying gitpour.* into local
 // .git/config before the invoked command proceeds. It is a no-op for the init
 // command itself and for the config command group, outside a work tree / in a
-// bare repo, when no .gitflow exists, and when the repo is already configured
+// bare repo, when no .gitpour exists, and when the repo is already configured
 // (local wins).
 func firstRunActivation(cmd *cobra.Command) error {
 	// Never intercept the command that configures the repository.
@@ -26,7 +26,7 @@ func firstRunActivation(cmd *cobra.Command) error {
 		return nil
 	}
 
-	// Never intercept the config command group: config verbs manage git-flow
+	// Never intercept the config command group: config verbs manage git-pour
 	// config explicitly. `config status` must stay read-only (no prompt/copy) and
 	// `config sync` must not be refused by an untrusted-hook auto-init before it
 	// gets a chance to run and skip the hook itself. Walk the whole ancestor chain
@@ -57,17 +57,17 @@ func firstRunActivation(cmd *cobra.Command) error {
 		return nil
 	}
 
-	// The repo is unconfigured and a .gitflow is present. Validate it.
+	// The repo is unconfigured and a .gitpour is present. Validate it.
 	valid, err := config.SharedConfigValid(repo)
 	if err != nil {
-		// Malformed / unparsable file: surface a clear error naming .gitflow.
+		// Malformed / unparsable file: surface a clear error naming .gitpour.
 		return err
 	}
 	if !valid {
-		// Present but missing gitflow.version: not offered as initialized. Print a
+		// Present but missing gitpour.version: not offered as initialized. Print a
 		// hint so the user learns why it was not applied, then let the invoked
 		// command report "not initialized" on its own.
-		fmt.Fprintf(os.Stderr, "Note: a %s file is present but declares no gitflow.version, so it was not applied.\nRun 'git flow init --shared --force' to (re)author it.\n", config.SharedConfigFileName)
+		fmt.Fprintf(os.Stderr, "Note: a %s file is present but declares no gitpour.version, so it was not applied.\nRun 'git pour init --shared --force' to (re)author it.\n", config.SharedConfigFileName)
 		return nil
 	}
 
@@ -77,7 +77,7 @@ func firstRunActivation(cmd *cobra.Command) error {
 	case stdinIsInteractive():
 		return activatePrompt(repo)
 	default:
-		fmt.Fprintf(os.Stderr, "Note: this repository has a shared %s configuration that has not been activated.\nRun 'git flow config sync' to activate it, or set gitflow.shared.autoInit=true to activate automatically.\n", config.SharedConfigFileName)
+		fmt.Fprintf(os.Stderr, "Note: this repository has a shared %s configuration that has not been activated.\nRun 'git pour config sync' to activate it, or set gitpour.shared.autoInit=true to activate automatically.\n", config.SharedConfigFileName)
 		return nil
 	}
 }
@@ -105,7 +105,7 @@ func activateAutoInit(repo *git.Repo) error {
 	}
 	if len(hookKeys) > 0 && !config.SharedTrustHooks(repo) {
 		return &errors.InvalidInputError{Message: fmt.Sprintf(
-			"refusing to auto-initialize from %s: it declares an untrusted shared hook path (%s). Set gitflow.shared.trustHooks=true to allow it.",
+			"refusing to auto-initialize from %s: it declares an untrusted shared hook path (%s). Set gitpour.shared.trustHooks=true to allow it.",
 			config.SharedConfigFileName, strings.Join(hookKeys, ", "))}
 	}
 	// No skipped-hook warning here (unlike activatePrompt): auto-init refuses
@@ -114,7 +114,7 @@ func activateAutoInit(repo *git.Repo) error {
 	if _, err := config.CopySharedToLocal(repo); err != nil {
 		return err
 	}
-	fmt.Printf("Note: auto-initialized git-flow from the shared %s file.\n", config.SharedConfigFileName)
+	fmt.Printf("Note: auto-initialized git-pour from the shared %s file.\n", config.SharedConfigFileName)
 	return nil
 }
 
@@ -123,7 +123,7 @@ func activateAutoInit(repo *git.Repo) error {
 // reports "not initialized" itself. Accepting copies the config and warns about
 // any hook path skipped for lack of trust.
 func activatePrompt(repo *git.Repo) error {
-	fmt.Printf("This repository has a shared %s configuration that is not yet active.\nInitialize git-flow from %s now? [y/N]: ", config.SharedConfigFileName, config.SharedConfigFileName)
+	fmt.Printf("This repository has a shared %s configuration that is not yet active.\nInitialize git-pour from %s now? [y/N]: ", config.SharedConfigFileName, config.SharedConfigFileName)
 
 	reader := bufio.NewReader(os.Stdin)
 	answer, _ := reader.ReadString('\n')
@@ -137,21 +137,21 @@ func activatePrompt(repo *git.Repo) error {
 		return err
 	}
 	for _, k := range result.SkippedHookKeys {
-		fmt.Fprintf(os.Stderr, "Warning: skipped shared hook path %q; set gitflow.shared.trustHooks=true to apply it.\n", k)
+		fmt.Fprintf(os.Stderr, "Warning: skipped shared hook path %q; set gitpour.shared.trustHooks=true to apply it.\n", k)
 	}
-	fmt.Printf("Initialized git-flow from the shared %s file.\n", config.SharedConfigFileName)
+	fmt.Printf("Initialized git-pour from the shared %s file.\n", config.SharedConfigFileName)
 	return nil
 }
 
 // stdinIsInteractive reports whether stdin should be treated as interactive,
 // i.e. whether it is safe to ask the user a question. It is shared by first-run
 // shared-config activation and by init's repository-creation prompt. It honors
-// the test-only GIT_FLOW_ASSUME_INTERACTIVE override (set to "1" to force
+// the test-only GIT_POUR_ASSUME_INTERACTIVE override (set to "1" to force
 // interactive, since the subprocess test harness cannot allocate a PTY);
 // otherwise it uses the real terminal check, so a pipe or /dev/null counts as
 // non-interactive.
 func stdinIsInteractive() bool {
-	if os.Getenv("GIT_FLOW_ASSUME_INTERACTIVE") == "1" {
+	if os.Getenv("GIT_POUR_ASSUME_INTERACTIVE") == "1" {
 		return true
 	}
 	return isTerminal(os.Stdin.Fd())

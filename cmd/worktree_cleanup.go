@@ -1,5 +1,5 @@
 // Worktree cleanup for finish and delete (#175): once a topic branch's
-// deletion is certain, free the worktree git-flow created for it — or, for one
+// deletion is certain, free the worktree git-pour created for it — or, for one
 // the user made by hand, detach it and leave the directory exactly as it was.
 // Both commands share the same three operations, defined once here.
 package cmd
@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/navigate"
-	"github.com/gittower/git-flow-next/internal/worktree"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/navigate"
+	"github.com/OnionRings-dev/git-pour-now/internal/worktree"
 	"github.com/spf13/cobra"
 )
 
@@ -20,11 +20,11 @@ import (
 // one call, and individually they are unrelated switches. Neither has a git
 // config equivalent — Layer 3 only, like checkout's --worktree/--force.
 type WorktreeCleanupOptions struct {
-	// Keep detaches a git-flow-created worktree instead of removing it, so the
+	// Keep detaches a git-pour-created worktree instead of removing it, so the
 	// directory survives on a detached HEAD. It has no effect on a worktree
-	// git-flow did not create, which is always detached rather than removed.
+	// git-pour did not create, which is always detached rather than removed.
 	Keep bool
-	// Force allows removing a git-flow-created worktree that has uncommitted or
+	// Force allows removing a git-pour-created worktree that has uncommitted or
 	// untracked changes. It never applies to detaching, which changes no files
 	// and so never needs it.
 	Force bool
@@ -37,7 +37,7 @@ type WorktreeCleanupOptions struct {
 // exactly one place.
 func addWorktreeCleanupFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("keep-worktree", false, "Keep the branch's worktree; detach it from the branch instead of removing it")
-	cmd.Flags().BoolP("force-worktree", "W", false, "Remove a git-flow-created worktree even with uncommitted or untracked changes")
+	cmd.Flags().BoolP("force-worktree", "W", false, "Remove a git-pour-created worktree even with uncommitted or untracked changes")
 }
 
 // redirectPreferringParentWorktree returns the repo handle finish/delete
@@ -131,11 +131,11 @@ func topicHasSeparateWorktree(repo *git.Repo, branch string) (bool, error) {
 	return entry != nil && !entry.Main && !git.SamePath(repo.WorkTree(), entry.Path), nil
 }
 
-// isManaged reports whether branch's worktree was created by git-flow. There
+// isManaged reports whether branch's worktree was created by git-pour. There
 // is no single-branch query left in the worktree package — its former
 // IsManaged was removed once ListMarkers (bulk) became the only caller that
 // mattered (see main's perf(worktree) history) — so this reads the full
-// marker list and checks membership. Each call here is one git-flow
+// marker list and checks membership. Each call here is one git-pour
 // invocation resolving one branch, not a listing, so the extra names in the
 // result are simply unused; it costs the same one git process IsManaged
 // itself used to.
@@ -166,7 +166,7 @@ func isManaged(repo *git.Repo, branch string) (bool, error) {
 //     (force overrides dirty content, not an in-progress operation) and never
 //     be detached (detaching would abandon the operation with no way back to
 //     it).
-//   - a git-flow-created worktree that will be REMOVED (managed, and
+//   - a git-pour-created worktree that will be REMOVED (managed, and
 //     opts.Keep is not set) refuses if it has uncommitted or untracked
 //     changes, unless opts.Force is given.
 //   - a worktree that will be DETACHED instead (unmanaged, or opts.Keep is
@@ -212,8 +212,8 @@ func preflightWorktreeCleanup(repo *git.Repo, branch string, opts WorktreeCleanu
 // staleness between an earlier preflightWorktreeCleanup call and this one —
 // mirroring executeWorktreeRemove's own sequencing.
 //
-// A git-flow-created worktree (without opts.Keep) is removed and its
-// provenance marker cleared. Every other worktree — one git-flow did not
+// A git-pour-created worktree (without opts.Keep) is removed and its
+// provenance marker cleared. Every other worktree — one git-pour did not
 // create, or a managed one kept via opts.Keep — is detached instead: the
 // directory and everything in it, including uncommitted work, stay exactly as
 // they were, and its marker (if any) is cleared too, since it would otherwise

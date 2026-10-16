@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/mergestate"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishStatePersistsChildStrategies tests that child branch strategies are persisted in state
@@ -15,28 +15,28 @@ func TestFinishStatePersistsChildStrategies(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create child branches with different strategies
 	testutil.RunGit(t, dir, "checkout", "-b", "staging", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "rebase")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "rebase")
 
 	testutil.RunGit(t, dir, "checkout", "-b", "qa", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.qa.downstreamStrategy", "squash")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.qa.downstreamStrategy", "squash")
 
 	// Keep develop with merge strategy (default)
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.downstreamStrategy", "merge")
 
 	// Create some commits in child branches to cause conflicts
 	testutil.RunGit(t, dir, "checkout", "staging")
@@ -110,21 +110,21 @@ func TestFinishStateTracksCurrentChild(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a child branch with autoUpdate
 	testutil.RunGit(t, dir, "checkout", "-b", "staging", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "merge")
 
 	// Set develop to autoUpdate=true as well
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
 
 	// Create conflicting content in staging
 	testutil.WriteFile(t, dir, "conflict.txt", "Staging content")
@@ -187,15 +187,15 @@ func TestFinishChildRebaseContinuation(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set develop to use rebase strategy
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.downstreamStrategy", "rebase")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.downstreamStrategy", "rebase")
 
 	// Create initial content in develop
 	testutil.RunGit(t, dir, "checkout", "develop")
@@ -264,14 +264,14 @@ func TestFinishStateBackwardCompatibility(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Configure develop for auto-update
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
 
 	// Create and finish a feature to ensure things still work
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "compat-test")
@@ -298,7 +298,7 @@ func TestFinishStateBackwardCompatibility(t *testing.T) {
 
 // TestFinishDetectsStaleStateEmptyFields tests that stale state with empty critical fields is auto-cleared.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Writes a merge state file with empty BranchType
 // 3. Creates and finishes a feature branch normally
 // 4. Verifies the stale state was cleared and finish succeeded
@@ -307,9 +307,9 @@ func TestFinishDetectsStaleStateEmptyFields(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Write stale state with empty BranchType
@@ -349,7 +349,7 @@ func TestFinishDetectsStaleStateEmptyFields(t *testing.T) {
 // TestFinishDetectsStaleStateMergeStepNoConflict tests that state at merge step is cleared when
 // git is not actually in a merge or rebase state.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Writes a merge state file at the merge step
 // 3. Runs feature finish which checks for merge in progress
 // 4. Verifies stale state is cleared and a new finish can proceed
@@ -358,9 +358,9 @@ func TestFinishDetectsStaleStateMergeStepNoConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Write stale state claiming merge step but git is not in merge state
@@ -402,7 +402,7 @@ func TestFinishDetectsStaleStateMergeStepNoConflict(t *testing.T) {
 // TestFinishDetectsStaleStateDeleteStepBranchGone tests that state at delete_branch step is
 // cleared when the topic branch no longer exists.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Writes a merge state file at delete_branch step referencing a non-existent branch
 // 3. Runs feature finish to verify stale state is cleared
 // 4. Verifies a new finish can proceed normally
@@ -411,9 +411,9 @@ func TestFinishDetectsStaleStateDeleteStepBranchGone(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Write stale state at delete_branch step for a branch that doesn't exist
@@ -455,7 +455,7 @@ func TestFinishDetectsStaleStateDeleteStepBranchGone(t *testing.T) {
 // TestFinishValidStateMergeStepWithConflict tests that legitimate merge state is NOT cleared
 // when git is actually in a merge conflict state.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch with conflicting changes
 // 3. Attempts to finish (produces merge conflict, creating valid state)
 // 4. Verifies the merge state is preserved (not cleared as stale)
@@ -464,9 +464,9 @@ func TestFinishValidStateMergeStepWithConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature with content
@@ -531,7 +531,7 @@ func TestFinishValidStateMergeStepWithConflict(t *testing.T) {
 // file behind; the re-run must detect the stale state, clear it, and finish the branch
 // end-to-end (tag, child update, branch deletion). Regression test for issue #114.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a hotfix branch with changes conflicting with main
 // 3. Attempts to finish (produces merge conflict, creating valid state)
 // 4. Resolves the conflict manually with `git commit`, bypassing --continue
@@ -542,9 +542,9 @@ func TestFinishAfterManualConflictResolution(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create hotfix with content
@@ -588,7 +588,7 @@ func TestFinishAfterManualConflictResolution(t *testing.T) {
 	}
 
 	// Resolve the conflict manually with a plain git commit, bypassing --continue.
-	// This clears MERGE_HEAD but leaves the git-flow state file behind.
+	// This clears MERGE_HEAD but leaves the git-pour state file behind.
 	testutil.WriteFile(t, dir, "conflict.txt", "resolved content")
 	_, err = testutil.RunGit(t, dir, "add", "conflict.txt")
 	if err != nil {
@@ -600,7 +600,7 @@ func TestFinishAfterManualConflictResolution(t *testing.T) {
 	}
 
 	// The state is now stale: the git-level merge is complete but the
-	// git-flow state file is still there
+	// git-pour state file is still there
 	if testutil.FileExists(t, dir, ".git/MERGE_HEAD") {
 		t.Fatal("Expected MERGE_HEAD to be gone after manual resolution commit")
 	}
@@ -649,7 +649,7 @@ func TestFinishAfterManualConflictResolution(t *testing.T) {
 // `git commit` instead of `--continue`). The exit status of --abort in this situation is
 // deliberately not asserted; only the cleanup matters. Regression test for issue #110.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch with conflicting changes and attempts to finish
 // 3. Resolves the conflict manually with `git commit`, bypassing --continue
 // 4. Verifies the state is stale: MERGE_HEAD is gone, state file still present
@@ -659,9 +659,9 @@ func TestAbortClearsStaleMergeState(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature with content
@@ -705,7 +705,7 @@ func TestAbortClearsStaleMergeState(t *testing.T) {
 	}
 
 	// Resolve the conflict manually with a plain git commit, bypassing --continue.
-	// This clears MERGE_HEAD but leaves the git-flow state file behind.
+	// This clears MERGE_HEAD but leaves the git-pour state file behind.
 	testutil.WriteFile(t, dir, "conflict.txt", "resolved content")
 	_, err = testutil.RunGit(t, dir, "add", "conflict.txt")
 	if err != nil {
@@ -717,7 +717,7 @@ func TestAbortClearsStaleMergeState(t *testing.T) {
 	}
 
 	// The state is now stale: the git-level merge is complete but the
-	// git-flow state file is still there
+	// git-pour state file is still there
 	if testutil.FileExists(t, dir, ".git/MERGE_HEAD") {
 		t.Fatal("Expected MERGE_HEAD to be gone after manual resolution commit")
 	}
@@ -736,16 +736,16 @@ func TestAbortClearsStaleMergeState(t *testing.T) {
 // TestFinishAbortNoOpWhenNothingInProgress verifies feature finish --abort with a
 // truly clean repo (no in-progress op, no state file) is a forgiving no-op.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/x (no conflict, no in-progress op, no state file)
-// 3. Runs 'git flow feature finish --abort x'
+// 3. Runs 'git pour feature finish --abort x'
 // 4. Verifies exit 0, no error, and no merge-state file created
 func TestFinishAbortNoOpWhenNothingInProgress(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "x"); err != nil {
 		t.Fatalf("Failed to start feature: %v\nOutput: %s", err, out)

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // Command-level coverage for dotted base/topic branch names (issue #93).
@@ -31,12 +31,12 @@ func TestOverviewDottedBaseBranches(t *testing.T) {
 	output, err := testutil.RunGitFlow(t, dir, "init",
 		"--preset=classic", "--main=custom.main", "--develop=custom.dev")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	output, err = testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow overview: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour overview: %v\nOutput: %s", err, output)
 	}
 
 	if !strings.Contains(output, "custom.main (root)") {
@@ -67,7 +67,7 @@ func TestFinishFeatureIntoDottedDevelop(t *testing.T) {
 	output, err := testutil.RunGitFlow(t, dir, "init",
 		"--preset=classic", "--main=custom.main", "--develop=custom.dev")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "x")
@@ -111,12 +111,12 @@ func TestConfigListDottedNames(t *testing.T) {
 	output, err := testutil.RunGitFlow(t, dir, "init",
 		"--preset=classic", "--main=custom.main", "--develop=custom.dev")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	output, err = testutil.RunGitFlow(t, dir, "config", "list")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow config list: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour config list: %v\nOutput: %s", err, output)
 	}
 
 	if !strings.Contains(output, "custom.main → (root)") {
@@ -142,9 +142,9 @@ func TestConfigAddAndRenameDottedName(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Add a dotted base branch — previously rejected as an "invalid branch name".
@@ -152,8 +152,8 @@ func TestConfigAddAndRenameDottedName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("config add base custom.main failed: %v\nOutput: %s", err, output)
 	}
-	if got, _ := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.custom.main.type"); strings.TrimSpace(got) != "base" {
-		t.Errorf("Expected gitflow.branch.custom.main.type=base, got %q", got)
+	if got, _ := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.custom.main.type"); strings.TrimSpace(got) != "base" {
+		t.Errorf("Expected gitpour.branch.custom.main.type=base, got %q", got)
 	}
 	if !refExists(t, dir, "custom.main") {
 		t.Error("Expected refs/heads/custom.main to be created")
@@ -169,7 +169,7 @@ func TestConfigAddAndRenameDottedName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("config rename base to dotted name failed: %v\nOutput: %s", err, output)
 	}
-	if got, _ := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.custom.trunk.type"); strings.TrimSpace(got) != "base" {
-		t.Errorf("Expected gitflow.branch.custom.trunk.type=base after rename, got %q", got)
+	if got, _ := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.custom.trunk.type"); strings.TrimSpace(got) != "base" {
+		t.Errorf("Expected gitpour.branch.custom.trunk.type=base after rename, got %q", got)
 	}
 }

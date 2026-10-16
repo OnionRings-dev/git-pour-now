@@ -4,24 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-git-flow-next is a modern Go implementation of the git-flow branching model. It's a CLI tool that helps manage Git workflows with feature, release, and hotfix branches.
+git-pour-now is a Go CLI for feature branches on main, temporary version-specific prerelease branches, and SemVer releases identified by Git tags.
 
-**GitHub Repository**: [gittower/git-flow-next](https://github.com/gittower/git-flow-next)
+**GitHub Repository**: [OnionRings-dev/git-pour-now](https://github.com/OnionRings-dev/git-pour-now)
 
 ## Development Commands
 
 ### Version Updates
 
-When updating version information, ensure both locations are updated:
-
-- `version/version.go` - Core version constant used by the application
-- `cmd/version.go` - Version variable used by the version command
-
-Both files must have matching version numbers to maintain consistency.
+Git release tags are the sole source of release version numbers. Do not hard-code
+release versions in Go files. Untagged builds report `dev`; scripts/build.sh injects
+the version from the exact tag at HEAD into version.Version.
 
 ### Building
 ```bash
-go build -o git-flow main.go              # Build local binary
+go build -o git-pour main.go              # Build local binary
 ./scripts/build.sh                        # Multi-platform build script
 ./scripts/build.sh v1.0.0                 # Build with specific version
 ```
@@ -37,7 +34,7 @@ go test -v ./test/cmd/init_test.go        # Run specific test file
 ### Running
 ```bash
 go run main.go                            # Run directly
-./git-flow                                # Run built binary
+./git-pour                                # Run built binary
 ```
 
 ## Additional Documentation
@@ -70,7 +67,7 @@ For comprehensive development information, see:
 - **util**: Validation and utility functions
 
 ### Configuration System
-- Branch types defined in Git config under `gitflow.*`
+- Branch types defined in Git config under `gitpour.*`
 - Each branch type has: prefix, parent, start point, merge strategies
 - Supports custom branch types beyond standard feature/release/hotfix
 - Configuration imported from git-flow-avh for compatibility
@@ -91,58 +88,47 @@ For comprehensive development information, see:
 
 ### Test Utilities
 - `testutil.CreateTestRepo()` - Creates temporary Git repository
-- `testutil.InitGitFlow()` - Initializes git-flow in test repo
+- `testutil.InitGitFlow()` - Initializes git-pour in test repo
 - Git operation mocks for unit tests
 
 ### Testing Best Practices
-- **Use git-flow defaults**: Initialize test repos with `git flow init --defaults`
+- **Use git-pour defaults**: Initialize test repos with `git pour init --defaults`
 - **Use feature branches**: Feature branches for general topic branch testing
 - **Modify config when needed**: Use `git config` for specific test scenarios
 
 ## Default Configuration
 
-git-flow-next provides sensible defaults that work for most teams:
-
-### Branch Structure
-- **main/master**: Production releases
-- **develop**: Integration branch (auto-updated from main)
-- **feature/**: New features (parent: develop)
-- **release/**: Release preparation (parent: main, starts from develop)
-- **hotfix/**: Emergency fixes (parent: main)
-
-### Default Merge Strategies
-- **Feature finish**: `merge` into develop
-- **Release finish**: `merge` into main (then auto-update develop)
-- **Hotfix finish**: `merge` into main (then auto-update develop)
-- **Feature update**: `rebase` from develop
-- **Release/Hotfix update**: `merge`/`rebase` from main
-
-### Default Tag Settings
-- **Feature**: No tags created
-- **Release/Hotfix**: Tags created on finish
+- `main` is the only base branch.
+- `feature/` branches start from main and merge back into main.
+- Feature updates rebase onto main; feature finishes create no tag.
+- `prerelease/<MAJOR.MINOR.PATCH>` branches prepare a version separately.
+- `git pour release <version>` creates an annotated SemVer tag: stable on main,
+  prerelease on the matching temporary prerelease branch.
+- Traditional develop/release/hotfix branches require the explicit classic preset.
+- Configuration uses `gitpour.*` and the shared file `.gitpour`.
 
 ## Configuration Examples
 
 ### Branch Configuration
 ```bash
 # Custom branch prefixes
-git config gitflow.branch.feature.prefix "feat/"
-git config gitflow.branch.release.prefix "rel/"
+git config gitpour.branch.feature.prefix "feat/"
+git config gitpour.branch.release.prefix "rel/"
 
 # Merge strategies (upstream - finish operations)
-git config gitflow.feature.finish.rebase true
-git config gitflow.release.finish.squash true
+git config gitpour.feature.finish.rebase true
+git config gitpour.release.finish.squash true
 
 # Merge strategies (downstream - update operations)
-git config gitflow.branch.feature.downstreamStrategy rebase
-git config gitflow.branch.release.downstreamStrategy merge
+git config gitpour.branch.feature.downstreamStrategy rebase
+git config gitpour.branch.release.downstreamStrategy merge
 
 # Base branch relationships
-git config gitflow.branch.develop.parent main
-git config gitflow.branch.develop.autoUpdate true
+git config gitpour.branch.develop.parent main
+git config gitpour.branch.develop.autoUpdate true
 
 # Fetch behavior
-git config gitflow.feature.finish.fetch true
+git config gitpour.feature.finish.fetch true
 ```
 
 ### Branch Types
@@ -157,9 +143,9 @@ git config gitflow.feature.finish.fetch true
 **⚠️ MANDATORY**: Always update documentation when modifying commands or configuration:
 
 - **New commands**: Create manpage documentation in `docs/`
-- **Modified commands**: Update existing command documentation  
+- **Modified commands**: Update existing command documentation
 - **New/changed options**: Update relevant manpage files
-- **Configuration changes**: Update `docs/gitflow-config.5.md`
+- **Configuration changes**: Update `docs/gitpour-config.5.md`
 - **Behavior changes**: Update descriptions and examples
 
 All documentation follows Unix manpage standards. See `docs/README.md` for details.
@@ -198,16 +184,16 @@ Follow the project's commit message standards as defined in **[COMMIT_GUIDELINES
 
 ## Branching
 
-When needing to create branches for development work, use git-flow commands:
+When needing to create branches for development work, use git-pour commands:
 
 ```bash
-git flow feature start <feature-name>   # Create a new feature branch
+git pour feature start <feature-name>   # Create a new feature branch
 ```
 
 ## Development Notes
 
 ### Compatibility
-- Maintains compatibility with existing git-flow repositories
+- Maintains compatibility with existing git-pour repositories
 - Imports configuration from git-flow-avh
 - Uses same branch naming conventions by default
 

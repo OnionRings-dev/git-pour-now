@@ -5,9 +5,9 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ import (
 // open a git.Repo handle for the returned dir instead.
 func setupTestRepo(t *testing.T) string {
 	t.Helper()
-	dir, err := os.MkdirTemp("", "git-flow-test-*")
+	dir, err := os.MkdirTemp("", "git-pour-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -71,10 +71,10 @@ func TestLoadConfigCaseInsensitive(t *testing.T) {
 	dir := setupTestRepo(t)
 	defer cleanupTestRepo(t, dir)
 
-	setConfig(t, dir, "gitflow.branch.feature.startPoint", "develop")
-	setConfig(t, dir, "gitflow.branch.release.StartPoint", "develop")
-	setConfig(t, dir, "gitflow.branch.hotfix.STARTPOINT", "main")
-	setConfig(t, dir, "gitflow.version", "1.0")
+	setConfig(t, dir, "gitpour.branch.feature.startPoint", "develop")
+	setConfig(t, dir, "gitpour.branch.release.StartPoint", "develop")
+	setConfig(t, dir, "gitpour.branch.hotfix.STARTPOINT", "main")
+	setConfig(t, dir, "gitpour.version", "1.0")
 
 	cfg, err := config.Load(openRepo(t, dir))
 	if err != nil {
@@ -105,13 +105,13 @@ func TestLoadConfigWithMixedCaseProperties(t *testing.T) {
 	dir := setupTestRepo(t)
 	defer cleanupTestRepo(t, dir)
 
-	setConfig(t, dir, "gitflow.branch.feature.Type", "topic")
-	setConfig(t, dir, "gitflow.branch.feature.parent", "develop")
-	setConfig(t, dir, "gitflow.branch.feature.UpstreamStrategy", "rebase")
-	setConfig(t, dir, "gitflow.branch.feature.downstreamStrategy", "squash")
-	setConfig(t, dir, "gitflow.branch.feature.PREFIX", "feature/")
-	setConfig(t, dir, "gitflow.branch.feature.AutoUpdate", "true")
-	setConfig(t, dir, "gitflow.version", "1.0")
+	setConfig(t, dir, "gitpour.branch.feature.Type", "topic")
+	setConfig(t, dir, "gitpour.branch.feature.parent", "develop")
+	setConfig(t, dir, "gitpour.branch.feature.UpstreamStrategy", "rebase")
+	setConfig(t, dir, "gitpour.branch.feature.downstreamStrategy", "squash")
+	setConfig(t, dir, "gitpour.branch.feature.PREFIX", "feature/")
+	setConfig(t, dir, "gitpour.branch.feature.AutoUpdate", "true")
+	setConfig(t, dir, "gitpour.version", "1.0")
 
 	cfg, err := config.Load(openRepo(t, dir))
 	if err != nil {
@@ -155,7 +155,7 @@ func TestLoadConfigWithMixedCaseProperties(t *testing.T) {
 // 3. Verifies all default branches retain their types, parents, and start points
 func TestApplyOverrides_NoOverrides(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
+	cfg := config.ClassicConfig()
 	cfg = config.ApplyOverrides(cfg, config.ConfigOverrides{})
 
 	mainConfig, exists := cfg.Branches["main"]
@@ -205,7 +205,7 @@ func TestApplyOverrides_NoOverrides(t *testing.T) {
 // 5. Verifies the original "main" and "develop" keys no longer exist
 func TestApplyOverrides_CustomBranchNames(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
+	cfg := config.ClassicConfig()
 	cfg = config.ApplyOverrides(cfg, config.ConfigOverrides{
 		MainBranch:    "custom-main",
 		DevelopBranch: "custom-dev",
@@ -258,7 +258,7 @@ func TestApplyOverrides_CustomBranchNames(t *testing.T) {
 // 4. Verifies each branch retains its default parent and start point
 func TestApplyOverrides_CustomPrefixes(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
+	cfg := config.ClassicConfig()
 	cfg = config.ApplyOverrides(cfg, config.ConfigOverrides{
 		FeaturePrefix: "f/",
 		ReleasePrefix: "r/",
@@ -296,7 +296,7 @@ func TestApplyOverrides_CustomPrefixes(t *testing.T) {
 // 4. Verifies their parents and start points are unchanged
 func TestApplyOverrides_CustomTagPrefix(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
+	cfg := config.ClassicConfig()
 	cfg = config.ApplyOverrides(cfg, config.ConfigOverrides{
 		TagPrefix: "v",
 	})
@@ -322,7 +322,7 @@ func TestApplyOverrides_CustomTagPrefix(t *testing.T) {
 // 5. Verifies the custom tag prefix on release and hotfix branches
 func TestApplyOverrides_AllOverrides(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
+	cfg := config.ClassicConfig()
 	cfg = config.ApplyOverrides(cfg, config.ConfigOverrides{
 		MainBranch:    "custom-main",
 		DevelopBranch: "custom-dev",
@@ -371,7 +371,7 @@ func TestApplyOverrides_AllOverrides(t *testing.T) {
 // TestDefaultRemoteConfiguration verifies that the remote defaults to "origin"
 // when no remote is configured.
 // Steps:
-// 1. Sets up a test repository and marks it git-flow-initialized
+// 1. Sets up a test repository and marks it git-pour-initialized
 // 2. Loads config through a git.Repo handle for the repository
 // 3. Verifies the loaded remote is "origin"
 func TestDefaultRemoteConfiguration(t *testing.T) {
@@ -379,7 +379,7 @@ func TestDefaultRemoteConfiguration(t *testing.T) {
 	dir := setupTestRepo(t)
 	defer cleanupTestRepo(t, dir)
 
-	setConfig(t, dir, "gitflow.version", "1.0")
+	setConfig(t, dir, "gitpour.version", "1.0")
 
 	cfg, err := config.Load(openRepo(t, dir))
 	if err != nil {
@@ -389,9 +389,9 @@ func TestDefaultRemoteConfiguration(t *testing.T) {
 }
 
 // TestGitFlowAVHRemoteImport verifies that the remote is imported from the
-// git-flow-avh gitflow.origin key.
+// git-flow-avh gitpour.origin key.
 // Steps:
-// 1. Sets up a test repository and sets gitflow.origin to a custom remote
+// 1. Sets up a test repository and sets gitpour.origin to a custom remote
 // 2. Imports git-flow-avh config through a git.Repo handle
 // 3. Verifies the imported config's remote matches the avh value
 func TestGitFlowAVHRemoteImport(t *testing.T) {
@@ -412,7 +412,7 @@ func TestGitFlowAVHRemoteImport(t *testing.T) {
 // populates CommandConfig with Layer 2 command-specific settings.
 // Steps:
 // 1. Sets up a test repository with git-flow-avh style config
-// 2. Sets gitflow.release.finish.push=true and gitflow.feature.start.fetch=true
+// 2. Sets gitpour.release.finish.push=true and gitpour.feature.start.fetch=true
 // 3. Imports git-flow-avh config through a git.Repo handle
 // 4. Verifies both settings are present in CommandConfig
 func TestGitFlowAVHCommandConfigImport(t *testing.T) {
@@ -429,9 +429,9 @@ func TestGitFlowAVHCommandConfigImport(t *testing.T) {
 		t.Fatalf("Failed to import git-flow-avh config: %v", err)
 	}
 
-	assert.Equal(t, "true", cfg.CommandConfig["gitflow.release.finish.push"],
+	assert.Equal(t, "true", cfg.CommandConfig["gitpour.release.finish.push"],
 		"release.finish.push should be loaded into CommandConfig")
-	assert.Equal(t, "true", cfg.CommandConfig["gitflow.feature.start.fetch"],
+	assert.Equal(t, "true", cfg.CommandConfig["gitpour.feature.start.fetch"],
 		"feature.start.fetch should be loaded into CommandConfig")
 }
 
@@ -448,9 +448,9 @@ func TestLoadConfigPreservesBranchNameCase(t *testing.T) {
 	dir := setupTestRepo(t)
 	defer cleanupTestRepo(t, dir)
 
-	setConfig(t, dir, "gitflow.branch.V9_Release.type", "base")
-	setConfig(t, dir, "gitflow.branch.V9_Release.upstreamStrategy", "merge")
-	setConfig(t, dir, "gitflow.version", "1.0")
+	setConfig(t, dir, "gitpour.branch.V9_Release.type", "base")
+	setConfig(t, dir, "gitpour.branch.V9_Release.upstreamStrategy", "merge")
+	setConfig(t, dir, "gitpour.version", "1.0")
 
 	cfg, err := config.Load(openRepo(t, dir))
 	if err != nil {
@@ -486,7 +486,7 @@ func TestLoadConfigPreservesBranchNameCase(t *testing.T) {
 // TestLoadConfigReflectsTargetRepoOffCwd verifies config.Load reads from the
 // target repository, not the process working directory.
 // Steps:
-// 1. Sets up a test repository B and initializes git-flow in it
+// 1. Sets up a test repository B and initializes git-pour in it
 // 2. Sets a custom feature prefix (feat/) in B
 // 3. Loads config through a git.Repo handle for B
 // 4. Verifies the loaded feature prefix is 'feat/' from B
@@ -495,10 +495,10 @@ func TestLoadConfigReflectsTargetRepoOffCwd(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to init git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to init git-pour: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.prefix", "feat/"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.prefix", "feat/"); err != nil {
 		t.Fatalf("Failed to set feature prefix: %v", err)
 	}
 
@@ -512,9 +512,9 @@ func TestLoadConfigReflectsTargetRepoOffCwd(t *testing.T) {
 }
 
 // TestLoadConfigUninitializedReturnsDefaults verifies config.Load returns
-// defaults for a repository that has not been git-flow-initialized.
+// defaults for a repository that has not been git-pour-initialized.
 // Steps:
-// 1. Sets up a test repository B without initializing git-flow
+// 1. Sets up a test repository B without initializing git-pour
 // 2. Loads config through a git.Repo handle for B
 // 3. Verifies no error is returned
 // 4. Verifies the default feature prefix ('feature/') and default remote ('origin')
@@ -537,7 +537,7 @@ func TestLoadConfigUninitializedReturnsDefaults(t *testing.T) {
 }
 
 // TestLoadConfigImportsAvhOffCwd verifies config.Load imports git-flow-avh
-// configuration from the target repository when no gitflow.version is present.
+// configuration from the target repository when no gitpour.version is present.
 // Steps:
 // 1. Sets up a test repository B with distinctive git-flow-avh keys and no version
 // 2. Loads config through a git.Repo handle for B
@@ -548,7 +548,7 @@ func TestLoadConfigImportsAvhOffCwd(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// git-flow-avh keys with distinctive non-default values, no gitflow.version.
+	// git-flow-avh keys with distinctive non-default values, no gitpour.version.
 	setConfig(t, dir, "gitflow.branch.master", "production")
 	setConfig(t, dir, "gitflow.prefix.feature", "feat/")
 	setConfig(t, dir, "gitflow.prefix.hotfix", "hf/")
@@ -585,15 +585,15 @@ func TestConfigSetIsolatedToTargetRepo(t *testing.T) {
 	dirB := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dirB)
 
-	if _, err := testutil.RunGitFlow(t, dirA, "init", "--defaults"); err != nil {
+	if _, err := testutil.RunGitFlow(t, dirA, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("Failed to init A: %v", err)
 	}
-	if _, err := testutil.RunGitFlow(t, dirB, "init", "--defaults"); err != nil {
+	if _, err := testutil.RunGitFlow(t, dirB, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("Failed to init B: %v", err)
 	}
 
 	repoB := openRepo(t, dirB)
-	if err := repoB.SetConfig("gitflow.branch.feature.prefix", "xb/"); err != nil {
+	if err := repoB.SetConfig("gitpour.branch.feature.prefix", "xb/"); err != nil {
 		t.Fatalf("SetConfig on B failed: %v", err)
 	}
 
@@ -618,9 +618,9 @@ func TestConfigSetIsolatedToTargetRepo(t *testing.T) {
 // repository's handle affects only that repository.
 // Steps:
 // 1. Sets up and initializes two test repositories A and B
-// 2. Clears gitflow config through B's handle
-// 3. Verifies B's gitflow.branch.feature.prefix is removed
-// 4. Verifies A's gitflow.branch.feature.prefix remains 'feature/'
+// 2. Clears gitpour config through B's handle
+// 3. Verifies B's gitpour.branch.feature.prefix is removed
+// 4. Verifies A's gitpour.branch.feature.prefix remains 'feature/'
 func TestConfigClearIsolatedToTargetRepo(t *testing.T) {
 	t.Parallel()
 	dirA := testutil.SetupTestRepo(t)
@@ -628,10 +628,10 @@ func TestConfigClearIsolatedToTargetRepo(t *testing.T) {
 	dirB := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dirB)
 
-	if _, err := testutil.RunGitFlow(t, dirA, "init", "--defaults"); err != nil {
+	if _, err := testutil.RunGitFlow(t, dirA, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("Failed to init A: %v", err)
 	}
-	if _, err := testutil.RunGitFlow(t, dirB, "init", "--defaults"); err != nil {
+	if _, err := testutil.RunGitFlow(t, dirB, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("Failed to init B: %v", err)
 	}
 
@@ -640,16 +640,16 @@ func TestConfigClearIsolatedToTargetRepo(t *testing.T) {
 		t.Fatalf("ClearConfig on B failed: %v", err)
 	}
 
-	// B's gitflow config is gone.
-	if _, err := repoB.GetConfig("gitflow.branch.feature.prefix"); err == nil {
-		t.Error("Expected B's gitflow.branch.feature.prefix to be removed")
+	// B's gitpour config is gone.
+	if _, err := repoB.GetConfig("gitpour.branch.feature.prefix"); err == nil {
+		t.Error("Expected B's gitpour.branch.feature.prefix to be removed")
 	}
 
-	// A's gitflow config is intact.
+	// A's gitpour config is intact.
 	repoA := openRepo(t, dirA)
-	got, err := repoA.GetConfig("gitflow.branch.feature.prefix")
+	got, err := repoA.GetConfig("gitpour.branch.feature.prefix")
 	if err != nil {
-		t.Fatalf("Expected A's gitflow.branch.feature.prefix intact, got err: %v", err)
+		t.Fatalf("Expected A's gitpour.branch.feature.prefix intact, got err: %v", err)
 	}
 	if got != "feature/" {
 		t.Errorf("Expected A feature prefix 'feature/', got %q", got)
@@ -666,8 +666,8 @@ func TestParseBranchConfigLinesAutoUpdateYes(t *testing.T) {
 	t.Parallel()
 
 	lines := []string{
-		"gitflow.branch.develop.type base",
-		"gitflow.branch.develop.autoupdate yes",
+		"gitpour.branch.develop.type base",
+		"gitpour.branch.develop.autoupdate yes",
 	}
 
 	result := config.ParseBranchConfigLines(lines)
@@ -691,8 +691,8 @@ func TestParseBranchConfigLinesTagYes(t *testing.T) {
 	t.Parallel()
 
 	lines := []string{
-		"gitflow.branch.release.type topic",
-		"gitflow.branch.release.tag yes",
+		"gitpour.branch.release.type topic",
+		"gitpour.branch.release.tag yes",
 	}
 
 	result := config.ParseBranchConfigLines(lines)
@@ -716,8 +716,8 @@ func TestParseBranchConfigLinesTagOff(t *testing.T) {
 	t.Parallel()
 
 	lines := []string{
-		"gitflow.branch.release.type topic",
-		"gitflow.branch.release.tag off",
+		"gitpour.branch.release.type topic",
+		"gitpour.branch.release.tag off",
 	}
 
 	result := config.ParseBranchConfigLines(lines)
@@ -742,12 +742,12 @@ func keysOf(m map[string]config.BranchConfig) []string {
 // TestTrunkBranchReturnsUnparentedBaseBranch tests that TrunkBranch reports the
 // base branch with no parent for the shipped default configuration.
 // Steps:
-// 1. Builds config.DefaultConfig()
+// 1. Builds config.ClassicConfig()
 // 2. Calls TrunkBranch()
 // 3. Verifies it returns "main"
 func TestTrunkBranchReturnsUnparentedBaseBranch(t *testing.T) {
 	t.Parallel()
-	if got := config.DefaultConfig().TrunkBranch(); got != "main" {
+	if got := config.ClassicConfig().TrunkBranch(); got != "main" {
 		t.Errorf("Expected trunk 'main', got %q", got)
 	}
 }

@@ -3,7 +3,7 @@ package cmd_test
 import (
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestIntegrateDivergedParentCreatesMergeAndUpdatesChild verifies a diverged
@@ -11,7 +11,7 @@ import (
 //
 // Steps:
 //  1. init --defaults; add X to main and C to develop (diverged).
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert main has a merge commit containing both C and X, develop is
 //     auto-updated to contain X, and HEAD is on main.
 func TestIntegrateDivergedParentCreatesMergeAndUpdatesChild(t *testing.T) {
@@ -19,8 +19,8 @@ func TestIntegrateDivergedParentCreatesMergeAndUpdatesChild(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	xCommit := integAddCommit(t, dir, "main", "x.txt", "X", "Add X on main")
@@ -56,7 +56,7 @@ func TestIntegrateDivergedParentCreatesMergeAndUpdatesChild(t *testing.T) {
 //  1. init --defaults; add base branch staging (autoUpdate, rebase) with its own
 //     commit S, and base branch legacy (autoUpdate=false). develop keeps merge.
 //  2. Give develop commit C not on main; capture staging/legacy/develop tips.
-//  3. Run: git flow integrate develop.
+//  3. Run: git pour integrate develop.
 //  4. Assert main gains C; staging is rebased (S replayed, hash changed, no merge
 //     commit); develop merge is a no-op; legacy is untouched; nothing deleted.
 func TestIntegrateMultipleChildrenMixedStrategies(t *testing.T) {
@@ -64,32 +64,32 @@ func TestIntegrateMultipleChildrenMixedStrategies(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	// staging: base child of main, auto-update via rebase, with its own commit S.
 	if _, err := testutil.RunGit(t, dir, "checkout", "-b", "staging", "main"); err != nil {
 		t.Fatalf("Failed to create staging: %v", err)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "rebase")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "rebase")
 	originalStaging := integAddCommit(t, dir, "staging", "staging.txt", "S", "Add S on staging")
 
 	// legacy: base child of main with auto-update disabled.
 	if _, err := testutil.RunGit(t, dir, "checkout", "-b", "legacy", "main"); err != nil {
 		t.Fatalf("Failed to create legacy: %v", err)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.legacy.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.legacy.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.legacy.autoUpdate", "false")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.legacy.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.legacy.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.legacy.autoUpdate", "false")
 	originalLegacy := integRevParse(t, dir, "legacy")
 
 	// develop keeps its merge downstream strategy and auto-update.
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.downstreamStrategy", "merge")
 	cCommit := integAddCommit(t, dir, "develop", "develop.txt", "C", "Add C on develop")
 	originalDevelop := integRevParse(t, dir, "develop")
 
@@ -145,7 +145,7 @@ func TestIntegrateMultipleChildrenMixedStrategies(t *testing.T) {
 //     main, created in the order zulu, alpha so a sorted result cannot be
 //     mistaken for insertion or configuration order. develop is already one.
 //  2. Give develop a commit not on main so the integration has work to do.
-//  3. Run: git flow integrate develop.
+//  3. Run: git pour integrate develop.
 //  4. Assert the "Found child base branch" order is alpha, develop, zulu.
 //  5. Assert the "Updating child base branch" order is the same, so a fix that
 //     sorted only for display would not satisfy the test.
@@ -166,8 +166,8 @@ func TestIntegrateChildBranchReportOrderIsDeterministic(t *testing.T) {
 			dir := testutil.SetupTestRepo(t)
 			defer testutil.CleanupTestRepo(t, dir)
 
-			if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-				t.Fatalf("iteration %d: failed to initialize git-flow: %v\nOutput: %s", i, err, out)
+			if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+				t.Fatalf("iteration %d: failed to initialize git-pour: %v\nOutput: %s", i, err, out)
 			}
 
 			// A silently dropped config key would change the configured child
@@ -178,16 +178,16 @@ func TestIntegrateChildBranchReportOrderIsDeterministic(t *testing.T) {
 				}
 			}
 
-			setConfig("gitflow.branch.develop.autoUpdate", "true")
-			setConfig("gitflow.branch.develop.downstreamStrategy", "merge")
+			setConfig("gitpour.branch.develop.autoUpdate", "true")
+			setConfig("gitpour.branch.develop.downstreamStrategy", "merge")
 			for _, name := range []string{"zulu", "alpha"} {
 				if _, err := testutil.RunGit(t, dir, "checkout", "-b", name, "main"); err != nil {
 					t.Fatalf("iteration %d: failed to create %s branch: %v", i, name, err)
 				}
-				setConfig("gitflow.branch."+name+".type", "base")
-				setConfig("gitflow.branch."+name+".parent", "main")
-				setConfig("gitflow.branch."+name+".autoUpdate", "true")
-				setConfig("gitflow.branch."+name+".downstreamStrategy", "merge")
+				setConfig("gitpour.branch."+name+".type", "base")
+				setConfig("gitpour.branch."+name+".parent", "main")
+				setConfig("gitpour.branch."+name+".autoUpdate", "true")
+				setConfig("gitpour.branch."+name+".downstreamStrategy", "merge")
 			}
 
 			// Give develop a commit main does not have, so integrating it is

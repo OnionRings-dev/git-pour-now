@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,13 +20,13 @@ import (
 // finish.ff-only key resolves to RequireFastForward without also setting
 // NoFastForward.
 // Steps:
-// 1. Builds a default config and sets gitflow.release.finish.ff-only=true
+// 1. Builds a default config and sets gitpour.release.finish.ff-only=true
 // 2. Resolves finish options for the release branch type
 // 3. Verifies RequireFastForward is true and NoFastForward is false
 func TestResolveFinishOptionsFFOnlyConfigRequiresFastForward(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
-	cfg.CommandConfig["gitflow.release.finish.ff-only"] = "true"
+	cfg := config.ClassicConfig()
+	cfg.CommandConfig["gitpour.release.finish.ff-only"] = "true"
 
 	resolved := config.ResolveFinishOptions(cfg, "release", "1.0.0", nil, nil, nil, nil, nil, nil, nil)
 
@@ -42,9 +42,9 @@ func TestResolveFinishOptionsFFOnlyConfigRequiresFastForward(t *testing.T) {
 // 3. Verifies RequireFastForward is true
 func TestResolveFinishOptionsFFOnlyBeatsFFWithinLayer2(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
-	cfg.CommandConfig["gitflow.release.finish.ff"] = "true"
-	cfg.CommandConfig["gitflow.release.finish.ff-only"] = "true"
+	cfg := config.ClassicConfig()
+	cfg.CommandConfig["gitpour.release.finish.ff"] = "true"
+	cfg.CommandConfig["gitpour.release.finish.ff-only"] = "true"
 
 	resolved := config.ResolveFinishOptions(cfg, "release", "1.0.0", nil, nil, nil, nil, nil, nil, nil)
 
@@ -59,9 +59,9 @@ func TestResolveFinishOptionsFFOnlyBeatsFFWithinLayer2(t *testing.T) {
 // 3. Verifies RequireFastForward is false and NoFastForward is true (baseline behavior)
 func TestResolveIntegrateOptionsIgnoresFFOnlyConfig(t *testing.T) {
 	t.Parallel()
-	cfg := config.DefaultConfig()
-	cfg.CommandConfig["gitflow.develop.integrate.no-ff"] = "true"
-	cfg.CommandConfig["gitflow.develop.integrate.ff-only"] = "true"
+	cfg := config.ClassicConfig()
+	cfg.CommandConfig["gitpour.develop.integrate.no-ff"] = "true"
+	cfg.CommandConfig["gitpour.develop.integrate.ff-only"] = "true"
 
 	resolved := config.ResolveIntegrateOptions(cfg, "develop", nil, nil, nil)
 

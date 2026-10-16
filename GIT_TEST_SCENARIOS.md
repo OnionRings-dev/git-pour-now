@@ -24,10 +24,10 @@ func TestExample(t *testing.T) {
     dir := testutil.SetupTestRepo(t)
     defer testutil.CleanupTestRepo(t, dir)
 
-    // Initialize git-flow with defaults
+    // Initialize git-pour with defaults
     output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
     if err != nil {
-        t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+        t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
     }
 
     // Test implementation...
@@ -42,7 +42,7 @@ Available in `test/testutil/git.go`:
 - `SetupTestRepoWithRemote(t *testing.T) (string, string)` - Creates repo with local remote
 - `CleanupTestRepo(t *testing.T, dir string)` - Removes temporary repository
 - `RunGit(t *testing.T, dir string, args ...string)` - Executes Git commands
-- `RunGitFlow(t *testing.T, dir string, args ...string)` - Executes git-flow commands
+- `RunGitFlow(t *testing.T, dir string, args ...string)` - Executes git-pour commands
 - `WriteFile(t *testing.T, dir string, name string, content string)` - Creates files
 - `BranchExists(t *testing.T, dir string, branch string) bool` - Checks branch existence
 - `GetCurrentBranch(t *testing.T, dir string) string` - Gets current branch name
@@ -164,10 +164,10 @@ func TestWithRemote(t *testing.T) {
     defer testutil.CleanupTestRepo(t, dir)
     defer testutil.CleanupTestRepo(t, remoteDir)
 
-    // Initialize git-flow
+    // Initialize git-pour
     output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
     if err != nil {
-        t.Fatalf("Failed to initialize git-flow: %v", err)
+        t.Fatalf("Failed to initialize git-pour: %v", err)
     }
 
     // Remote 'origin' is already configured and tracking branches pushed
@@ -258,7 +258,7 @@ if _, err := os.Stat(squashMsgPath); os.IsNotExist(err) {
 
 ### Application Merge State
 
-git-flow-next maintains its own merge state for multi-step operations:
+git-pour-now maintains its own merge state for multi-step operations:
 
 ```go
 // Check application state
@@ -354,7 +354,7 @@ func captureConfigAddBase(name string) error {
             // Convert panic to error for testing
         }
     }()
-    return nil // Placeholder - doesn't actually call git-flow
+    return nil // Placeholder - doesn't actually call git-pour
 }
 
 // GOOD: Actually calls the command being tested

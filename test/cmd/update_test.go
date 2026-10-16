@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 // TestUpdateFeatureBranch tests the basic feature branch update functionality.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Makes changes in the develop branch
 // 4. Updates the feature branch
@@ -20,8 +20,8 @@ func TestUpdateFeatureBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with branch creation
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with branch creation
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -58,7 +58,7 @@ func TestUpdateFeatureBranch(t *testing.T) {
 
 // TestUpdateWithMergeConflict tests the behavior when updating a branch with merge conflicts.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Makes conflicting changes in both feature and develop branches
 // 4. Attempts to update the feature branch
@@ -68,8 +68,8 @@ func TestUpdateWithMergeConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with branch creation
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with branch creation
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -113,7 +113,7 @@ func TestUpdateWithMergeConflict(t *testing.T) {
 
 // TestUpdateNonExistentBranch tests the behavior when attempting to update a non-existent branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to update a non-existent branch
 // 3. Verifies the operation fails with appropriate error
 func TestUpdateNonExistentBranch(t *testing.T) {
@@ -121,8 +121,8 @@ func TestUpdateNonExistentBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with branch creation
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with branch creation
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -134,7 +134,7 @@ func TestUpdateNonExistentBranch(t *testing.T) {
 
 // TestUpdateCurrentBranch tests updating the current branch without specifying its name.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Makes changes in the develop branch
 // 4. Switches to the feature branch
@@ -145,8 +145,8 @@ func TestUpdateCurrentBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with branch creation
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with branch creation
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -183,7 +183,7 @@ func TestUpdateCurrentBranch(t *testing.T) {
 
 // TestUpdateBaseBranch tests updating a base branch (develop) with changes from main.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Makes changes in the main branch
 // 3. Updates the develop branch with changes from main
 // 4. Verifies the changes from main are in develop
@@ -207,8 +207,8 @@ func TestUpdateBaseBranch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Initialize git-flow with default configuration and create branches
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with default configuration and create branches
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -251,8 +251,8 @@ func TestUpdateWithRebaseFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults (feature branches use rebase by default)
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults (feature branches use rebase by default)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -317,13 +317,13 @@ func TestUpdateWithRebaseFlagOnMergeBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
 	// Configure feature branch to use merge strategy
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.downstreamStrategy", "merge"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.downstreamStrategy", "merge"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -388,8 +388,8 @@ func TestUpdateWithRebaseFlagAndConflict(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -449,8 +449,8 @@ func TestUpdateWithRebaseFlagOnCurrentBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -503,8 +503,8 @@ func TestUpdateWithRebaseFlagOnReleaseBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -557,8 +557,8 @@ func TestUpdateWithRebaseFlagOnHotfixBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -612,8 +612,8 @@ func TestUpdateWithRebaseFlagInvalidBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -630,8 +630,8 @@ func TestUpdateWithRebaseFlagOnBaseBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -676,7 +676,7 @@ func TestUpdateWithRebaseFlagOnBaseBranch(t *testing.T) {
 // TestUpdateDoesNotUseStoredBaseBranch tests that update command does NOT use stored base branch.
 // Instead it uses the current branch type configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch (which stores 'develop' as base)
 // 3. Changes feature branch type configuration to point to main
 // 4. Makes changes in both develop and main branches
@@ -687,8 +687,8 @@ func TestUpdateDoesNotUseStoredBaseBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	// Initialize git-pour with defaults
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -698,12 +698,12 @@ func TestUpdateDoesNotUseStoredBaseBranch(t *testing.T) {
 	}
 
 	// Change feature branch type configuration to point to main (should be ignored)
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.parent", "main"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.parent", "main"); err != nil {
 		t.Fatal(err)
 	}
 
 	// Verify stored base is still develop
-	storedBase, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/stored-base-update.base")
+	storedBase, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/stored-base-update.base")
 	if err != nil {
 		t.Fatalf("Failed to get stored base: %v", err)
 	}

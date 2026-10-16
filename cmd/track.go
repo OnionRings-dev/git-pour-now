@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
 )
 
 // TrackCommand is the implementation of the track command for topic branches
@@ -16,8 +16,8 @@ func TrackCommand(branchType string, name string) {
 	repo := mustOpenRepo()
 	if err := track(repo, branchType, name); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -28,10 +28,10 @@ func TrackCommand(branchType string, name string) {
 
 // track performs the actual tracking branch creation logic
 func track(repo *git.Repo, branchType string, name string) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}

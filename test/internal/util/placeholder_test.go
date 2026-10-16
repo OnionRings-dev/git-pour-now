@@ -3,7 +3,7 @@ package util_test
 import (
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/util"
+	"github.com/OnionRings-dev/git-pour-now/internal/util"
 )
 
 func TestExpandMessagePlaceholdersBasic(t *testing.T) {

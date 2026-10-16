@@ -1,12 +1,12 @@
 #!/bin/sh
-# filter-flow-release-finish-tag-message
+# filter-pour-release-finish-tag-message
 #
 # This filter appends a changelog to the tag message for releases.
 # It extracts commits since the last tag and includes them in the message.
 #
 # Usage: Copy to .git/hooks/ and make executable:
-#   cp contrib/hooks/filter-flow-release-finish-tag-message .git/hooks/
-#   chmod +x .git/hooks/filter-flow-release-finish-tag-message
+#   cp contrib/hooks/filter-pour-release-finish-tag-message .git/hooks/
+#   chmod +x .git/hooks/filter-pour-release-finish-tag-message
 #
 # Arguments:
 #   $1 - The version (tag name)
@@ -44,5 +44,5 @@ Changes since ${RANGE}:
 ${CHANGELOG}
 
 ---
-Tagged by git-flow-next
+Tagged by git-pour-now
 EOF

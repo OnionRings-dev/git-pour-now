@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
 )
 
 // TestParseBoolTruthyLiterals tests that git-config(1)'s truthy literals all parse as true.

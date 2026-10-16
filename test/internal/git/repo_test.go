@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // openRepo opens a git.Repo handle for dir, failing the test on error. It is the

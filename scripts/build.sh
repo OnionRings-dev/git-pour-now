@@ -4,10 +4,13 @@
 # which would otherwise archive an incomplete set of binaries.
 set -e
 
-# Get version from command line or use "dev" as default
-VERSION=${1:-dev}
-BINARY_NAME="git-flow"
-PACKAGE_NAME="git-flow-next"
+# Release versions come from an exact tag; untagged builds identify as dev.
+VERSION=${1:-$(git describe --tags --exact-match 2>/dev/null || echo dev)}
+if [[ "$VERSION" != "dev" ]]; then
+    VERSION=$(go run ./scripts/release-version "$VERSION")
+fi
+BINARY_NAME="git-pour"
+PACKAGE_NAME="git-pour-now"
 
 # Build directory
 BUILD_DIR="dist"
@@ -24,7 +27,7 @@ BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S')
 # -s: Strip symbol table
 # -w: Strip DWARF debug info
 # Combined with -trimpath and CGO_ENABLED=0 for minimal binary size
-BUILD_FLAGS="-s -w -X 'github.com/gittower/git-flow-next/version.BuildTime=${BUILD_TIME}' -X 'github.com/gittower/git-flow-next/version.GitCommit=${GIT_COMMIT}'"
+BUILD_FLAGS="-s -w -X 'github.com/OnionRings-dev/git-pour-now/version.Version=${VERSION}' -X 'github.com/OnionRings-dev/git-pour-now/cmd.BuildDate=${BUILD_TIME}' -X 'github.com/OnionRings-dev/git-pour-now/cmd.GitCommit=${GIT_COMMIT}' -X 'github.com/OnionRings-dev/git-pour-now/version.BuildTime=${BUILD_TIME}' -X 'github.com/OnionRings-dev/git-pour-now/version.GitCommit=${GIT_COMMIT}'"
 
 # Start from a clean build directory so stale archives from an earlier run
 # never leak into the checksums and re-archiving can't retain an obsolete

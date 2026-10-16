@@ -80,7 +80,7 @@ func (r *Repo) CommonGitDir() string { return r.commonGitDir }
 //
 // WorkTree() reports the worktree the command was invoked from — a linked
 // worktree when the user is standing in one. Several decisions must anchor on
-// the main worktree instead: a relative gitflow.worktreePath template resolves
+// the main worktree instead: a relative gitpour.worktreePath template resolves
 // against it, and removing the worktree the user is inside hands them back to
 // it. Git always lists the main worktree first, so the first porcelain record
 // answers this; a repository whose worktree list cannot be parsed falls back to
@@ -538,16 +538,20 @@ func (r *Repo) RemoteBranchExists(remote, branch string) bool {
 
 // TagOptions contains options for tag creation
 type TagOptions struct {
-	Message     string // Tag message (required for annotated tags)
-	MessageFile string // File containing the message (optional, overrides Message)
-	Sign        bool   // Whether to sign the tag (optional)
-	SigningKey  string // Key to use for signing (optional, implies Sign=true)
+	FailIfExists bool   // Reject an existing exact tag instead of skipping it
+	Message      string // Tag message (required for annotated tags)
+	MessageFile  string // File containing the message (optional, overrides Message)
+	Sign         bool   // Whether to sign the tag (optional)
+	SigningKey   string // Key to use for signing (optional, implies Sign=true)
 }
 
 // CreateTag creates a Git tag with the specified options
 func (r *Repo) CreateTag(tagName string, options *TagOptions) error {
 	// Check if tag already exists
-	if err := r.gitCmd("show-ref", "--tags", tagName).Run(); err == nil {
+	if err := r.gitCmd("show-ref", "--verify", "--quiet", "refs/tags/"+tagName).Run(); err == nil {
+		if options.FailIfExists {
+			return fmt.Errorf("tag %q already exists", tagName)
+		}
 		// Tag already exists, skip creation
 		return nil
 	}
@@ -963,4 +967,32 @@ func (r *Repo) DeleteRemoteTrackingRef(remote, branch string) error {
 		return fmt.Errorf("failed to delete remote tracking ref '%s': %s: %w", ref, strings.TrimSpace(string(output)), err)
 	}
 	return nil
+}
+
+// RequireCleanReleaseTree rejects pending changes and unfinished integrations.
+func (r *Repo) RequireCleanReleaseTree() error {
+	output, err := r.gitCmd("status", "--porcelain").Output()
+	if err != nil {
+		return fmt.Errorf("check working tree: %w", err)
+	}
+	if strings.TrimSpace(string(output)) != "" {
+		return fmt.Errorf("commit or stash changes before creating a release")
+	}
+	if r.IsGitMergeInProgress() || r.IsGitRebaseInProgress() || r.IsGitSquashMergeInProgress() {
+		return fmt.Errorf("finish the current integration before creating a release")
+	}
+	return nil
+}
+
+// ListTags returns exact tag names without interpreting them as versions.
+func (r *Repo) ListTags() ([]string, error) {
+	output, err := r.gitCmd("tag", "--list").Output()
+	if err != nil {
+		return nil, fmt.Errorf("list tags: %w", err)
+	}
+	value := strings.TrimSpace(string(output))
+	if value == "" {
+		return nil, nil
+	}
+	return strings.Split(value, "\n"), nil
 }

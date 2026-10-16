@@ -4,11 +4,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
-// This file covers issue #210: `finish --ff-only` (and gitflow.<type>.finish.ff-only)
+// This file covers issue #210: `finish --ff-only` (and gitpour.<type>.finish.ff-only)
 // as a precondition on the topic/parent relationship. The gate passes when the parent
 // is an ancestor of the topic (equality included) and fails whenever the parent carries
 // any commit the topic lacks — both true divergence and the parent-ahead-only case that
@@ -21,13 +21,13 @@ import (
 // Shared fixtures
 // =============================================================================
 
-// setupFFOnlyRepo creates a temporary repository initialized with git-flow defaults.
+// setupFFOnlyRepo creates a temporary repository initialized with git-pour defaults.
 // Callers keep their own `defer testutil.CleanupTestRepo(t, dir)`.
 func setupFFOnlyRepo(t *testing.T) string {
 	t.Helper()
 	dir := testutil.SetupTestRepo(t)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	return dir
 }
@@ -125,7 +125,7 @@ func snapshotRepo(t *testing.T, dir string) repoSnapshot {
 }
 
 // assertRepoUnchanged re-snapshots the repository and asserts nothing was mutated,
-// including that no git-flow merge state file was written.
+// including that no git-pour merge state file was written.
 func assertRepoUnchanged(t *testing.T, dir string, before repoSnapshot) {
 	t.Helper()
 	after := snapshotRepo(t, dir)
@@ -142,7 +142,7 @@ func assertRepoUnchanged(t *testing.T, dir string, before repoSnapshot) {
 		t.Errorf("Expected working tree status unchanged. Before: %q After: %q", before.status, after.status)
 	}
 	if testutil.GitFlowMergeStateExists(t, dir) {
-		t.Error("Expected no git-flow merge state file after a rejected finish")
+		t.Error("Expected no git-pour merge state file after a rejected finish")
 	}
 }
 
@@ -204,9 +204,9 @@ func assertGateMessage(t *testing.T, output, parent, topic string) {
 // TestFinishFFOnlyFlagFastForwardsParent tests that --ff-only fast-forwards the parent
 // when the topic is a descendant of it (spec scenario 1).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates release/1.0.0 with one commit, leaving main untouched
-// 3. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only'
 // 4. Verifies the command succeeds and main equals the release tip
 // 5. Verifies main's tip has a single parent (no merge commit was added to main)
 // 6. Verifies the 1.0.0 tag points at that same commit
@@ -236,9 +236,9 @@ func TestFinishFFOnlyFlagFastForwardsParent(t *testing.T) {
 // TestFinishFFOnlyFlagRejectsDivergedParent tests that --ff-only aborts when the parent
 // has diverged from the topic (spec scenario 2).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates release/1.0.0 with one commit and advances main with a different commit
-// 3. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only'
 // 4. Verifies the command exits with the validation error code (6)
 // 5. Verifies the error names both branches, the condition, the guarantee and the remedy
 func TestFinishFFOnlyFlagRejectsDivergedParent(t *testing.T) {
@@ -260,9 +260,9 @@ func TestFinishFFOnlyFlagRejectsDivergedParent(t *testing.T) {
 // only ahead of the topic, the case `git merge --ff-only` would call "already up to
 // date" (spec scenario 3).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates an empty release/1.0.0 and then advances main with one commit
-// 3. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only'
 // 4. Verifies the command exits with the validation error code (6)
 // 5. Verifies the gate error names both branches
 func TestFinishFFOnlyRejectsParentAheadOnly(t *testing.T) {
@@ -283,9 +283,9 @@ func TestFinishFFOnlyRejectsParentAheadOnly(t *testing.T) {
 // TestFinishFFOnlyFailureLeavesRepositoryUnchanged tests that a rejected --ff-only
 // finish mutates nothing (spec scenario 4).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology and snapshots the repository
-// 3. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only'
 // 4. Verifies exit code 6
 // 5. Verifies branch heads, current branch, tags, status and merge state are unchanged
 // 6. Verifies release/1.0.0 still exists
@@ -311,10 +311,10 @@ func TestFinishFFOnlyFailureLeavesRepositoryUnchanged(t *testing.T) {
 // TestFinishFFOnlyFailureSkipsPreFinishHook tests that the gate fires before the
 // pre-finish hook runs (spec scenario 5).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology
-// 3. Installs a pre-flow-release-finish hook that touches a marker file
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Installs a pre-pour-release-finish hook that touches a marker file
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies exit code 6 and that the marker file was never created
 func TestFinishFFOnlyFailureSkipsPreFinishHook(t *testing.T) {
 	t.Parallel()
@@ -322,7 +322,7 @@ func TestFinishFFOnlyFailureSkipsPreFinishHook(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	divergedRelease(t, dir)
-	createHookScript(t, dir, "pre-flow-release-finish", "#!/bin/sh\ntouch \"$(git rev-parse --show-toplevel)/hook-ran\"\nexit 0\n")
+	createHookScript(t, dir, "pre-pour-release-finish", "#!/bin/sh\ntouch \"$(git rev-parse --show-toplevel)/hook-ran\"\nexit 0\n")
 
 	output, err := testutil.RunGitFlow(t, dir, "release", "finish", "1.0.0", "--ff-only")
 	if err == nil {
@@ -334,20 +334,20 @@ func TestFinishFFOnlyFailureSkipsPreFinishHook(t *testing.T) {
 	}
 }
 
-// TestFinishFFOnlyConfigFastForwardsParent tests that gitflow.release.finish.ff-only
+// TestFinishFFOnlyConfigFastForwardsParent tests that gitpour.release.finish.ff-only
 // drives the gate without any flag (spec scenario 6).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.ff-only true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.ff-only true
 // 3. Creates release/1.0.0 with one commit, leaving main untouched
-// 4. Runs 'git flow release finish 1.0.0' with no flags
+// 4. Runs 'git pour release finish 1.0.0' with no flags
 // 5. Verifies success, main equal to the release tip, and a single-parent tip
 func TestFinishFFOnlyConfigFastForwardsParent(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	tip := ffCapableRelease(t, dir)
@@ -367,17 +367,17 @@ func TestFinishFFOnlyConfigFastForwardsParent(t *testing.T) {
 // TestFinishFFOnlyConfigRejectsDivergedParent tests that the configured ff-only key
 // aborts a finish whose parent has moved (spec scenario 7).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.ff-only true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.ff-only true
 // 3. Creates the diverged release topology
-// 4. Runs 'git flow release finish 1.0.0' with no flags
+// 4. Runs 'git pour release finish 1.0.0' with no flags
 // 5. Verifies exit code 6
 func TestFinishFFOnlyConfigRejectsDivergedParent(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	divergedRelease(t, dir)
@@ -392,17 +392,17 @@ func TestFinishFFOnlyConfigRejectsDivergedParent(t *testing.T) {
 // TestFinishFFFlagOverridesConfiguredFFOnly tests that a CLI --ff beats a configured
 // ff-only (spec scenario 8).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.ff-only true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.ff-only true
 // 3. Creates the diverged release topology
-// 4. Runs 'git flow release finish 1.0.0 --ff'
+// 4. Runs 'git pour release finish 1.0.0 --ff'
 // 5. Verifies success and that main's tip is a merge commit carrying both files
 func TestFinishFFFlagOverridesConfiguredFFOnly(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	divergedRelease(t, dir)
@@ -422,17 +422,17 @@ func TestFinishFFFlagOverridesConfiguredFFOnly(t *testing.T) {
 // TestFinishNoFFFlagOverridesConfiguredFFOnly tests that a CLI --no-ff beats a
 // configured ff-only (spec scenario 9).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.ff-only true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.ff-only true
 // 3. Creates the ff-capable release topology
-// 4. Runs 'git flow release finish 1.0.0 --no-ff'
+// 4. Runs 'git pour release finish 1.0.0 --no-ff'
 // 5. Verifies success and that main's tip is a merge commit distinct from the tip
 func TestFinishNoFFFlagOverridesConfiguredFFOnly(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	tip := ffCapableRelease(t, dir)
@@ -452,17 +452,17 @@ func TestFinishNoFFFlagOverridesConfiguredFFOnly(t *testing.T) {
 // TestFinishFFOnlyFlagOverridesConfiguredNoFF tests that a CLI --ff-only beats a
 // configured no-ff (spec scenario 10).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.no-ff true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.no-ff true
 // 3. Creates the ff-capable release topology
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies success, main equal to the release tip, and a single-parent tip
 func TestFinishFFOnlyFlagOverridesConfiguredNoFF(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.no-ff", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.no-ff", "true"); err != nil {
 		t.Fatalf("Failed to set no-ff config: %v", err)
 	}
 	tip := ffCapableRelease(t, dir)
@@ -482,20 +482,20 @@ func TestFinishFFOnlyFlagOverridesConfiguredNoFF(t *testing.T) {
 // TestFinishConfiguredFFOnlyWinsOverConfiguredNoFF tests that within Layer 2 the
 // ff-only key beats the no-ff key (spec scenario 11).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets both gitflow.release.finish.ff-only and gitflow.release.finish.no-ff to true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets both gitpour.release.finish.ff-only and gitpour.release.finish.no-ff to true
 // 3. Creates the diverged release topology
-// 4. Runs 'git flow release finish 1.0.0' with no flags
+// 4. Runs 'git pour release finish 1.0.0' with no flags
 // 5. Verifies exit code 6 and that main never received release.txt
 func TestFinishConfiguredFFOnlyWinsOverConfiguredNoFF(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.no-ff", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.no-ff", "true"); err != nil {
 		t.Fatalf("Failed to set no-ff config: %v", err)
 	}
 	divergedRelease(t, dir)
@@ -513,9 +513,9 @@ func TestFinishConfiguredFFOnlyWinsOverConfiguredNoFF(t *testing.T) {
 // TestFinishFFOnlyWithSquashFlagRejected tests that --ff-only and --squash conflict
 // (spec scenario 12).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology and snapshots the repository
-// 3. Runs 'git flow release finish 1.0.0 --ff-only --squash'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only --squash'
 // 4. Verifies exit code 2 and that the error names both --ff-only and squash
 // 5. Verifies the repository is unchanged
 func TestFinishFFOnlyWithSquashFlagRejected(t *testing.T) {
@@ -540,17 +540,17 @@ func TestFinishFFOnlyWithSquashFlagRejected(t *testing.T) {
 // TestFinishFFOnlyWithConfiguredSquashRejected tests that the conflict check reads the
 // resolved strategy, not just the flags (spec scenario 13).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.squash true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.squash true
 // 3. Creates the ff-capable release topology and snapshots the repository
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies exit code 2, the message naming both options, and an unchanged repository
 func TestFinishFFOnlyWithConfiguredSquashRejected(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.squash", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.squash", "true"); err != nil {
 		t.Fatalf("Failed to set squash config: %v", err)
 	}
 	ffCapableRelease(t, dir)
@@ -570,17 +570,17 @@ func TestFinishFFOnlyWithConfiguredSquashRejected(t *testing.T) {
 // TestFinishFFOnlyWithLayer1SquashStrategyRejected tests that the conflict check covers
 // a squash strategy originating at Layer 1 (spec scenario 14).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.branch.release.upstreamStrategy squash
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.branch.release.upstreamStrategy squash
 // 3. Creates the ff-capable release topology and snapshots the repository
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies exit code 2, the message naming both options, and an unchanged repository
 func TestFinishFFOnlyWithLayer1SquashStrategyRejected(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.upstreamStrategy", "squash"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.upstreamStrategy", "squash"); err != nil {
 		t.Fatalf("Failed to set upstreamStrategy config: %v", err)
 	}
 	ffCapableRelease(t, dir)
@@ -600,9 +600,9 @@ func TestFinishFFOnlyWithLayer1SquashStrategyRejected(t *testing.T) {
 // TestFinishFFOnlyWithNoFFFlagRejected tests that --no-ff and --ff-only conflict with
 // exit code 2, not cobra's exit code 1 (spec scenario 15).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology and snapshots the repository
-// 3. Runs 'git flow release finish 1.0.0 --no-ff --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --no-ff --ff-only'
 // 4. Verifies exit code 2 and that the error names both --no-ff and --ff-only
 // 5. Verifies the repository is unchanged
 func TestFinishFFOnlyWithNoFFFlagRejected(t *testing.T) {
@@ -627,9 +627,9 @@ func TestFinishFFOnlyWithNoFFFlagRejected(t *testing.T) {
 // TestFinishFFOnlyWithFFFlagRejected tests that --ff and --ff-only conflict (spec
 // scenario 16).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology and snapshots the repository
-// 3. Runs 'git flow release finish 1.0.0 --ff --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff --ff-only'
 // 4. Verifies exit code 2 and the full conflict message naming --ff-only and --ff
 // 5. Verifies the repository is unchanged
 func TestFinishFFOnlyWithFFFlagRejected(t *testing.T) {
@@ -657,9 +657,9 @@ func TestFinishFFOnlyWithFFFlagRejected(t *testing.T) {
 // TestFinishFFOnlyWithRebaseFastForwardsParent tests that --ff-only combines with
 // --rebase when the gate passes (spec scenario 17).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology
-// 3. Runs 'git flow release finish 1.0.0 --ff-only --rebase'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only --rebase'
 // 4. Verifies success, main equal to the release tip, and a single-parent tip
 func TestFinishFFOnlyWithRebaseFastForwardsParent(t *testing.T) {
 	t.Parallel()
@@ -683,9 +683,9 @@ func TestFinishFFOnlyWithRebaseFastForwardsParent(t *testing.T) {
 // TestFinishFFOnlyWithRebaseFailureLeavesTopicHistoryIntact tests that a rejected
 // --ff-only --rebase finish never rewrites the topic branch (spec scenario 18).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology and captures 'git rev-list release/1.0.0'
-// 3. Runs 'git flow release finish 1.0.0 --ff-only --rebase'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only --rebase'
 // 4. Verifies exit code 6 and an identical revision list afterwards
 // 5. Verifies no rebase is in progress
 func TestFinishFFOnlyWithRebaseFailureLeavesTopicHistoryIntact(t *testing.T) {
@@ -720,9 +720,9 @@ func TestFinishFFOnlyWithRebaseFailureLeavesTopicHistoryIntact(t *testing.T) {
 // TestFinishFFOnlyDoesNotConstrainChildAutoUpdate tests that the gate applies to the
 // upstream merge only, not the child back-merge (spec scenario 19).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology and adds a commit on develop
-// 3. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only'
 // 4. Verifies success and main equal to the release tip
 // 5. Verifies develop's tip is a merge commit carrying both release.txt and develop.txt
 func TestFinishFFOnlyDoesNotConstrainChildAutoUpdate(t *testing.T) {
@@ -753,9 +753,9 @@ func TestFinishFFOnlyDoesNotConstrainChildAutoUpdate(t *testing.T) {
 // TestFinishFFOnlyRejectsDivergedFeatureParent tests that --ff-only is not
 // release-specific (spec scenario 20).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit and advances develop with a different commit
-// 3. Runs 'git flow feature finish f1 --ff-only'
+// 3. Runs 'git pour feature finish f1 --ff-only'
 // 4. Verifies exit code 6 and a gate error naming develop and feature/f1
 func TestFinishFFOnlyRejectsDivergedFeatureParent(t *testing.T) {
 	t.Parallel()
@@ -781,9 +781,9 @@ func TestFinishFFOnlyRejectsDivergedFeatureParent(t *testing.T) {
 // TestFinishFFOnlyHotfixFastForwardsParent tests --ff-only on a hotfix branch (spec
 // scenario 21).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates hotfix/1.0.1 with one commit, leaving main untouched
-// 3. Runs 'git flow hotfix finish 1.0.1 --ff-only'
+// 3. Runs 'git pour hotfix finish 1.0.1 --ff-only'
 // 4. Verifies success, main equal to the hotfix tip, and a single-parent tip
 func TestFinishFFOnlyHotfixFastForwardsParent(t *testing.T) {
 	t.Parallel()
@@ -811,17 +811,17 @@ func TestFinishFFOnlyHotfixFastForwardsParent(t *testing.T) {
 // TestFinishFFOnlyConfigAppliesOnlyToItsBranchType tests that a release-scoped ff-only
 // key does not leak into a feature finish (spec scenario 22).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.ff-only true only
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.ff-only true only
 // 3. Creates feature/f1 with one commit and advances develop with a different commit
-// 4. Runs 'git flow feature finish f1' with no flags
+// 4. Runs 'git pour feature finish f1' with no flags
 // 5. Verifies success and that develop's tip is a merge commit
 func TestFinishFFOnlyConfigAppliesOnlyToItsBranchType(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "f1"); err != nil {
@@ -844,9 +844,9 @@ func TestFinishFFOnlyConfigAppliesOnlyToItsBranchType(t *testing.T) {
 // TestFinishFFOnlyWithEqualBranchesSucceeds tests that the gate is satisfied when the
 // topic and parent are the same commit (spec scenario 23).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates an empty release/1.0.0 and leaves main untouched
-// 3. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only'
 // 4. Verifies success and that main is unchanged from its pre-finish SHA
 // 5. Verifies release/1.0.0 was deleted as usual
 func TestFinishFFOnlyWithEqualBranchesSucceeds(t *testing.T) {
@@ -874,9 +874,9 @@ func TestFinishFFOnlyWithEqualBranchesSucceeds(t *testing.T) {
 // TestShorthandFinishFFOnlyRejectsDivergedParent tests that the shorthand finish also
 // builds the tri-state option (spec scenario 24).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology, leaving HEAD on release/1.0.0
-// 3. Runs 'git flow finish --ff-only'
+// 3. Runs 'git pour finish --ff-only'
 // 4. Verifies exit code 6 and the same gate error as the per-type command
 func TestShorthandFinishFFOnlyRejectsDivergedParent(t *testing.T) {
 	t.Parallel()
@@ -900,18 +900,18 @@ func TestShorthandFinishFFOnlyRejectsDivergedParent(t *testing.T) {
 // TestFinishFFOnlyContinueAfterChildConflictSucceeds tests that the gate does not
 // re-fire from the --continue resume path (E1).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.ff-only true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.ff-only true
 // 3. Creates release/1.0.0 with shared.txt and a conflicting shared.txt on develop
-// 4. Runs 'git flow release finish 1.0.0', expecting a child-update conflict (exit 3)
-// 5. Resolves the conflict and runs 'git flow release finish --continue 1.0.0'
+// 4. Runs 'git pour release finish 1.0.0', expecting a child-update conflict (exit 3)
+// 5. Resolves the conflict and runs 'git pour release finish --continue 1.0.0'
 // 6. Verifies the resume succeeds and develop's tip is a merge of main into develop
 func TestFinishFFOnlyContinueAfterChildConflictSucceeds(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
@@ -960,10 +960,10 @@ func TestFinishFFOnlyContinueAfterChildConflictSucceeds(t *testing.T) {
 // TestFinishFFOnlyWithMissingParentReportsBranchNotFound tests that a misconfigured
 // parent keeps today's error rather than a raw merge-base failure (E2).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology
-// 3. Sets gitflow.branch.release.parent to a nonexistent branch
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 3. Sets gitpour.branch.release.parent to a nonexistent branch
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies exit code 5 and an error naming the missing branch
 func TestFinishFFOnlyWithMissingParentReportsBranchNotFound(t *testing.T) {
 	t.Parallel()
@@ -971,7 +971,7 @@ func TestFinishFFOnlyWithMissingParentReportsBranchNotFound(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	ffCapableRelease(t, dir)
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.parent", "nonexistent"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.parent", "nonexistent"); err != nil {
 		t.Fatalf("Failed to set parent config: %v", err)
 	}
 
@@ -988,9 +988,9 @@ func TestFinishFFOnlyWithMissingParentReportsBranchNotFound(t *testing.T) {
 // TestFinishFFOnlyWithForceStillEnforcesGate tests that --force does not bypass the
 // gate (E3).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology
-// 3. Runs 'git flow release finish 1.0.0 --ff-only --force'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only --force'
 // 4. Verifies exit code 6 — --force relaxes the sync preflight, not the gate
 func TestFinishFFOnlyWithForceStillEnforcesGate(t *testing.T) {
 	t.Parallel()
@@ -1009,20 +1009,20 @@ func TestFinishFFOnlyWithForceStillEnforcesGate(t *testing.T) {
 // TestFinishFFOnlyConfigFalseDoesNotGate tests that an explicit ff-only=false leaves the
 // existing ff/no-ff resolution untouched (E4).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.no-ff true and gitflow.release.finish.ff-only false
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.no-ff true and gitpour.release.finish.ff-only false
 // 3. Creates the ff-capable release topology
-// 4. Runs 'git flow release finish 1.0.0' with no flags
+// 4. Runs 'git pour release finish 1.0.0' with no flags
 // 5. Verifies success and that the configured no-ff still produced a merge commit
 func TestFinishFFOnlyConfigFalseDoesNotGate(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.no-ff", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.no-ff", "true"); err != nil {
 		t.Fatalf("Failed to set no-ff config: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "false"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "false"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
 	tip := ffCapableRelease(t, dir)
@@ -1042,17 +1042,17 @@ func TestFinishFFOnlyConfigFalseDoesNotGate(t *testing.T) {
 // TestFinishFFOnlyWithNoSquashFlagAccepted tests that --no-squash clears a configured
 // squash so --ff-only is accepted (E5).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.release.finish.squash true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.release.finish.squash true
 // 3. Creates the ff-capable release topology
-// 4. Runs 'git flow release finish 1.0.0 --ff-only --no-squash'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only --no-squash'
 // 5. Verifies success, main equal to the release tip, and a single-parent tip
 func TestFinishFFOnlyWithNoSquashFlagAccepted(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.squash", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.squash", "true"); err != nil {
 		t.Fatalf("Failed to set squash config: %v", err)
 	}
 	tip := ffCapableRelease(t, dir)
@@ -1071,9 +1071,9 @@ func TestFinishFFOnlyWithNoSquashFlagAccepted(t *testing.T) {
 
 // TestShorthandFinishFFOnlyFastForwardsParent tests the shorthand's success path (E6).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology, leaving HEAD on release/1.0.0
-// 3. Runs 'git flow finish --ff-only'
+// 3. Runs 'git pour finish --ff-only'
 // 4. Verifies success and main equal to the release tip
 func TestShorthandFinishFFOnlyFastForwardsParent(t *testing.T) {
 	t.Parallel()
@@ -1095,9 +1095,9 @@ func TestShorthandFinishFFOnlyFastForwardsParent(t *testing.T) {
 // value, so an explicit --ff-only=false leaves the gate inert just as the per-type
 // surface does.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology, leaving HEAD on release/1.0.0
-// 3. Runs 'git flow finish --ff-only=false'
+// 3. Runs 'git pour finish --ff-only=false'
 // 4. Verifies success and that the ordinary merge produced a merge commit on main
 func TestShorthandFinishFFOnlyFalseDoesNotGate(t *testing.T) {
 	t.Parallel()
@@ -1121,20 +1121,20 @@ func TestShorthandFinishFFOnlyFalseDoesNotGate(t *testing.T) {
 // TestFinishConfiguredFFOnlyWinsOverConfiguredFF tests that within Layer 2 the ff-only
 // key beats the ff key (E9).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets both gitflow.release.finish.ff-only and gitflow.release.finish.ff to true
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets both gitpour.release.finish.ff-only and gitpour.release.finish.ff to true
 // 3. Creates the diverged release topology
-// 4. Runs 'git flow release finish 1.0.0' with no flags
+// 4. Runs 'git pour release finish 1.0.0' with no flags
 // 5. Verifies exit code 6 and that main never received release.txt
 func TestFinishConfiguredFFOnlyWinsOverConfiguredFF(t *testing.T) {
 	t.Parallel()
 	dir := setupFFOnlyRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set ff-only config: %v", err)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.release.finish.ff", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.release.finish.ff", "true"); err != nil {
 		t.Fatalf("Failed to set ff config: %v", err)
 	}
 	divergedRelease(t, dir)
@@ -1152,10 +1152,10 @@ func TestFinishConfiguredFFOnlyWinsOverConfiguredFF(t *testing.T) {
 // TestFinishFFOnlyRunsAfterParentSyncPreflight tests that the gate runs after the
 // fetch/sync preflight, so the preflight failure is what the user sees (E10).
 // Steps:
-// 1. Sets up a git-flow-initialized test repository with a remote
+// 1. Sets up a git-pour-initialized test repository with a remote
 // 2. Creates feature/f1, commits and pushes it
 // 3. Advances origin/develop and local develop differently, diverging the parent
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies the parent-sync error (naming develop, mentioning diverged and --force)
 // 6. Verifies the gate error is absent and develop and feature/f1 are untouched
 func TestFinishFFOnlyRunsAfterParentSyncPreflight(t *testing.T) {
@@ -1195,9 +1195,9 @@ func TestFinishFFOnlyRunsAfterParentSyncPreflight(t *testing.T) {
 // TestShorthandFinishFFOnlyWithNoFFRejected tests that the shorthand rejects conflicting
 // fast-forward options too (E11).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology and snapshots the repository
-// 3. Runs 'git flow finish --ff-only --no-ff'
+// 3. Runs 'git pour finish --ff-only --no-ff'
 // 4. Verifies exit code 2 and that the error names both options
 // 5. Verifies the repository is unchanged
 func TestShorthandFinishFFOnlyWithNoFFRejected(t *testing.T) {
@@ -1222,9 +1222,9 @@ func TestShorthandFinishFFOnlyWithNoFFRejected(t *testing.T) {
 // TestFinishFFAndNoFFFlagsStillResolveToNoFF tests that the pre-existing --ff --no-ff
 // behavior is unchanged: only combinations involving --ff-only are newly rejected (E12).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology
-// 3. Runs 'git flow release finish 1.0.0 --ff --no-ff'
+// 3. Runs 'git pour release finish 1.0.0 --ff --no-ff'
 // 4. Verifies success (not a usage error) and that no-ff still won
 func TestFinishFFAndNoFFFlagsStillResolveToNoFF(t *testing.T) {
 	t.Parallel()
@@ -1260,10 +1260,10 @@ func TestFinishFFAndNoFFFlagsStillResolveToNoFF(t *testing.T) {
 // TestFinishFFOnlyGateReadsParentBranchNotTag tests that the gate compares the parent
 // branch and not a tag that happens to share its name (R1).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit, so develop can fast-forward onto it
 // 3. Creates a commit on main that feature/f1 does not contain and tags it 'develop'
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies the finish succeeds: reading the tag would have rejected it
 // 6. Verifies refs/heads/develop equals the feature tip and has a single parent
 func TestFinishFFOnlyGateReadsParentBranchNotTag(t *testing.T) {
@@ -1302,10 +1302,10 @@ func TestFinishFFOnlyGateReadsParentBranchNotTag(t *testing.T) {
 // TestFinishFFOnlyGateReadsTopicBranchNotTag tests that the gate compares the topic
 // branch and not a tag that happens to share its name (R2).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates an empty feature/f1 and advances develop with one commit
 // 3. Tags develop's tip 'feature/f1', a ref the parent trivially fast-forwards to
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies exit code 6: reading the tag would have accepted the finish
 // 6. Verifies develop is unchanged and feature/f1 still exists
 func TestFinishFFOnlyGateReadsTopicBranchNotTag(t *testing.T) {
@@ -1345,10 +1345,10 @@ func TestFinishFFOnlyGateReadsTopicBranchNotTag(t *testing.T) {
 // the precondition gate and the merge is caught, instead of silently producing a merge
 // commit (R3).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit, so the gate passes at check time
-// 3. Installs a pre-flow-feature-finish hook that adds a commit to develop
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 3. Installs a pre-pour-feature-finish hook that adds a commit to develop
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies the hook actually moved develop, so the test cannot pass vacuously
 // 6. Verifies exit code 6 and the gate error naming develop and feature/f1
 // 7. Verifies develop carries no merge commit and none of the feature's content
@@ -1366,7 +1366,7 @@ func TestFinishFFOnlyRejectsParentMovedByPreFinishHook(t *testing.T) {
 
 	// The hook runs with the topic branch checked out, so it advances develop by
 	// writing the ref directly rather than by checking it out.
-	createHookScript(t, dir, "pre-flow-feature-finish", `#!/bin/sh
+	createHookScript(t, dir, "pre-pour-feature-finish", `#!/bin/sh
 set -e
 parent=$(git rev-parse refs/heads/develop)
 tree=$(git rev-parse "$parent^{tree}")
@@ -1395,7 +1395,7 @@ git update-ref refs/heads/develop "$new" "$parent"
 		t.Error("Expected feature/f1 to still exist after a rejected finish")
 	}
 	if testutil.GitFlowMergeStateExists(t, dir) {
-		t.Error("Expected no git-flow merge state file after a rejected finish")
+		t.Error("Expected no git-pour merge state file after a rejected finish")
 	}
 }
 
@@ -1403,10 +1403,10 @@ git update-ref refs/heads/develop "$new" "$parent"
 // pre-finish hook still fast-forwards: the parent remains an ancestor, so the guarantee
 // holds and the re-validation must not fire (R4).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit
-// 3. Installs a pre-flow-feature-finish hook that commits a version bump on the topic
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 3. Installs a pre-pour-feature-finish hook that commits a version bump on the topic
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies the finish succeeds
 // 6. Verifies develop advanced by fast-forward and carries both the feature and the bump
 func TestFinishFFOnlyAcceptsTopicMovedByPreFinishHook(t *testing.T) {
@@ -1422,7 +1422,7 @@ func TestFinishFFOnlyAcceptsTopicMovedByPreFinishHook(t *testing.T) {
 
 	// The topic branch is checked out while the pre-finish hook runs, so an ordinary
 	// commit lands on it — the classic version-bump hook.
-	createHookScript(t, dir, "pre-flow-feature-finish", `#!/bin/sh
+	createHookScript(t, dir, "pre-pour-feature-finish", `#!/bin/sh
 set -e
 echo 1.2.3 > version.txt
 git add version.txt
@@ -1458,10 +1458,10 @@ git commit -q -m "Hook bumped the version"
 // TestFinishFFOnlyOverridesMergeFFFalseConfig tests that --ff-only still fast-forwards
 // when the repository sets merge.ff=false (R5).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Sets merge.ff false, so an unqualified git merge always creates a merge commit
 // 3. Creates release/1.0.0 with one commit, leaving main untouched
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies success, main equal to the release tip, and a single-parent tip
 func TestFinishFFOnlyOverridesMergeFFFalseConfig(t *testing.T) {
 	t.Parallel()
@@ -1488,10 +1488,10 @@ func TestFinishFFOnlyOverridesMergeFFFalseConfig(t *testing.T) {
 // TestFinishFFOnlyWithRebaseOverridesMergeFFFalseConfig tests the same for the rebase
 // strategy, whose merge is a second call site (R6).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Sets merge.ff false
 // 3. Creates release/1.0.0 with one commit, leaving main untouched
-// 4. Runs 'git flow release finish 1.0.0 --ff-only --rebase'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only --rebase'
 // 5. Verifies success, main equal to the release tip, and a single-parent tip
 func TestFinishFFOnlyWithRebaseOverridesMergeFFFalseConfig(t *testing.T) {
 	t.Parallel()
@@ -1519,9 +1519,9 @@ func TestFinishFFOnlyWithRebaseOverridesMergeFFFalseConfig(t *testing.T) {
 // fast-forward flags by value, so an explicit --no-ff=false is not mistaken for a
 // conflicting selection the way the per-type command never does (R7).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the diverged release topology, leaving HEAD on release/1.0.0
-// 3. Runs 'git flow finish --ff-only --no-ff=false'
+// 3. Runs 'git pour finish --ff-only --no-ff=false'
 // 4. Verifies exit code 6, not the usage error 2: --ff-only stands unopposed
 // 5. Verifies the gate error rather than the conflicting-options error
 func TestShorthandFinishFFOnlyReadsNoFFByValue(t *testing.T) {
@@ -1554,7 +1554,7 @@ func TestShorthandFinishFFOnlyReadsNoFFByValue(t *testing.T) {
 // to fast-forward is reported as the gate error rather than a generic merge failure.
 
 // advanceDevelopOnPostCheckout is a post-checkout hook that adds one commit to develop
-// the first time develop is checked out. git-flow checks the parent out inside the
+// the first time develop is checked out. git-pour checks the parent out inside the
 // merge step, after the pre-merge re-check has passed, so this stands in for a
 // concurrent process that moves the parent within that window. The marker keeps it to
 // a single commit; the branch guard keeps it off the topic branch's own checkouts.
@@ -1570,10 +1570,10 @@ exit 0
 // TestFinishFFOnlyMergesTopicBranchNotTag tests that the merge lands the topic *branch*
 // and not a tag that happens to share its name (R8).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit, so the gate passes
 // 3. Tags develop's tip 'feature/f1', a ref develop is trivially already up to date with
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies develop equals the feature branch tip, not the shadowed tag it would merge
 // 6. Verifies develop carries the feature content
 func TestFinishFFOnlyMergesTopicBranchNotTag(t *testing.T) {
@@ -1610,10 +1610,10 @@ func TestFinishFFOnlyMergesTopicBranchNotTag(t *testing.T) {
 // rebases the topic to make it land: a parent advanced after the pre-merge re-check is
 // rejected rather than rebased onto (R9).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit and captures its revision list
 // 3. Installs a post-checkout hook that advances develop once it is checked out
-// 4. Runs 'git flow feature finish f1 --ff-only --rebase'
+// 4. Runs 'git pour feature finish f1 --ff-only --rebase'
 // 5. Verifies the hook actually moved develop, so the test cannot pass vacuously
 // 6. Verifies the failure came from the merge step, past the parent checkout
 // 7. Verifies exit code 6 and the gate error naming develop and feature/f1
@@ -1661,7 +1661,7 @@ func TestFinishFFOnlyWithRebaseDoesNotRebaseOntoMovedParent(t *testing.T) {
 		t.Error("Expected no rebase to be in progress after a rejected finish")
 	}
 	if testutil.GitFlowMergeStateExists(t, dir) {
-		t.Error("Expected no git-flow merge state file after a rejected finish")
+		t.Error("Expected no git-pour merge state file after a rejected finish")
 	}
 }
 
@@ -1669,9 +1669,9 @@ func TestFinishFFOnlyWithRebaseDoesNotRebaseOntoMovedParent(t *testing.T) {
 // leaves a valid --ff-only --rebase finish intact: the topic keeps its exact commits
 // and the parent still fast-forwards onto them (spec scenario 17).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates the ff-capable release topology and captures 'git rev-list release/1.0.0'
-// 3. Runs 'git flow release finish 1.0.0 --ff-only --rebase --keep'
+// 3. Runs 'git pour release finish 1.0.0 --ff-only --rebase --keep'
 // 4. Verifies success and an identical revision list on release/1.0.0 afterwards
 // 5. Verifies main equals the release tip with a single parent
 func TestFinishFFOnlyWithRebaseKeepsTopicHistoryOnSuccess(t *testing.T) {
@@ -1709,10 +1709,10 @@ func TestFinishFFOnlyWithRebaseKeepsTopicHistoryOnSuccess(t *testing.T) {
 // fast-forward — reachable when the parent moves after the pre-merge re-check — is
 // reported as the gate error and cleaned up, not as a generic merge failure (R10).
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature/f1 with one commit
 // 3. Installs a post-checkout hook that advances develop once it is checked out
-// 4. Runs 'git flow feature finish f1 --ff-only'
+// 4. Runs 'git pour feature finish f1 --ff-only'
 // 5. Verifies the hook actually moved develop, so the test cannot pass vacuously
 // 6. Verifies the failure came from the merge step, past the parent checkout
 // 7. Verifies exit code 6 and the gate error rather than a generic merge error
@@ -1760,13 +1760,13 @@ func TestFinishFFOnlyReportsGitRefusalAsGateFailure(t *testing.T) {
 		t.Errorf("Expected to be left on the topic branch, got %q", got)
 	}
 	if testutil.GitFlowMergeStateExists(t, dir) {
-		t.Error("Expected no git-flow merge state file after a rejected finish")
+		t.Error("Expected no git-pour merge state file after a rejected finish")
 	}
 }
 
 // landReleaseOnMainOnPostCheckout is a post-checkout hook that fast-forwards main onto
 // release/1.0.0 and then adds a commit of its own, the first time main is checked out.
-// git-flow checks the parent out inside the merge step, after the pre-merge re-check has
+// git-pour checks the parent out inside the merge step, after the pre-merge re-check has
 // passed, so this stands in for a concurrent process that lands the topic and moves on
 // within that window. What it leaves behind is the parent-ahead-only topology: git's own
 // --ff-only merge reports "Already up to date" and exits 0 without moving the parent onto
@@ -1787,10 +1787,10 @@ exit 0
 // succeeds with "Already up to date" (R11). Without a postcondition on the merge, finish
 // would tag and delete the topic while the parent tip is a commit the topic never had.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates release/1.0.0 with one commit, so the gate passes
 // 3. Installs a post-checkout hook that lands the release on main and commits past it
-// 4. Runs 'git flow release finish 1.0.0 --ff-only'
+// 4. Runs 'git pour release finish 1.0.0 --ff-only'
 // 5. Verifies the hook produced the parent-ahead-only topology, so the test cannot pass vacuously
 // 6. Verifies the failure came from the merge step, past the parent checkout
 // 7. Verifies exit code 6 and the gate error rather than a generic merge failure
@@ -1845,6 +1845,6 @@ func TestFinishFFOnlyRejectsParentMovedAheadOfTopic(t *testing.T) {
 		t.Errorf("Expected to be left on the topic branch, got %q", got)
 	}
 	if testutil.GitFlowMergeStateExists(t, dir) {
-		t.Error("Expected no git-flow merge state file after a rejected finish")
+		t.Error("Expected no git-pour merge state file after a rejected finish")
 	}
 }

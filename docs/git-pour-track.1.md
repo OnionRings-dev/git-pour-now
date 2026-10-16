@@ -1,12 +1,12 @@
-# GIT-FLOW-TRACK(1)
+# GIT-POUR-TRACK(1)
 
 ## NAME
 
-git-flow-track - Track a remote topic branch locally
+git-pour-track - Track a remote topic branch locally
 
 ## SYNOPSIS
 
-**git-flow** *topic* **track** *name*
+**git-pour** *topic* **track** *name*
 
 ## DESCRIPTION
 
@@ -32,10 +32,10 @@ The command will:
 The track command handles branch names flexibly:
 
 **Short name**
-: `git flow feature track user-auth` tracks `feature/user-auth`
+: `git pour feature track user-auth` tracks `feature/user-auth`
 
 **Full name**
-: `git flow feature track feature/user-auth` also tracks `feature/user-auth` (no double prefix)
+: `git pour feature track feature/user-auth` also tracks `feature/user-auth` (no double prefix)
 
 ## EXAMPLES
 
@@ -43,24 +43,24 @@ The track command handles branch names flexibly:
 
 Track a remote feature branch:
 ```bash
-git flow feature track user-authentication
+git pour feature track user-authentication
 ```
 
 Track a remote release branch:
 ```bash
-git flow release track 1.0.0
+git pour release track 1.0.0
 ```
 
 Track a remote hotfix branch:
 ```bash
-git flow hotfix track 1.0.1
+git pour hotfix track 1.0.1
 ```
 
 ### Using Full Branch Names
 
 Track a branch by its full name:
 ```bash
-git flow feature track feature/user-authentication
+git pour feature track feature/user-authentication
 ```
 
 ### Team Workflow
@@ -68,11 +68,11 @@ git flow feature track feature/user-authentication
 When a colleague starts a feature and you want to collaborate:
 ```bash
 # Colleague creates and publishes the feature
-git flow feature start shared-feature
+git pour feature start shared-feature
 git push -u origin feature/shared-feature
 
 # You track the remote feature to work on it locally
-git flow feature track shared-feature
+git pour feature track shared-feature
 ```
 
 ## CONFIGURATION
@@ -82,14 +82,14 @@ The track command uses these configuration keys:
 ### Remote Name
 ```bash
 # Set custom remote name (default is "origin")
-git config gitflow.origin upstream
+git config gitpour.origin upstream
 ```
 
 ### Branch Prefixes
 ```bash
-git config gitflow.branch.feature.prefix feature/
-git config gitflow.branch.release.prefix release/
-git config gitflow.branch.hotfix.prefix hotfix/
+git config gitpour.branch.feature.prefix feature/
+git config gitpour.branch.release.prefix release/
+git config gitpour.branch.hotfix.prefix hotfix/
 ```
 
 ## VALIDATION
@@ -111,7 +111,7 @@ The track command performs several validations:
 : Successful branch tracking
 
 **1**
-: git-flow is not initialized
+: git-pour is not initialized
 
 **2**
 : Invalid input (missing branch name or invalid branch type)
@@ -127,11 +127,11 @@ The track command performs several validations:
 
 ## SEE ALSO
 
-**git-flow**(1), **git-flow-start**(1), **git-flow-finish**(1), **git-flow-update**(1)
+**git-pour**(1), **git-pour-start**(1), **git-pour-finish**(1), **git-pour-update**(1)
 
 ## NOTES
 
 - The local branch will have the same name as the remote branch
 - If the branch already exists locally, the command will fail with an appropriate error
-- Use `git flow <type> update` to sync with remote changes after tracking
+- Use `git pour <type> update` to sync with remote changes after tracking
 - The command always fetches from the remote before checking for the branch

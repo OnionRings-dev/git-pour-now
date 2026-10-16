@@ -25,8 +25,8 @@ type ShellRun struct {
 	// that has to run the shell in a different mode (--posix, say).
 	ShellArgs []string
 	// StubGitFlow, when non-empty, is written into the PATH-prefix bin/ as an
-	// executable git-flow INSTEAD of the symlink to the real binary. It drives
-	// wrapper paths that a real git-flow cannot produce deterministically, such
+	// executable git-pour INSTEAD of the symlink to the real binary. It drives
+	// wrapper paths that a real git-pour cannot produce deterministically, such
 	// as a destination that no longer exists.
 	StubGitFlow string
 }
@@ -54,8 +54,8 @@ type ShellResult struct {
 // zero a delegated `git status` must ask for. The shim removes its own directory
 // from PATH before the exec so it never recurses into itself.
 const mktempShim = `#!/bin/sh
-printf 'mktemp\n' >> "$GIT_FLOW_TEST_MKTEMP_LOG"
-PATH="$GIT_FLOW_TEST_REAL_PATH"
+printf 'mktemp\n' >> "$GIT_POUR_TEST_MKTEMP_LOG"
+PATH="$GIT_POUR_TEST_REAL_PATH"
 export PATH
 exec mktemp "$@"
 `
@@ -78,7 +78,7 @@ func RequireShell(t *testing.T, shell string) {
 // The shell is started non-interactively and without user rc files, in a
 // from-scratch environment: only PATH, HOME, TMPDIR and the handful of variables
 // below are set, so nothing from the developer's shell or git configuration can
-// change the outcome. GIT_FLOW_CD_FILE is deliberately absent unless the caller
+// change the outcome. GIT_POUR_CD_FILE is deliberately absent unless the caller
 // supplies it.
 func RunShell(t *testing.T, run ShellRun) ShellResult {
 	t.Helper()
@@ -93,16 +93,16 @@ func RunShell(t *testing.T, run ShellRun) ShellResult {
 		t.Fatalf("Failed to create shell PATH directory: %v", err)
 	}
 
-	// Both `git-flow …` and the wrapper's `command git-flow` have to resolve to
+	// Both `git-pour …` and the wrapper's `command git-pour` have to resolve to
 	// the binary under test; the real git is found further down the inherited
 	// PATH.
-	gitFlow := filepath.Join(binDir, "git-flow")
+	gitFlow := filepath.Join(binDir, "git-pour")
 	if run.StubGitFlow != "" {
 		if err := os.WriteFile(gitFlow, []byte(run.StubGitFlow), 0755); err != nil {
-			t.Fatalf("Failed to write the git-flow stub: %v", err)
+			t.Fatalf("Failed to write the git-pour stub: %v", err)
 		}
 	} else if err := os.Symlink(GitFlowPath(), gitFlow); err != nil {
-		t.Fatalf("Failed to link the git-flow binary into the shell PATH: %v", err)
+		t.Fatalf("Failed to link the git-pour binary into the shell PATH: %v", err)
 	}
 
 	mktempLog := filepath.Join(tempDir, "mktemp.log")
@@ -131,8 +131,8 @@ func RunShell(t *testing.T, run ShellRun) ShellResult {
 		"PATH=" + binDir + string(os.PathListSeparator) + realPath,
 		"HOME=" + t.TempDir(),
 		"TMPDIR=" + tempDir,
-		"GIT_FLOW_TEST_MKTEMP_LOG=" + mktempLog,
-		"GIT_FLOW_TEST_REAL_PATH=" + realPath,
+		"GIT_POUR_TEST_MKTEMP_LOG=" + mktempLog,
+		"GIT_POUR_TEST_REAL_PATH=" + realPath,
 		"GIT_EDITOR=:",
 		"LANG=C",
 	}, run.Env...)
@@ -187,7 +187,7 @@ func countLines(t *testing.T, path string) int {
 // itself works by pointing it at a directory that deliberately leaks.
 func ShellTempFileLeftovers(t *testing.T, tempDir string) []string {
 	t.Helper()
-	matches, err := filepath.Glob(filepath.Join(tempDir, "git-flow-cd.*"))
+	matches, err := filepath.Glob(filepath.Join(tempDir, "git-pour-cd.*"))
 	if err != nil {
 		t.Fatalf("Failed to glob %s for temp files: %v", tempDir, err)
 	}
@@ -236,7 +236,7 @@ func WriteExecutable(t *testing.T, path string, content string) {
 // a pipe into source for fish.
 func ShellInstallLine(shell string) string {
 	if shell == "fish" {
-		return "git flow shell-init fish | source"
+		return "git pour shell-init fish | source"
 	}
-	return fmt.Sprintf("eval \"$(git flow shell-init %s)\"", shell)
+	return fmt.Sprintf("eval \"$(git pour shell-init %s)\"", shell)
 }

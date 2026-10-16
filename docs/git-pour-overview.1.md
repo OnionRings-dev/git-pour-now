@@ -1,18 +1,23 @@
-# GIT-FLOW-OVERVIEW(1)
+# GIT-POUR-OVERVIEW(1)
+
+Examples using `develop`, release branches, or hotfix branches refer to the
+explicit `--preset=classic` compatibility workflow. The default workflow uses
+`main`, `feature/`, and temporary `prerelease/<version>` branches, with releases
+identified by SemVer tags.
 
 ## NAME
 
-git-flow-overview - Display repository workflow overview
+git-pour-overview - Display repository workflow overview
 
 ## SYNOPSIS
 
-**git-flow overview** [**--format**=*format*] [**--verbose**]
+**git-pour overview** [**--format**=*format*] [**--verbose**]
 
 ## DESCRIPTION
 
-Display a comprehensive overview of the current repository's git-flow configuration, branch structure, and workflow status. This command provides a visual representation of your git-flow setup, active branches, and workflow health.
+Display a comprehensive overview of the current repository's git-pour configuration, branch structure, and workflow status. This command provides a visual representation of your git-pour setup, active branches, and workflow health.
 
-The overview command is useful for understanding the current state of a git-flow repository and identifying any configuration or workflow issues.
+The overview command is useful for understanding the current state of a git-pour repository and identifying any configuration or workflow issues.
 
 ## OPTIONS
 
@@ -29,7 +34,7 @@ The overview command is useful for understanding the current state of a git-flow
 
 ### Configuration Summary
 - **Workflow Type**: Detected preset or custom configuration
-- **Branch Types**: Configured base and topic branch types  
+- **Branch Types**: Configured base and topic branch types
 - **Remote**: Configured remote repository
 
 ### Branch Structure
@@ -49,7 +54,7 @@ Trunk branches, child base branches and topic branch types are each listed alpha
 ### Basic Overview
 
 ```bash
-git flow overview
+git pour overview
 ```
 
 Output:
@@ -82,7 +87,7 @@ Workflow Status: ✓ Healthy
 ### Verbose Overview
 
 ```bash
-git flow overview --verbose
+git pour overview --verbose
 ```
 
 Shows additional details:
@@ -94,7 +99,7 @@ Shows additional details:
 ### JSON Output
 
 ```bash
-git flow overview --format=json
+git pour overview --format=json
 ```
 
 Outputs structured data suitable for tooling integration:
@@ -129,7 +134,7 @@ The overview command automatically detects your workflow type:
 **GitHub Flow**
 : main + feature branches only
 
-**GitLab Flow**  
+**GitLab Flow**
 : production + staging + main + feature/hotfix branches
 
 **Custom**
@@ -158,7 +163,7 @@ The overview performs several health checks:
 **✓ Healthy**
 : No issues detected, workflow is properly configured
 
-**⚠ Warning**  
+**⚠ Warning**
 : Minor issues that should be addressed
 
 **✗ Error**
@@ -184,9 +189,9 @@ The overview command is designed for integration with other tools:
 ### CI/CD Integration
 ```bash
 # Check workflow health in CI
-if git flow overview --format=json | jq -r '.status' == "healthy"; then
+if git pour overview --format=json | jq -r '.status' == "healthy"; then
   echo "Workflow is healthy"
-else  
+else
   echo "Workflow issues detected"
   exit 1
 fi
@@ -195,7 +200,7 @@ fi
 ### Shell Prompts
 ```bash
 # Add workflow status to prompt
-export PS1="$(git flow overview --format=json | jq -r '.workflow') $ "
+export PS1="$(git pour overview --format=json | jq -r '.workflow') $ "
 ```
 
 ### IDE Integration
@@ -207,7 +212,7 @@ Many editors can consume the JSON output to display workflow status.
 ```
 Configuration: Classic GitFlow
 Base Branches:
-  • main (trunk) 
+  • main (trunk)
   • develop (parent: main, auto-update: true)
 Topic Types:
   • feature → develop (prefix: feature/)
@@ -215,7 +220,7 @@ Topic Types:
   • hotfix → main (tags: yes)
 ```
 
-### GitHub Flow Overview  
+### GitHub Flow Overview
 ```
 Configuration: GitHub Flow
 Base Branches:
@@ -226,7 +231,7 @@ Topic Types:
 
 ### GitLab Flow Overview
 ```
-Configuration: GitLab Flow  
+Configuration: GitLab Flow
 Base Branches:
   • production (trunk)
   • staging (parent: production)
@@ -245,14 +250,14 @@ Topic Types:
 : Repository not found or not a git repository
 
 **2**
-: Repository not initialized with git-flow
+: Repository not initialized with git-pour
 
 **3**
 : Configuration errors prevent overview generation
 
 ## SEE ALSO
 
-**git-flow**(1), **git-flow-config**(1), **git-flow-init**(1), **git-status**(1)
+**git-pour**(1), **git-pour-config**(1), **git-pour-init**(1), **git-status**(1)
 
 ## NOTES
 

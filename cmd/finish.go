@@ -34,9 +34,9 @@
 //
 // Conflict Resolution:
 // - User resolves conflicts manually
-// - Runs 'git flow <type> finish --continue <name>' to resume
+// - Runs 'git pour <type> finish --continue <name>' to resume
 // - State machine continues from saved position
-// - Can abort with 'git flow <type> finish --abort <name>'
+// - Can abort with 'git pour <type> finish --abort <name>'
 //
 // Critical Requirements:
 // - State must ALWAYS be saved before exiting on conflicts
@@ -53,13 +53,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
-	"github.com/gittower/git-flow-next/internal/mergestate"
-	"github.com/gittower/git-flow-next/internal/update"
-	"github.com/gittower/git-flow-next/internal/util"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/internal/update"
+	"github.com/OnionRings-dev/git-pour-now/internal/util"
 )
 
 // Step constants
@@ -90,8 +90,8 @@ func FinishCommand(branchType string, name string, continueOp bool, abortOp bool
 	repo := mustOpenRepo()
 	if err := executeFinish(repo, branchType, name, continueOp, abortOp, force, tagOptions, retentionOptions, mergeOptions, fetch, noVerify, push, pushTag, worktreeOpts); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -106,7 +106,7 @@ func FinishCommand(branchType string, name string, continueOp bool, abortOp bool
 
 // executeFinish performs the actual branch finishing logic and returns any errors
 func executeFinish(repo *git.Repo, branchType string, name string, continueOp bool, abortOp bool, force bool, tagOptions *config.TagOptions, retentionOptions *config.BranchRetentionOptions, mergeOptions *config.MergeStrategyOptions, fetch *bool, noVerify *bool, push *bool, pushTag *bool, worktreeOpts WorktreeCleanupOptions) error {
-	// Validate that git-flow is initialized before loading config or resolving
+	// Validate that git-pour is initialized before loading config or resolving
 	// branches. This is the shared gate for every finish entry point: both the
 	// topic-branch handler (cmd/topicbranch.go) and the shorthand command
 	// (cmd/shorthand.go) reach finish through here. LoadConfig falls back to
@@ -115,7 +115,7 @@ func executeFinish(repo *git.Repo, branchType string, name string, continueOp bo
 	// which runs ahead of this function.
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}
@@ -365,7 +365,7 @@ func requireFastForwardable(repo *git.Repo, topic string, parent string) error {
 }
 
 func finishBranch(repo *git.Repo, cfg *config.Config, branchType string, name string, branchConfig config.BranchConfig, tagOptions *config.TagOptions, retentionOptions *config.BranchRetentionOptions, mergeOptions *config.MergeStrategyOptions, fetch *bool, noVerify *bool, push *bool, pushTag *bool, worktreeOpts WorktreeCleanupOptions) error {
-	// Note: the git-flow initialization gate runs earlier in executeFinish (the
+	// Note: the git-pour initialization gate runs earlier in executeFinish (the
 	// only path to finishBranch) and in the topic-branch command handler.
 
 	// Validate inputs
@@ -1008,7 +1008,7 @@ func handleMergeStep(repo *git.Repo, cfg *config.Config, state *mergestate.Merge
 func handleCreateTagStep(repo *git.Repo, cfg *config.Config, state *mergestate.MergeState, resolvedOptions *config.ResolvedFinishOptions) error {
 	if resolvedOptions.ShouldTag {
 		// Apply tag message filter for any branch type configured with tagging
-		// The filter script (filter-flow-{branchType}-finish-tag-message) decides what to do
+		// The filter script (filter-pour-{branchType}-finish-tag-message) decides what to do
 		remote := cfg.Remote
 
 		ctx := hooks.FilterContext{
@@ -1113,7 +1113,7 @@ func handleDeleteBranchStep(repo *git.Repo, cfg *config.Config, state *mergestat
 	}
 
 	// Delete the remote branch (if any) BEFORE freeing the worktree (#175):
-	// freeing is a one-way trip (a git-flow-created worktree is removed
+	// freeing is a one-way trip (a git-pour-created worktree is removed
 	// outright; a hand-made one, detached, does not un-detach itself), and a
 	// remote that rejects the deletion — a protected branch, a permission
 	// error — must leave the worktree, and the local branch below it, exactly
@@ -1379,8 +1379,8 @@ func createTagForBranchResolved(repo *git.Repo, state *mergestate.MergeState, op
 
 	// Normalize a relative message-file path against the invocation directory.
 	// The tag is created via `git tag -F` running in the work tree, so without
-	// this a relative path (from --messagefile or gitflow.<type>.finish.messagefile)
-	// would resolve against the work-tree root instead of the directory git-flow
+	// this a relative path (from --messagefile or gitpour.<type>.finish.messagefile)
+	// would resolve against the work-tree root instead of the directory git-pour
 	// was invoked from — the invocation-directory-relative meaning the user expects.
 	messageFile := normalizeInvocationPath(options.MessageFile)
 
@@ -1482,7 +1482,7 @@ func updateChildBranch(repo *git.Repo, cfg *config.Config, branchName string, st
 //
 // Split from local deletion (#175 follow-up) so handleDeleteBranchStep can
 // run this BEFORE freeing the topic's worktree: freeing is a one-way trip (a
-// git-flow-created worktree is removed outright; a hand-made one, detached,
+// git-pour-created worktree is removed outright; a hand-made one, detached,
 // does not un-detach itself), and a remote that rejects the deletion — a
 // protected branch, a permission error — must leave the worktree exactly as
 // it was, not just the local branch. See deleteLocalBranchIfNeeded, which the
@@ -1602,11 +1602,11 @@ func generateConflictMessage(state *mergestate.MergeState, cfg *config.Config, r
 	msg.WriteString("  1. Resolve the conflicts in your files\n")
 	msg.WriteString("  2. Stage resolved files: git add <files>\n")
 	if isIntegrate {
-		msg.WriteString("  3. Continue: git flow integrate --continue\n")
-		msg.WriteString("\nTo abort: git flow integrate --abort")
+		msg.WriteString("  3. Continue: git pour integrate --continue\n")
+		msg.WriteString("\nTo abort: git pour integrate --abort")
 	} else {
-		msg.WriteString(fmt.Sprintf("  3. Continue: git flow %s finish --continue %s\n", state.BranchType, state.BranchName))
-		msg.WriteString(fmt.Sprintf("\nTo abort: git flow %s finish --abort %s", state.BranchType, state.BranchName))
+		msg.WriteString(fmt.Sprintf("  3. Continue: git pour %s finish --continue %s\n", state.BranchType, state.BranchName))
+		msg.WriteString(fmt.Sprintf("\nTo abort: git pour %s finish --abort %s", state.BranchType, state.BranchName))
 	}
 
 	return msg.String()

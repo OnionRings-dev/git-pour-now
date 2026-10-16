@@ -21,7 +21,7 @@ func setWindows(v bool) func() {
 // rather than the case sensitivity of the volume the tests happen to run on —
 // which matters on macOS, whose default volume is already case-insensitive.
 func abs(elem ...string) string {
-	return filepath.Join(append([]string{string(filepath.Separator), "git-flow-case-test"}, elem...)...)
+	return filepath.Join(append([]string{string(filepath.Separator), "git-pour-case-test"}, elem...)...)
 }
 
 // TestSamePathFoldsCaseOnWindows tests that two spellings of one location

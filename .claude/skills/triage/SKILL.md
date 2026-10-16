@@ -7,7 +7,7 @@ allowed-tools: Read, Grep, Glob, Write, Bash, mcp__github__get_issue, mcp__githu
 
 # Triage
 
-Triage an external issue or discussion for gittower/git-flow-next: determine
+Triage an external issue or discussion for OnionRings-dev/git-pour-now: determine
 what it is (bug report, feature request, question), check for duplicates,
 analyze it against the codebase, and propose a verdict. Everything up to the
 verdict is autonomous; the public reply and any issue changes wait for user
@@ -26,7 +26,7 @@ existing comments.
 
 For a **discussion**: fetch via GraphQL:
 ```bash
-gh api graphql -f query='query { repository(owner: "gittower", name: "git-flow-next") {
+gh api graphql -f query='query { repository(owner: "OnionRings-dev", name: "git-pour-now") {
   discussion(number: <N>) { id title body author { login }
     comments(first: 50) { nodes { body author { login } } } } } }'
 ```

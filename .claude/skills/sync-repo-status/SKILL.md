@@ -47,7 +47,7 @@ gh pr list --state open --limit 50 --json number,title,author,headRefName,baseRe
 **PR ↔ issue links** (`closingIssuesReferences` is GraphQL-only — not
 available via `gh pr view --json`):
 ```bash
-gh api graphql -f query='{ repository(owner: "gittower", name: "git-flow-next") {
+gh api graphql -f query='{ repository(owner: "OnionRings-dev", name: "git-pour-now") {
   pullRequests(states: OPEN, first: 50) { nodes { number
     closingIssuesReferences(first: 5) { nodes { number } } } } } }'
 ```
@@ -56,7 +56,7 @@ gh api graphql -f query='{ repository(owner: "gittower", name: "git-flow-next") 
 unresolved review threads:
 ```bash
 gh pr view <n> --json author,reviews,comments
-gh api graphql -f query='query($pr: Int!) { repository(owner: "gittower", name: "git-flow-next") {
+gh api graphql -f query='query($pr: Int!) { repository(owner: "OnionRings-dev", name: "git-pour-now") {
   pullRequest(number: $pr) { reviewThreads(first: 50) { nodes { isResolved
     comments(first: 1) { nodes { author { login } body } } } } } } }' -F pr=<n>
 ```
@@ -75,7 +75,7 @@ duplicates.
 
 **Discussions** (GraphQL):
 ```bash
-gh api graphql -f query='{ repository(owner: "gittower", name: "git-flow-next") {
+gh api graphql -f query='{ repository(owner: "OnionRings-dev", name: "git-pour-now") {
   discussions(first: 50, states: OPEN) { nodes { number title createdAt
     isAnswered category { name } author { login }
     comments(first: 10) { totalCount nodes { author { login } } } } } }'
@@ -89,7 +89,7 @@ external.
 **PRs** — sort into four groups:
 - *Own PRs, merge candidates*: review feedback addressed, mergeable; note
   behind-main count and anything to verify before merging (e.g. missing
-  docs for new config keys — cross-check `docs/gitflow-config.5.md`)
+  docs for new config keys — cross-check `docs/gitpour-config.5.md`)
 - *Contributor PRs waiting on maintainer*: no review yet, or resolved and
   awaiting approval; flag overlaps with own PRs or local branches
 - *Contributor PRs waiting on them*: changes requested with no author

@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	flowerrors "github.com/gittower/git-flow-next/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	flowerrors "github.com/OnionRings-dev/git-pour-now/internal/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ type notTopicBranchError struct {
 }
 
 func (err *notTopicBranchError) Error() string {
-	return fmt.Sprintf("current branch '%s' is not a valid topic branch (use explicit command, e.g., git flow feature finish)", err.branch)
+	return fmt.Sprintf("current branch '%s' is not a valid topic branch (use explicit command, e.g., git pour feature finish)", err.branch)
 }
 
 // init registers all shorthand commands automatically
@@ -222,7 +222,7 @@ optionally tagging the parent, and auto-updating the parent's children.
 Unlike finish, integrate operates on base branches only and never deletes,
 creates, or renames a branch — base branches are permanent. If no branch is
 given, the current branch is integrated into its parent.`,
-		Example: "  git flow integrate develop\n  git flow integrate develop --tag v2.0.0\n  git flow integrate --continue",
+		Example: "  git pour integrate develop\n  git pour integrate develop --tag v2.0.0\n  git pour integrate --continue",
 		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := ""
@@ -339,7 +339,7 @@ func detectBranchTypeAndName() (string, string, error) {
 		if response == "n" {
 			return "", "", fmt.Errorf("operation cancelled")
 		}
-		return "", "", fmt.Errorf("please use explicit command (e.g., git flow feature finish)")
+		return "", "", fmt.Errorf("please use explicit command (e.g., git pour feature finish)")
 	}
 }
 

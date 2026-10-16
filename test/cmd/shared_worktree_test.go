@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestSharedWorktreeInheritsConfig covers scenario 31: a linked worktree inherits
@@ -20,7 +20,7 @@ func TestSharedWorktreeInheritsConfig(t *testing.T) {
 	dir := initSharedDefaults(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	wtPath, err := os.MkdirTemp("", "git-flow-test-wt-*")
+	wtPath, err := os.MkdirTemp("", "git-pour-test-wt-*")
 	if err != nil {
 		t.Fatalf("failed to create worktree temp dir: %v", err)
 	}
@@ -38,8 +38,8 @@ func TestSharedWorktreeInheritsConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("feature start from worktree failed: %v\n%s", err, out)
 	}
-	if strings.Contains(out, ".gitflow") {
-		t.Errorf("expected no first-run .gitflow prompt/notice from the worktree, got: %s", out)
+	if strings.Contains(out, ".gitpour") {
+		t.Errorf("expected no first-run .gitpour prompt/notice from the worktree, got: %s", out)
 	}
 	if !testutil.BranchExists(t, wtPath, "feature/x") {
 		t.Error("expected feature/x to exist when created from the worktree")

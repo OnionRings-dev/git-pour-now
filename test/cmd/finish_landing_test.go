@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // setupParentMergeConflict prepares a repository in which finishing release/1.0.0
@@ -138,7 +138,7 @@ func assertMergeConflictAt(t *testing.T, dir string, expectedStep string, expect
 // TestFinishReleaseLandsOnIntegrationBranch tests that a default-config release finish
 // leaves the user on the integration branch 'develop' rather than the parent 'main'.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts release/1.0.0 and commits a file
 // 3. Finishes the release branch
 // 4. Verifies HEAD is on develop
@@ -149,8 +149,8 @@ func TestFinishReleaseLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
 		t.Fatalf("Failed to start release: %v\nOutput: %s", err, output)
@@ -198,7 +198,7 @@ func TestFinishReleaseLandsOnIntegrationBranch(t *testing.T) {
 // TestFinishHotfixLandsOnIntegrationBranch tests that a default-config hotfix finish
 // leaves the user on the integration branch 'develop'.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts hotfix/1.0.1 and commits a file
 // 3. Finishes the hotfix branch
 // 4. Verifies HEAD is on develop and the hotfix branch was deleted
@@ -207,8 +207,8 @@ func TestFinishHotfixLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "hotfix", "start", "1.0.1"); err != nil {
 		t.Fatalf("Failed to start hotfix: %v\nOutput: %s", err, output)
@@ -230,7 +230,7 @@ func TestFinishHotfixLandsOnIntegrationBranch(t *testing.T) {
 // TestFinishFeatureLandsOnDevelop tests that a default-config feature finish still
 // leaves the user on develop, its parent, which has no auto-update children.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts feature/f1 and commits a file
 // 3. Finishes the feature branch
 // 4. Verifies HEAD is on develop and the feature branch was deleted
@@ -239,8 +239,8 @@ func TestFinishFeatureLandsOnDevelop(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "feature", "start", "f1"); err != nil {
 		t.Fatalf("Failed to start feature: %v\nOutput: %s", err, output)
@@ -262,7 +262,7 @@ func TestFinishFeatureLandsOnDevelop(t *testing.T) {
 // TestFinishBugfixLandsOnDevelop tests that a default-config bugfix finish still
 // leaves the user on develop.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts bugfix/b1 and commits a file
 // 3. Finishes the bugfix branch
 // 4. Verifies HEAD is on develop and the bugfix branch was deleted
@@ -271,8 +271,8 @@ func TestFinishBugfixLandsOnDevelop(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "bugfix", "start", "b1"); err != nil {
 		t.Fatalf("Failed to start bugfix: %v\nOutput: %s", err, output)
@@ -294,7 +294,7 @@ func TestFinishBugfixLandsOnDevelop(t *testing.T) {
 // TestFinishLandsOnParentWithoutAutoUpdateChildren tests that a finish whose parent has
 // no auto-update children leaves the user on the parent branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with the github preset
+// 1. Sets up a test repository and initializes git-pour with the github preset
 // 2. Starts feature/f1 and commits a file
 // 3. Finishes the feature branch
 // 4. Verifies HEAD is on main, the feature branch is gone and no develop branch exists
@@ -304,7 +304,7 @@ func TestFinishLandsOnParentWithoutAutoUpdateChildren(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	if output, err := testutil.RunGitFlow(t, dir, "init", "--preset=github"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "feature", "start", "f1"); err != nil {
 		t.Fatalf("Failed to start feature: %v\nOutput: %s", err, output)
@@ -329,7 +329,7 @@ func TestFinishLandsOnParentWithoutAutoUpdateChildren(t *testing.T) {
 // TestFinishLandsOnCustomIntegrationBranch tests that the landing branch is resolved from
 // configuration rather than from a branch named 'develop'.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Configures a custom topology: base trunk, auto-update base integration, topic rel
 // 3. Starts rel/1.0.0 and commits a file
 // 4. Finishes the rel branch
@@ -339,8 +339,8 @@ func TestFinishLandsOnCustomIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "config", "add", "base", "trunk"); err != nil {
 		t.Fatalf("Failed to add base trunk: %v\nOutput: %s", err, output)
@@ -371,7 +371,7 @@ func TestFinishLandsOnCustomIntegrationBranch(t *testing.T) {
 // TestFinishWithKeepLandsOnIntegrationBranch tests that the landing rule is independent
 // of whether the topic branch is deleted.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts release/1.0.0 and commits a file
 // 3. Finishes the release branch with --keep
 // 4. Verifies HEAD is on develop and the release branch still exists
@@ -380,8 +380,8 @@ func TestFinishWithKeepLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
 		t.Fatalf("Failed to start release: %v\nOutput: %s", err, output)
@@ -413,8 +413,8 @@ func TestFinishContinueAfterParentConflictLandsOnIntegrationBranch(t *testing.T)
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	setupParentMergeConflict(t, dir)
 
@@ -453,8 +453,8 @@ func TestFinishContinueAfterChildConflictLandsOnIntegrationBranch(t *testing.T) 
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	setupChildUpdateConflict(t, dir)
 
@@ -500,10 +500,10 @@ func TestFinishContinueWithRebaseLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.upstreamstrategy", "rebase"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.upstreamstrategy", "rebase"); err != nil {
 		t.Fatalf("Failed to configure rebase strategy: %v", err)
 	}
 	setupParentMergeConflict(t, dir)
@@ -558,8 +558,8 @@ func TestFinishAbortDuringParentMergeReturnsToTopicBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	setupParentMergeConflict(t, dir)
 
@@ -595,8 +595,8 @@ func TestFinishAbortDuringChildUpdateReturnsToTopicBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	setupChildUpdateConflict(t, dir)
 
@@ -622,7 +622,7 @@ func TestFinishAbortDuringChildUpdateReturnsToTopicBranch(t *testing.T) {
 
 // TestFinishReportsLandingBranch tests that finish reports the branch it leaves the user on.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts release/1.0.0 and commits a file
 // 3. Finishes the release branch, capturing output
 // 4. Verifies HEAD is on develop and the output names that same branch
@@ -631,8 +631,8 @@ func TestFinishReportsLandingBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
 		t.Fatalf("Failed to start release: %v\nOutput: %s", err, output)
@@ -659,7 +659,7 @@ func TestFinishReportsLandingBranch(t *testing.T) {
 // TestFinishReportsLandingBranchWithoutChildren tests that finish reports the landing branch
 // even when HEAD did not move.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with the github preset
+// 1. Sets up a test repository and initializes git-pour with the github preset
 // 2. Starts feature/f1 and commits a file
 // 3. Finishes the feature branch, capturing output
 // 4. Verifies HEAD is on main and the output names that same branch
@@ -669,7 +669,7 @@ func TestFinishReportsLandingBranchWithoutChildren(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	if output, err := testutil.RunGitFlow(t, dir, "init", "--preset=github"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "feature", "start", "f1"); err != nil {
 		t.Fatalf("Failed to start feature: %v\nOutput: %s", err, output)
@@ -694,7 +694,7 @@ func TestFinishReportsLandingBranchWithoutChildren(t *testing.T) {
 // TestFinishFromUnrelatedBranchLandsOnIntegrationBranch tests that the branch finish was
 // invoked from does not affect the landing branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts release/1.0.0, commits a file and checks out an unrelated branch
 // 3. Finishes the release branch by name
 // 4. Verifies HEAD is on develop and the unrelated branch still exists
@@ -703,8 +703,8 @@ func TestFinishFromUnrelatedBranchLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
 		t.Fatalf("Failed to start release: %v\nOutput: %s", err, output)
@@ -727,20 +727,20 @@ func TestFinishFromUnrelatedBranchLandsOnIntegrationBranch(t *testing.T) {
 	}
 }
 
-// TestFinishShorthandLandsOnIntegrationBranch tests that the shorthand 'git flow finish'
+// TestFinishShorthandLandsOnIntegrationBranch tests that the shorthand 'git pour finish'
 // lands on the same branch as the explicit form.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts release/1.0.0 and commits a file, staying on the release branch
-// 3. Runs git flow finish without a type or name
+// 3. Runs git pour finish without a type or name
 // 4. Verifies HEAD is on develop and the release branch was deleted
 func TestFinishShorthandLandsOnIntegrationBranch(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
 		t.Fatalf("Failed to start release: %v\nOutput: %s", err, output)
@@ -771,10 +771,10 @@ func TestFinishSquashStrategyLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.upstreamstrategy", "squash"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.upstreamstrategy", "squash"); err != nil {
 		t.Fatalf("Failed to configure squash strategy: %v", err)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
@@ -812,10 +812,10 @@ func TestFinishRebaseStrategyLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.release.upstreamstrategy", "rebase"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.release.upstreamstrategy", "rebase"); err != nil {
 		t.Fatalf("Failed to configure rebase strategy: %v", err)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "release", "start", "1.0.0"); err != nil {
@@ -844,7 +844,7 @@ func TestFinishRebaseStrategyLandsOnIntegrationBranch(t *testing.T) {
 // TestFinishSupportLandsOnIntegrationBranch tests that a support finish follows the same
 // landing rule, without any special-casing of release and hotfix.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Starts support/1.x and commits a file
 // 3. Finishes the support branch
 // 4. Verifies HEAD is on develop, the auto-update child of main
@@ -853,8 +853,8 @@ func TestFinishSupportLandsOnIntegrationBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if output, err := testutil.RunGitFlow(t, dir, "support", "start", "1.x"); err != nil {
 		t.Fatalf("Failed to start support: %v\nOutput: %s", err, output)
@@ -876,7 +876,7 @@ func TestFinishSupportLandsOnIntegrationBranch(t *testing.T) {
 // TestFinishLandsOnLastAutoUpdateChild tests that with several auto-update children the
 // landing branch is the last one the integration sequence processed.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds 'staging' as a second auto-update base child of main
 // 3. Starts release/1.0.0 and commits a file
 // 4. Finishes the release branch, capturing output
@@ -886,17 +886,17 @@ func TestFinishLandsOnLastAutoUpdateChild(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+	if output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 	if _, err := testutil.RunGit(t, dir, "checkout", "-b", "staging", "main"); err != nil {
 		t.Fatalf("Failed to create staging branch: %v", err)
 	}
 	for key, value := range map[string]string{
-		"gitflow.branch.staging.type":               "base",
-		"gitflow.branch.staging.parent":             "main",
-		"gitflow.branch.staging.autoUpdate":         "true",
-		"gitflow.branch.staging.downstreamStrategy": "merge",
+		"gitpour.branch.staging.type":               "base",
+		"gitpour.branch.staging.parent":             "main",
+		"gitpour.branch.staging.autoUpdate":         "true",
+		"gitpour.branch.staging.downstreamStrategy": "merge",
 	} {
 		if _, err := testutil.RunGit(t, dir, "config", key, value); err != nil {
 			t.Fatalf("Failed to set %s: %v", key, err)

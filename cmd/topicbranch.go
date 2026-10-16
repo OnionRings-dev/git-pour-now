@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +26,7 @@ func RegisterTopicBranchCommands() {
 	cfg, err := config.Load(repo)
 	if err != nil {
 		// If we can't load the config, fall back to standard branch types
-		fmt.Println("Warning: Could not load git-flow configuration, using default branch types")
+		fmt.Println("Warning: Could not load git-pour configuration, using default branch types")
 		registerDefaultBranchCommands()
 		return
 	}
@@ -42,7 +42,7 @@ func RegisterTopicBranchCommands() {
 	}
 
 	// Fold in topic types declared only in a present-but-not-yet-activated
-	// .gitflow, so a custom type defined in the shared file has a working command
+	// .gitpour, so a custom type defined in the shared file has a working command
 	// on a fresh clone before first-run activation copies it into local config.
 	for _, sharedType := range config.SharedTopicTypes(repo) {
 		if !seen[sharedType] {
@@ -57,6 +57,10 @@ func RegisterTopicBranchCommands() {
 		return
 	}
 
+	if !seen["release"] {
+		rootCmd.AddCommand(newReleaseCommand())
+	}
+
 	// Register commands for each topic branch type
 	for _, branchType := range topicBranchTypes {
 		registerBranchCommand(branchType)
@@ -66,7 +70,8 @@ func RegisterTopicBranchCommands() {
 // registerDefaultBranchCommands registers commands for standard branch types
 func registerDefaultBranchCommands() {
 	// Standard branch types
-	branchTypes := []string{"feature", "release", "hotfix", "support"}
+	rootCmd.AddCommand(newReleaseCommand())
+	branchTypes := []string{"feature", "prerelease"}
 
 	// Register commands for each branch type
 	for _, branchType := range branchTypes {
@@ -80,7 +85,7 @@ func registerBranchCommand(branchType string) {
 	branchCmd := &cobra.Command{
 		Use:   branchType,
 		Short: fmt.Sprintf("Manage %s branches", branchType),
-		Long:  fmt.Sprintf("Manage %s branches according to git-flow model", branchType),
+		Long:  fmt.Sprintf("Manage %s branches according to git-pour model", branchType),
 		Run: func(cmd *cobra.Command, args []string) {
 			// If no subcommand is provided, print help
 			cmd.Help()
@@ -97,7 +102,7 @@ func registerBranchCommand(branchType string) {
 		Use:     "start [name] [base]",
 		Short:   fmt.Sprintf("Start a new %s branch", branchType),
 		Long:    fmt.Sprintf("Start a new %s branch from the appropriate base branch or specified base", branchType),
-		Example: fmt.Sprintf("  git flow %s start my-new-feature\n  git flow %s start emergency-fix abc123def\n  git flow %s start my-new-feature --worktree", branchType, branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s start my-new-feature\n  git pour %s start emergency-fix abc123def\n  git pour %s start my-new-feature --worktree", branchType, branchType, branchType),
 		Args:    cobra.RangeArgs(0, 2),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Get fetch flag values
@@ -142,10 +147,10 @@ func registerBranchCommand(branchType string) {
 		Use:     "finish [name]",
 		Short:   fmt.Sprintf("Finish a %s branch", branchType),
 		Long:    fmt.Sprintf("Finish a %s branch by merging it into the appropriate base branch. If no name is provided, finishes the current branch.", branchType),
-		Example: fmt.Sprintf("  git flow %s finish\n  git flow %s finish my-feature\n  git flow %s finish other/branch -f", branchType, branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s finish\n  git pour %s finish my-feature\n  git pour %s finish other/branch -f", branchType, branchType, branchType),
 		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			// Validate that git-flow is initialized before any branch-name
+			// Validate that git-pour is initialized before any branch-name
 			// detection. LoadConfig falls back to DefaultConfig when
 			// uninitialized, so without this gate the detection below (and the
 			// downstream finish logic) would emit a misleading "branch does not
@@ -153,7 +158,7 @@ func registerBranchCommand(branchType string) {
 			repo := mustOpenRepo()
 			initialized, err := config.IsInitialized(repo)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", &errors.GitError{Operation: "check if git-flow is initialized", Err: err})
+				fmt.Fprintf(os.Stderr, "Error: %v\n", &errors.GitError{Operation: "check if git-pour is initialized", Err: err})
 				os.Exit(int(errors.ExitCodeGitError))
 			}
 			if !initialized {
@@ -299,7 +304,7 @@ func registerBranchCommand(branchType string) {
 		Use:     "list",
 		Short:   fmt.Sprintf("List all %s branches", branchType),
 		Long:    fmt.Sprintf("List all %s branches in the repository", branchType),
-		Example: fmt.Sprintf("  git flow %s list\n  git flow %s list --worktrees", branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s list\n  git pour %s list --worktrees", branchType, branchType),
 		Args:    cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			showWorktrees, _ := cmd.Flags().GetBool("worktrees")
@@ -312,7 +317,7 @@ func registerBranchCommand(branchType string) {
 	// shorthand: it selects a column about many worktrees, unlike the singular
 	// --worktree elsewhere, which requests an action on one.
 	//
-	// Layer 3 only, deliberately: there is no gitflow.<type>.list.worktrees. The
+	// Layer 3 only, deliberately: there is no gitpour.<type>.list.worktrees. The
 	// flag selects a presentation column for one invocation rather than settling
 	// how a command executes, so it carries no persistent-preference meaning — the
 	// same reason --quiet on start, checkout and worktree add has no key either.
@@ -324,7 +329,7 @@ func registerBranchCommand(branchType string) {
 		Use:     "update [name]",
 		Short:   fmt.Sprintf("Update a %s branch with changes from its parent branch", branchType),
 		Long:    fmt.Sprintf("Update a %s branch with changes from its parent branch using the configured downstream strategy", branchType),
-		Example: fmt.Sprintf("  git flow %s update my-feature\n  git flow %s update --continue\n  git flow %s update --abort", branchType, branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s update my-feature\n  git pour %s update --continue\n  git pour %s update --abort", branchType, branchType, branchType),
 		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			var name string
@@ -345,7 +350,7 @@ func registerBranchCommand(branchType string) {
 		Use:     "delete [name]",
 		Short:   fmt.Sprintf("Delete a %s branch", branchType),
 		Long:    fmt.Sprintf("Delete a %s branch from the repository", branchType),
-		Example: fmt.Sprintf("  git flow %s delete my-feature\n  git flow %s delete -f my-feature", branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s delete my-feature\n  git pour %s delete -f my-feature", branchType, branchType),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			force, _ := cmd.Flags().GetBool("force")
@@ -378,7 +383,7 @@ func registerBranchCommand(branchType string) {
 		Use:     "rename [old-name] [new-name]",
 		Short:   fmt.Sprintf("Rename a %s branch", branchType),
 		Long:    fmt.Sprintf("Rename a %s branch to a new name", branchType),
-		Example: fmt.Sprintf("  git flow %s rename old-feature new-feature", branchType),
+		Example: fmt.Sprintf("  git pour %s rename old-feature new-feature", branchType),
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			RenameCommand(branchType, args[0], args[1])
@@ -393,7 +398,7 @@ func registerBranchCommand(branchType string) {
 		Use:     "checkout [name|nameprefix]",
 		Short:   fmt.Sprintf("Switch to a %s branch", branchType),
 		Long:    fmt.Sprintf("Switch to %s branch <name>. If only a prefix is provided, switch to the matching branch if unambiguous.", branchType),
-		Example: fmt.Sprintf("  git flow %s checkout my-feature\n  git flow %s checkout my", branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s checkout my-feature\n  git pour %s checkout my", branchType, branchType),
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			nameOrPrefix := ""
@@ -428,10 +433,10 @@ func registerBranchCommand(branchType string) {
 
 This pushes the branch to the remote and sets up tracking between
 the local and remote branches. After publishing, other team members
-can track this branch using 'git flow %s track'.
+can track this branch using 'git pour %s track'.
 
 If no name is provided, the current branch is published.`, branchType, branchType),
-		Example: fmt.Sprintf("  git flow %s publish my-feature\n  git flow %s publish -o ci.skip", branchType, branchType),
+		Example: fmt.Sprintf("  git pour %s publish my-feature\n  git pour %s publish -o ci.skip", branchType, branchType),
 		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := ""
@@ -455,7 +460,7 @@ If no name is provided, the current branch is published.`, branchType, branchTyp
 
 This is useful when you want to work on a %s branch that was
 started by someone else.`, branchType, branchType),
-		Example: fmt.Sprintf("  git flow %s track my-feature", branchType),
+		Example: fmt.Sprintf("  git pour %s track my-feature", branchType),
 		Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			TrackCommand(branchType, args[0])
@@ -571,7 +576,7 @@ func addFinishFlags(cmd *cobra.Command) {
 //
 // The conflict is reported here rather than through cobra's
 // MarkFlagsMutuallyExclusive because cobra errors exit 1 via main.go, while a
-// git-flow usage error must exit ExitCodeInvalidInput (2).
+// git-pour usage error must exit ExitCodeInvalidInput (2).
 func ffModeFromFlags(ffOnly bool, noFF bool, ff bool) (*config.FastForwardMode, error) {
 	if ffOnly && noFF {
 		return nil, &errors.InvalidInputError{Message: "cannot combine --ff-only with --no-ff: they are conflicting values of the same fast-forward setting"}

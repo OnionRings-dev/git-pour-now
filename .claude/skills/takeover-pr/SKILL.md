@@ -41,8 +41,8 @@ to the user instead of deciding alone.
 ```bash
 git fetch origin pull/<number>/head:takeover/pr-<number>
 git checkout main && git pull
-git worktree add -b feature/<slug> ../git-flow-next.worktrees/<slug> main
-cd ../git-flow-next.worktrees/<slug>
+git worktree add -b feature/<slug> ../git-pour-now.worktrees/<slug> main
+cd ../git-pour-now.worktrees/<slug>
 ```
 
 Derive `<slug>` from the linked issue or PR title, following the usual

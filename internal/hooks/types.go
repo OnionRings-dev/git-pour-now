@@ -1,11 +1,11 @@
-// Package hooks provides filter and hook execution for git-flow operations.
+// Package hooks provides filter and hook execution for git-pour operations.
 //
 // Filters transform input/output values (e.g., version numbers, tag messages).
-// Hooks execute scripts before/after operations (e.g., pre-flow-feature-start).
+// Hooks execute scripts before/after operations (e.g., pre-pour-feature-start).
 //
 // All scripts are located in .git/hooks/ following these patterns:
-//   - Filters: filter-flow-{type}-{action}-{target}
-//   - Hooks: {pre,post}-flow-{type}-{action}
+//   - Filters: filter-pour-{type}-{action}-{target}
+//   - Hooks: {pre,post}-pour-{type}-{action}
 package hooks
 
 import "fmt"
@@ -22,9 +22,9 @@ const (
 )
 
 // GetFilterName returns the filter script name for a given branch type, action, and target.
-// Example: GetFilterName("release", "start", FilterTargetVersion) returns "filter-flow-release-start-version"
+// Example: GetFilterName("release", "start", FilterTargetVersion) returns "filter-pour-release-start-version"
 func GetFilterName(branchType string, action string, target FilterTarget) string {
-	return fmt.Sprintf("filter-flow-%s-%s-%s", branchType, action, target)
+	return fmt.Sprintf("filter-pour-%s-%s-%s", branchType, action, target)
 }
 
 // FilterContext contains data passed to filters.
@@ -49,7 +49,7 @@ const (
 	HookPost HookPhase = "post"
 )
 
-// HookAction represents the git-flow action being performed.
+// HookAction represents the git-pour action being performed.
 type HookAction string
 
 const (

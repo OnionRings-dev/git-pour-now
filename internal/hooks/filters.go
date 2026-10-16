@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
 // isWindows controls how hook/filter scripts are located and executed. It is a
@@ -27,7 +27,7 @@ func scriptCommand(path string, args ...string) *exec.Cmd {
 }
 
 // RunVersionFilter executes a version filter for the given branch type and returns the modified version.
-// The filter script name is: filter-flow-{branchType}-start-version
+// The filter script name is: filter-pour-{branchType}-start-version
 // If the filter does not exist or is not executable, the original version is returned.
 // If the filter exits with a non-zero status, an error is returned.
 func RunVersionFilter(repo *git.Repo, branchType string, version string) (string, error) {
@@ -55,7 +55,7 @@ func RunVersionFilter(repo *git.Repo, branchType string, version string) (string
 }
 
 // RunTagMessageFilter executes a tag message filter for the given branch type and returns the modified message.
-// The filter script name is: filter-flow-{branchType}-finish-tag-message
+// The filter script name is: filter-pour-{branchType}-finish-tag-message
 // If the filter does not exist or is not executable, the original message is returned.
 // If the filter exits with a non-zero status, an error is returned.
 func RunTagMessageFilter(repo *git.Repo, branchType string, ctx FilterContext) (string, error) {

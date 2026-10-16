@@ -4,15 +4,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestTrackFeatureBranch tests tracking a remote feature branch.
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a feature branch on the remote (simulating another user)
-// 3. Runs 'git flow feature track' for the remote branch
+// 3. Runs 'git pour feature track' for the remote branch
 // 4. Verifies local tracking branch is created
 func TestTrackFeatureBranch(t *testing.T) {
 	t.Parallel()
@@ -84,7 +84,7 @@ func TestTrackFeatureBranch(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a release branch on the remote
-// 3. Runs 'git flow release track' for the remote branch
+// 3. Runs 'git pour release track' for the remote branch
 // 4. Verifies local tracking branch is created with correct prefix
 func TestTrackReleaseBranch(t *testing.T) {
 	t.Parallel()
@@ -135,7 +135,7 @@ func TestTrackReleaseBranch(t *testing.T) {
 
 // TestTrackBranchAlreadyExistsLocally tests error when branch exists locally.
 // Steps:
-// 1. Sets up a test repository with git-flow initialized
+// 1. Sets up a test repository with git-pour initialized
 // 2. Creates a local feature branch
 // 3. Pushes it to remote
 // 4. Attempts to track the same branch
@@ -227,10 +227,10 @@ func TestTrackWithCustomRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a custom remote
@@ -250,8 +250,8 @@ func TestTrackWithCustomRemote(t *testing.T) {
 		t.Fatalf("Failed to push develop to upstream: %v", err)
 	}
 
-	// Configure git-flow to use custom remote
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.origin", "upstream")
+	// Configure git-pour to use custom remote
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.origin", "upstream")
 	if err != nil {
 		t.Fatalf("Failed to set custom remote: %v", err)
 	}
@@ -306,7 +306,7 @@ func TestTrackWithCustomRemote(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a feature branch on the remote
-// 3. Runs 'git flow feature track feature/full-name' (with prefix)
+// 3. Runs 'git pour feature track feature/full-name' (with prefix)
 // 4. Verifies local tracking branch is created correctly
 func TestTrackWithFullBranchName(t *testing.T) {
 	t.Parallel()
@@ -354,9 +354,9 @@ func TestTrackWithFullBranchName(t *testing.T) {
 	}
 }
 
-// TestTrackWithoutInitialization tests the track command without git-flow initialization.
+// TestTrackWithoutInitialization tests the track command without git-pour initialization.
 // Steps:
-// 1. Sets up a test repository without git-flow initialized
+// 1. Sets up a test repository without git-pour initialized
 // 2. Attempts to track a branch
 // 3. Verifies appropriate error is returned
 func TestTrackWithoutInitialization(t *testing.T) {
@@ -365,7 +365,7 @@ func TestTrackWithoutInitialization(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Try to track a branch without initializing git-flow
+	// Try to track a branch without initializing git-pour
 	output, err := testutil.RunGitFlow(t, dir, "feature", "track", "some-feature")
 	if err == nil {
 		t.Fatal("Expected error when tracking without initialization, but command succeeded")
@@ -381,7 +381,7 @@ func TestTrackWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	expectedError := "git flow is not initialized"
+	expectedError := "git pour is not initialized"
 	if !strings.Contains(output, expectedError) {
 		t.Errorf("Expected error message to contain '%s', got: %s", expectedError, output)
 	}
@@ -389,7 +389,7 @@ func TestTrackWithoutInitialization(t *testing.T) {
 
 // TestTrackWithEmptyBranchName tests the track command with an empty branch name.
 // Steps:
-// 1. Sets up a test repository with git-flow initialized
+// 1. Sets up a test repository with git-pour initialized
 // 2. Attempts to track with empty name
 // 3. Verifies appropriate error is returned
 func TestTrackWithEmptyBranchName(t *testing.T) {
@@ -425,7 +425,7 @@ func TestTrackWithEmptyBranchName(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a hotfix branch on the remote
-// 3. Runs 'git flow hotfix track' for the remote branch
+// 3. Runs 'git pour hotfix track' for the remote branch
 // 4. Verifies local tracking branch is created
 func TestTrackHotfixBranch(t *testing.T) {
 	t.Parallel()
@@ -476,8 +476,8 @@ func TestTrackHotfixBranch(t *testing.T) {
 
 // TestTrackFeatureBranchNoRemoteError tests that track returns a clear error when no remote is configured.
 // Steps:
-// 1. Sets up a test repository (no remote) and initializes git-flow with defaults
-// 2. Runs 'git flow feature track some-feature'
+// 1. Sets up a test repository (no remote) and initializes git-pour with defaults
+// 2. Runs 'git pour feature track some-feature'
 // 3. Verifies the command fails with an error
 // 4. Verifies the error message mentions the missing remote (contains "No remote")
 func TestTrackFeatureBranchNoRemoteError(t *testing.T) {
@@ -486,10 +486,10 @@ func TestTrackFeatureBranchNoRemoteError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Attempt to track (should fail with clear error)

@@ -1,3 +1,15 @@
+# git-pour-now changelog
+
+## Unreleased
+
+- Fork git-flow-next as git-pour-now, with the `git pour` CLI.
+- Default to main and feature branches, without develop.
+- Prepare prereleases on temporary prerelease/<version> branches.
+- Create stable releases and prereleases exclusively through SemVer tags.
+- Derive binary release versions from tags.
+
+The following is the preserved upstream release history.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

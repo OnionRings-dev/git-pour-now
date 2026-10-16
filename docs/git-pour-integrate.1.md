@@ -1,18 +1,23 @@
-# GIT-FLOW-INTEGRATE(1)
+# GIT-POUR-INTEGRATE(1)
+
+Examples using `develop`, release branches, or hotfix branches refer to the
+explicit `--preset=classic` compatibility workflow. The default workflow uses
+`main`, `feature/`, and temporary `prerelease/<version>` branches, with releases
+identified by SemVer tags.
 
 ## NAME
 
-git-flow-integrate - Integrate a base branch into its parent
+git-pour-integrate - Integrate a base branch into its parent
 
 ## SYNOPSIS
 
-**git-flow integrate** [*branch*] [*options*]
+**git-pour integrate** [*branch*] [*options*]
 
 ## DESCRIPTION
 
 Integrate merges a **base** branch upstream into its configured parent branch (for example, **develop** into **main**), honoring the branch type's upstream merge strategy, optionally creating a tag on the parent, and auto-updating the parent's `autoUpdate` children.
 
-Unlike **git-flow-finish**(1), which completes and then *deletes* a topic branch, integrate operates on permanent base branches: it **never deletes, creates, or renames** a branch. The integrated base branch remains after the operation.
+Unlike **git-pour-finish**(1), which completes and then *deletes* a topic branch, integrate operates on permanent base branches: it **never deletes, creates, or renames** a branch. The integrated base branch remains after the operation.
 
 If *branch* is omitted, the current branch is integrated into its parent.
 
@@ -27,7 +32,7 @@ A persistent state file lets the operation resume after conflicts. If a conflict
 ## ARGUMENTS
 
 *branch*
-: Name of the base branch to integrate into its parent. Must be a configured base branch (`gitflow.branch.<name>.type = base`). If omitted, the current branch is used.
+: Name of the base branch to integrate into its parent. Must be a configured base branch (`gitpour.branch.<name>.type = base`). If omitted, the current branch is used.
 
 ## OPTIONS
 
@@ -107,38 +112,38 @@ A persistent state file lets the operation resume after conflicts. If a conflict
 
 ## CONFIGURATION
 
-Operational defaults are read from the `gitflow.<branch>.integrate.*` namespace, keyed by the base-branch name. See **gitflow-config**(5) for the full list. Note the integrate-specific Layer-1 defaults differ from finish:
+Operational defaults are read from the `gitpour.<branch>.integrate.*` namespace, keyed by the base-branch name. See **gitpour-config**(5) for the full list. Note the integrate-specific Layer-1 defaults differ from finish:
 
 - **Tagging is off by default** (base branches have no version-derived tag name).
 - **Fetching is off by default** (opt-in).
 
-The upstream merge strategy resolves through the standard three layers: `gitflow.branch.<name>.upstreamStrategy` (Layer 1), `gitflow.<branch>.integrate.*` (Layer 2), and command-line flags (Layer 3, highest priority).
+The upstream merge strategy resolves through the standard three layers: `gitpour.branch.<name>.upstreamStrategy` (Layer 1), `gitpour.<branch>.integrate.*` (Layer 2), and command-line flags (Layer 3, highest priority).
 
 ## EXAMPLES
 
 Integrate develop into main:
 ```bash
-git flow integrate develop
+git pour integrate develop
 ```
 
 Integrate the current branch into its parent:
 ```bash
-git flow integrate
+git pour integrate
 ```
 
 Integrate and tag the parent:
 ```bash
-git flow integrate develop --tag v2.0.0
+git pour integrate develop --tag v2.0.0
 ```
 
 Resume after resolving a conflict:
 ```bash
-git flow integrate --continue
+git pour integrate --continue
 ```
 
 Abort an in-progress integrate:
 ```bash
-git flow integrate --abort
+git pour integrate --abort
 ```
 
 ## EXIT STATUS
@@ -147,7 +152,7 @@ git flow integrate --abort
 : Success.
 
 **1**
-: git-flow is not initialized.
+: git-pour is not initialized.
 
 **2**
 : Invalid input (for example, tagging enabled without a resolvable name).
@@ -163,21 +168,21 @@ git flow integrate --abort
 
 ## NOTES
 
-- Integrate applies only to base branches. For topic branches (feature, release, hotfix, and custom types), use **git-flow-finish**(1).
+- Integrate applies only to base branches. For topic branches (feature, release, hotfix, and custom types), use **git-pour-finish**(1).
 - The **--rebase** strategy rewrites the integrated branch's history. Avoid it on branches that are shared with other collaborators.
 - When aborting during a child update, the already-completed upstream merge and tag on the parent are preserved; only the in-progress child update is rolled back.
 
 ## SEE ALSO
 
-**git-flow-finish**(1), **git-flow-update**(1), **git-flow-config**(1), **gitflow-config**(5), **git-flow**(1)
+**git-pour-finish**(1), **git-pour-update**(1), **git-pour-config**(1), **gitpour-config**(5), **git-pour**(1)
 
 ## AUTHORS
 
-git-flow-next is maintained by the Tower team at GitTower GmbH.
+git-pour-now is maintained by OnionRings-dev and derives from git-flow-next.
 
 ## BUGS
 
-Report bugs at https://github.com/gittower/git-flow-next/issues
+Report bugs at https://github.com/OnionRings-dev/git-pour-now/issues
 
 ## COPYRIGHT
 

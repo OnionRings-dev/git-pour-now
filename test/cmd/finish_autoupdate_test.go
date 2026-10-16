@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishAutoUpdateFiltering tests that only branches with autoUpdate=true are updated
@@ -14,10 +14,10 @@ func TestFinishAutoUpdateFiltering(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a staging branch as child of main with autoUpdate=false
@@ -27,13 +27,13 @@ func TestFinishAutoUpdateFiltering(t *testing.T) {
 	}
 
 	// Configure staging as a base branch with autoUpdate=false
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "false")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "false")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "merge")
 
 	// Verify develop has autoUpdate=true (set it explicitly)
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
 
 	// Create and checkout a hotfix branch
 	output, err = testutil.RunGitFlow(t, dir, "hotfix", "start", "critical-fix")
@@ -116,10 +116,10 @@ func TestFinishMultipleChildrenMixedAutoUpdate(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create multiple child branches of main
@@ -140,10 +140,10 @@ func TestFinishMultipleChildrenMixedAutoUpdate(t *testing.T) {
 		}
 
 		// Configure as base branch
-		testutil.RunGit(t, dir, "config", "gitflow.branch."+branch.name+".type", "base")
-		testutil.RunGit(t, dir, "config", "gitflow.branch."+branch.name+".parent", "main")
-		testutil.RunGit(t, dir, "config", "gitflow.branch."+branch.name+".autoUpdate", branch.autoUpdate)
-		testutil.RunGit(t, dir, "config", "gitflow.branch."+branch.name+".downstreamStrategy", "merge")
+		testutil.RunGit(t, dir, "config", "gitpour.branch."+branch.name+".type", "base")
+		testutil.RunGit(t, dir, "config", "gitpour.branch."+branch.name+".parent", "main")
+		testutil.RunGit(t, dir, "config", "gitpour.branch."+branch.name+".autoUpdate", branch.autoUpdate)
+		testutil.RunGit(t, dir, "config", "gitpour.branch."+branch.name+".downstreamStrategy", "merge")
 
 		// Add unique file to each branch
 		testutil.WriteFile(t, dir, branch.name+"-file.txt", branch.name+" content")
@@ -152,7 +152,7 @@ func TestFinishMultipleChildrenMixedAutoUpdate(t *testing.T) {
 	}
 
 	// Keep develop with autoUpdate=true (set explicitly)
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "true")
 
 	// Create and finish a hotfix
 	output, err = testutil.RunGitFlow(t, dir, "hotfix", "start", "multi-test")
@@ -206,21 +206,21 @@ func TestFinishNoChildrenWithAutoUpdate(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Set develop to autoUpdate=false
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "false")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "false")
 
 	// Create a staging branch also with autoUpdate=false
 	testutil.RunGit(t, dir, "checkout", "-b", "staging", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "false")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "false")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "merge")
 
 	// Create and finish a hotfix
 	output, err = testutil.RunGitFlow(t, dir, "hotfix", "start", "no-updates")
@@ -299,7 +299,7 @@ func assertChildOrder(t *testing.T, iteration int, label string, got []string, w
 // auto-update child base branches in a stable, sorted order rather than in Go's
 // randomized map iteration order.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
+//  1. Sets up a test repository and initializes git-pour with defaults
 //  2. Configures three auto-update child base branches of main — alpha, develop
 //     and zulu — created in the order zulu, alpha so a sorted result cannot be
 //     mistaken for insertion or configuration order
@@ -326,9 +326,9 @@ func TestFinishChildBranchOrderIsDeterministic(t *testing.T) {
 			dir := testutil.SetupTestRepo(t)
 			defer testutil.CleanupTestRepo(t, dir)
 
-			output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+			output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 			if err != nil {
-				t.Fatalf("iteration %d: failed to initialize git-flow: %v\nOutput: %s", i, err, output)
+				t.Fatalf("iteration %d: failed to initialize git-pour: %v\nOutput: %s", i, err, output)
 			}
 
 			// A silently dropped config key would change the configured child
@@ -341,15 +341,15 @@ func TestFinishChildBranchOrderIsDeterministic(t *testing.T) {
 
 			// develop is already an auto-update child of main; add two more that
 			// bracket it alphabetically.
-			setConfig("gitflow.branch.develop.autoUpdate", "true")
+			setConfig("gitpour.branch.develop.autoUpdate", "true")
 			for _, name := range []string{"zulu", "alpha"} {
 				if _, err := testutil.RunGit(t, dir, "checkout", "-b", name, "main"); err != nil {
 					t.Fatalf("iteration %d: failed to create %s branch: %v", i, name, err)
 				}
-				setConfig("gitflow.branch."+name+".type", "base")
-				setConfig("gitflow.branch."+name+".parent", "main")
-				setConfig("gitflow.branch."+name+".autoUpdate", "true")
-				setConfig("gitflow.branch."+name+".downstreamStrategy", "merge")
+				setConfig("gitpour.branch."+name+".type", "base")
+				setConfig("gitpour.branch."+name+".parent", "main")
+				setConfig("gitpour.branch."+name+".autoUpdate", "true")
+				setConfig("gitpour.branch."+name+".downstreamStrategy", "merge")
 			}
 
 			output, err = testutil.RunGitFlow(t, dir, "hotfix", "start", "order-check")

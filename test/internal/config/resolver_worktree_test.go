@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
 )
 
 // TestResolveStartShouldCreateWorktree covers E13: the precedence of the worktree

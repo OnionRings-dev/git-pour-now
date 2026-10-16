@@ -6,15 +6,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/navigate"
-	"github.com/gittower/git-flow-next/internal/worktree"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/navigate"
+	"github.com/OnionRings-dev/git-pour-now/internal/worktree"
 	"github.com/spf13/cobra"
 )
 
-// unmanagedTag marks a worktree git-flow did not create, the distinction that
+// unmanagedTag marks a worktree git-pour did not create, the distinction that
 // decides what the cleanup commands may remove.
 const unmanagedTag = "(unmanaged)"
 
@@ -23,7 +23,7 @@ const unmanagedTag = "(unmanaged)"
 const detachedBranchLabel = "(detached)"
 
 // missingTag marks a registered worktree whose directory is gone. The admin entry
-// survives until 'git flow worktree prune' drops it, so the row reports the
+// survives until 'git pour worktree prune' drops it, so the row reports the
 // recorded path rather than pretending the branch never had a worktree.
 const missingTag = "(missing)"
 
@@ -33,16 +33,16 @@ var worktreeCmd = &cobra.Command{
 	Long: `Manage git worktrees by branch name.
 
 Worktrees are addressed by their full branch name (e.g. feature/user-auth), not
-by topic type plus short name. Paths are computed from the gitflow.worktreePath
+by topic type plus short name. Paths are computed from the gitpour.worktreePath
 template unless --path overrides them.
 
-git-flow records the worktrees it creates, so 'worktree list' can tell them apart
+git-pour records the worktrees it creates, so 'worktree list' can tell them apart
 from worktrees created with plain 'git worktree add'.`,
-	Example: `  git flow worktree add feature/user-auth
-  git flow worktree list
-  git flow worktree remove feature/user-auth
-  git flow worktree prune
-  git flow worktree path feature/user-auth`,
+	Example: `  git pour worktree add feature/user-auth
+  git pour worktree list
+  git pour worktree remove feature/user-auth
+  git pour worktree prune
+  git pour worktree path feature/user-auth`,
 }
 
 var worktreeAddCmd = &cobra.Command{
@@ -83,7 +83,7 @@ var worktreeListCmd = &cobra.Command{
 	Short: "List linked worktrees",
 	Long: `List the linked worktrees of this repository with their branch and path.
 
-The main worktree is excluded. Worktrees git-flow did not create are tagged
+The main worktree is excluded. Worktrees git-pour did not create are tagged
 (unmanaged); a worktree whose HEAD is detached shows (detached) instead of a
 branch name.`,
 	Args: cobra.NoArgs,
@@ -108,7 +108,7 @@ never outlive what they describe.`,
 var worktreePathCmd = &cobra.Command{
 	Use:   "path <branch>",
 	Short: "Print the computed worktree path for a branch",
-	Long: `Print the path the gitflow.worktreePath template computes for a branch.
+	Long: `Print the path the gitpour.worktreePath template computes for a branch.
 
 Nothing is created and nothing is changed.`,
 	Args: cobra.ExactArgs(1),
@@ -117,31 +117,31 @@ Nothing is created and nothing is changed.`,
 	},
 }
 
-// WorktreeAddCommand is the implementation of 'git flow worktree add'.
+// WorktreeAddCommand is the implementation of 'git pour worktree add'.
 func WorktreeAddCommand(branch string, path string, noCD bool, quiet bool) {
 	runWorktreeCommand(func(repo *git.Repo) error {
 		return executeWorktreeAdd(repo, branch, path, noCD, quiet)
 	})
 }
 
-// WorktreeRemoveCommand is the implementation of 'git flow worktree remove'.
+// WorktreeRemoveCommand is the implementation of 'git pour worktree remove'.
 func WorktreeRemoveCommand(branch string, force bool, noCD bool) {
 	runWorktreeCommand(func(repo *git.Repo) error {
 		return executeWorktreeRemove(repo, branch, force, noCD)
 	})
 }
 
-// WorktreeListCommand is the implementation of 'git flow worktree list'.
+// WorktreeListCommand is the implementation of 'git pour worktree list'.
 func WorktreeListCommand() {
 	runWorktreeCommand(executeWorktreeList)
 }
 
-// WorktreePruneCommand is the implementation of 'git flow worktree prune'.
+// WorktreePruneCommand is the implementation of 'git pour worktree prune'.
 func WorktreePruneCommand() {
 	runWorktreeCommand(executeWorktreePrune)
 }
 
-// WorktreePathCommand is the implementation of 'git flow worktree path'.
+// WorktreePathCommand is the implementation of 'git pour worktree path'.
 func WorktreePathCommand(branch string) {
 	runWorktreeCommand(func(repo *git.Repo) error {
 		return executeWorktreePath(repo, branch)
@@ -149,27 +149,27 @@ func WorktreePathCommand(branch string) {
 }
 
 // runWorktreeCommand opens the invocation repository, runs one subcommand, and
-// maps a typed git-flow error to its exit code. The five subcommands share it
+// maps a typed git-pour error to its exit code. The five subcommands share it
 // rather than repeating the wrapper five times.
 func runWorktreeCommand(run func(repo *git.Repo) error) {
 	repo := mustOpenRepo()
 	if err := run(repo); err != nil {
 		exitCode := errors.ExitCodeGitError
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		}
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(int(exitCode))
 	}
 }
 
-// requireInitialized fails unless git-flow is initialized in the repository.
+// requireInitialized fails unless git-pour is initialized in the repository.
 // Every worktree subcommand gates on it, including the read-only ones, so an
 // uninitialized repository never sees half a command work.
 func requireInitialized(repo *git.Repo) error {
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}
@@ -310,7 +310,7 @@ func executeWorktreeRemove(repo *git.Repo, branch string, force bool, noCD bool)
 		if !directoryExists {
 			return &errors.GitError{
 				Operation: "remove worktree",
-				Err:       fmt.Errorf("%w (the directory is already gone; 'git flow worktree prune' drops stale entries)", err),
+				Err:       fmt.Errorf("%w (the directory is already gone; 'git pour worktree prune' drops stale entries)", err),
 			}
 		}
 		return &errors.GitError{Operation: "remove worktree", Err: err}
@@ -379,7 +379,7 @@ func executeWorktreeList(repo *git.Repo) error {
 	// managed.
 	//
 	// A failed read aborts rather than degrading, matching worktreeCells in
-	// cmd/list.go: tagging every row "(unmanaged)" would misreport git-flow's own
+	// cmd/list.go: tagging every row "(unmanaged)" would misreport git-pour's own
 	// worktrees in the direction that decides what the cleanup commands may
 	// remove.
 	markers, err := worktree.ListMarkers(repo)
@@ -463,7 +463,7 @@ func executeWorktreePath(repo *git.Repo, branch string) error {
 // --path value when given, otherwise the computed one.
 //
 // A relative --path resolves against the INVOCATION directory, which is what a
-// hand-typed path means, while a relative gitflow.worktreePath template resolves
+// hand-typed path means, while a relative gitpour.worktreePath template resolves
 // against the main worktree root. The asymmetry is deliberate: a template is a
 // repository-wide setting, a typed path is one command's argument.
 func resolveWorktreeTarget(cfg *config.Config, repo *git.Repo, branch string, pathFlag string) (string, error) {
@@ -479,25 +479,25 @@ func resolveWorktreeTarget(cfg *config.Config, repo *git.Repo, branch string, pa
 	return path, nil
 }
 
-// printShellInitTip points the user at 'git flow shell-init' after a navigation
+// printShellInitTip points the user at 'git pour shell-init' after a navigation
 // they now have to perform by hand.
 //
 // It prints only when the navigation channel is unused: a caller that set
-// GIT_FLOW_CD_FILE has the wrapper installed already, and telling them to
+// GIT_POUR_CD_FILE has the wrapper installed already, and telling them to
 // install it would be noise on every navigating command. The decision is made on
 // the resolved destination file rather than on whether the variable exists,
 // because an empty value means the same thing as an absent one.
 //
-// <shell> is printed verbatim: 'git flow shell-init' with no argument errors
+// <shell> is printed verbatim: 'git pour shell-init' with no argument errors
 // with usage, so naming a placeholder is what keeps the tip honest.
 func printShellInitTip(quiet bool) {
 	if quiet || navigate.DestinationFile() != "" {
 		return
 	}
-	fmt.Println("Tip: run 'git flow shell-init <shell>' for automatic directory switching")
+	fmt.Println("Tip: run 'git pour shell-init <shell>' for automatic directory switching")
 }
 
-// createWorktreeAt creates the worktree for branch and records git-flow as its
+// createWorktreeAt creates the worktree for branch and records git-pour as its
 // creator, returning the path it was created at.
 //
 // It is shared by 'worktree add' and 'checkout --worktree' so the two cannot
@@ -546,7 +546,7 @@ func createWorktreeAt(cfg *config.Config, repo *git.Repo, branch string, pathFla
 }
 
 // removeObstruction removes an occupied target path, but only when what is
-// there is a plain directory git-flow can afford to lose.
+// there is a plain directory git-pour can afford to lose.
 //
 // The three refusals bound the blast radius of a mistyped path template. The
 // .git test uses Lstat and refuses on ANY result — the linked-worktree form is a
@@ -575,7 +575,7 @@ func removeObstruction(repo *git.Repo, target string) error {
 		if git.SamePath(entry.Path, target) {
 			return &errors.RemovalRefusedError{
 				Path:   target,
-				Reason: "it is a registered worktree of this repository; 'git flow worktree remove <branch>' removes it safely",
+				Reason: "it is a registered worktree of this repository; 'git pour worktree remove <branch>' removes it safely",
 			}
 		}
 	}

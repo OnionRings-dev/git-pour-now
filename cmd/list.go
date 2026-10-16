@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/worktree"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/worktree"
 )
 
 // ListCommand is the implementation of the list command for topic branches
@@ -16,8 +16,8 @@ func ListCommand(branchType string, showWorktrees bool) {
 	repo := mustOpenRepo()
 	if err := list(repo, branchType, showWorktrees); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -28,10 +28,10 @@ func ListCommand(branchType string, showWorktrees bool) {
 
 // list performs the actual branch listing logic and returns any errors
 func list(repo *git.Repo, branchType string, showWorktrees bool) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}

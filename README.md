@@ -1,203 +1,125 @@
-# git-flow-next
+# git-pour-now 🍻
 
-A modern implementation of the Git-flow branching model, written in Go. It is brought to you and maintaned by the team at <a href="https://www.git-tower.com" target="_blank" rel="noopener">Tower</a>, the most powerful Git client for Mac and Windows.
-
-<p>
-  <a href="https://www.git-tower.com" target="_blank" rel="noopener">
-    <img src=".github/assets/tower-logo-light.svg" alt="Tower logo" width="200">
-  </a>
-</p>
-
-## About
-
-git-flow-next is a modern reimplementation of the popular git-flow branching model. It's built with Go, focusing on reliability, extensibility, and developer experience.
-
-## Why This Project?
-
-This project is maintained by the team behind [Tower](https://www.git-tower.com), one of the most popular Git clients for Mac and Windows. Having integrated git-flow into Tower over many years, we've gained deep insights into its strengths and areas for improvement.
-
-As developers of version control tools, we're passionate about creating better developer experiences. While the original git-flow has served the community well, we saw an opportunity to build a more modern implementation that:
-
-- Is written in Go for better maintainability and performance
-- Provides a more robust and reliable experience
-- Offers better error handling and conflict resolution
-- Supports modern Git workflows and practices
-- Maintains compatibility with existing git-flow setups
-
-Our goal is to contribute back to the developer community with tools that make version control workflows more efficient and enjoyable.
-
-## Features
-
-- **Modern Implementation**: Written in Go with focus on reliability and maintainability
-- **Improved Conflict Resolution**: Better handling of merge conflicts and edge cases
-- **Flexible Configuration**: Customizable branch naming and merge strategies
-- **Compatibility**: Works with existing git-flow repositories
-- **Enhanced Error Handling**: Clear error messages and recovery options
-- **Performance**: Fast and efficient operations
+A personal fork of [git-flow-next](https://github.com/gittower/git-flow-next),
+maintained by OnionRings-dev. Keep development on `main`, work in short-lived
+`feature/` branches, and identify releases exclusively with Git tags.
 
 ## Installation
 
-### Homebrew (macOS and Linux)
+Requires Go 1.23.6 or newer and Git.
 
-```bash
-brew install git-flow-next
+```sh
+go install github.com/OnionRings-dev/git-pour-now@latest
 ```
 
-### WinGet (Windows)
+`go install` names the executable after the module (`git-pour-now`). Rename it to
+`git-pour` in your PATH to enable `git pour`, or build it with the correct name:
 
-```bash
-winget install GitTower.GitFlowNext
+```sh
+go build -o git-pour main.go
+# Copy git-pour to a directory in your PATH.
 ```
 
-### Scoop (Windows)
+Release archives contain the `git-pour` executable (`git-pour.exe` on Windows).
 
-```bash
-scoop install git-flow-next
+## Workflow
+
+```sh
+git pour init --defaults
+git pour feature start my-feature
+# Edit files and commit your work.
+git pour feature finish my-feature
+# Feature changes are now on main.
+git pour release 0.1.0
+git push origin main
+git push origin tag v0.1.0
 ```
 
-### Manual Installation (macOS and Linux)
+The default configuration has one base branch, `main`, and two topic types: `feature/` and `prerelease/`. Features start from `main`, finish by merging into `main`, and update
+by rebasing onto `main`. Finishing a feature does not create a release.
+No `develop`, release, or hotfix branch is created by the default workflow.
+Prerelease branches are created explicitly when needed.
 
-1. Download the latest release from the [releases page](https://github.com/gittower/git-flow-next/releases)
-2. Extract `git-flow` to a location in your PATH
-3. Make it executable: `chmod +x /path/to/git-flow`
+`git pour release <version>` creates an annotated `v<version>` tag. Stable versions require the
+configured trunk (normally `main`); prereleases require the matching
+`prerelease/<MAJOR.MINOR.PATCH>` branch. It requires a clean working tree and no
+unfinished merge or rebase. Versions must be valid [SemVer 2.0.0](https://semver.org/)
+and greater than all existing local SemVer tags; build metadata does not affect
+precedence. Both `1.2.3` and `v1.2.3` input create `v1.2.3`.
+Prereleases such as `1.0.0-rc.1` and metadata such as `1.0.0+build.42` are supported.
+Fetch remote tags before releasing in a shared repository (`git fetch --tags`).
+Tags are never overwritten or automatically pushed.
 
-### Manual Installation (Windows)
+Use `--message/-m` for a custom annotation and `--sign/-s` for a signed tag.
 
-1. Download the latest release from the [releases page](https://github.com/gittower/git-flow-next/releases)
-2. Extract `git-flow.exe` to a location in your PATH
-3. Verify the installation by running `git flow version`
+## Prereleases
 
-The binary must be named exactly `git-flow.exe` for Git to detect it as the `git flow` subcommand. If `git flow version` reports that `flow` is not a git command, check that Windows has not appended a hidden extension (for example `git-flow.exe.exe` when file extensions are hidden).
+Create a temporary branch for the target release core version. Prerelease tags
+belong to that branch; finishing the branch merges its work into `main` and
+removes the branch locally. The stable tag is created explicitly afterwards.
 
-## Quick Start
-
-1. Initialize git-flow in your repository:
-   ```bash
-   git flow init
-   ```
-
-2. Start a new feature:
-   ```bash
-   git flow feature start my-feature
-   ```
-
-3. Finish the feature:
-   ```bash
-   git flow feature finish my-feature
-   ```
-
-## Shorthand Commands
-
-git-flow-next provides convenient shorthand commands that automatically detect your current topic branch and execute the appropriate action. These aliases work similar to git-flow-avh and eliminate the need to specify the branch type manually.
-
-### Available Shorthands
-
-| Shorthand | Full Command | Description |
-|-----------|--------------|-------------|
-| `git flow delete` | `git flow <type> delete <name>` | Delete the current topic branch |
-| `git flow rebase` | `git flow <type> update --rebase` | Rebase the current topic branch |
-| `git flow update` | `git flow <type> update` | Update the current topic branch |
-| `git flow rename` | `git flow <type> rename <name>` | Rename the current topic branch |
-| `git flow publish` | `git flow <type> publish` | Publish the current topic branch |
-| `git flow finish` | `git flow <type> finish` | Finish the current topic branch |
-
-### How It Works
-
-When you use a shorthand command, git-flow-next:
-
-1. **Detects your current branch** - Checks which branch you're currently on
-2. **Identifies the branch type** - Determines if it's a feature, release, hotfix, or support branch based on configured prefixes
-3. **Executes the full command** - Runs the corresponding full command with the detected type and branch name
-
-### Examples
-
-```bash
-# On a feature branch
-git checkout feature/my-awesome-feature
-git flow finish  # Executes: git flow feature finish my-awesome-feature
-git flow rebase  # Executes: git flow feature update --rebase
-
-# On a release branch
-git checkout release/v1.2.0
-git flow publish  # Executes: git flow release publish v1.2.0
-
-# On a hotfix branch
-git checkout hotfix/critical-bug
-git flow finish  # Executes: git flow hotfix finish critical-bug
-git flow rebase  # Executes: git flow hotfix update --rebase
+```sh
+git pour prerelease start 1.2.0
+# Prepare and commit the release.
+git pour release 1.2.0-rc.1
+git push -u origin prerelease/1.2.0
+git push origin tag v1.2.0-rc.1
+# Make further fixes and tag rc.2 if needed.
+git pour prerelease finish 1.2.0
+git pour release 1.2.0
+git push origin main
+git push origin tag v1.2.0
 ```
 
-### Branch Detection
+Keep the remote prerelease branch until its tag-triggered builds finish. You can
+then delete it with `git push origin --delete prerelease/1.2.0`; tags retain the
+prerelease history. The release workflow checks prerelease ancestry against that
+branch and stable release ancestry against `main`.
 
-The shorthand commands automatically detect topic branches based on your git-flow configuration:
+## Versioning
 
-- **Feature branches**: `feature/`, `features/`, `feat/`
-- **Release branches**: `release/`, `releases/`, `rel/`
-- **Hotfix branches**: `hotfix/`, `hotfixes/`, `hf/`
-- **Support branches**: `support/`, `supports/`, `sup/`
+The public API consists of the documented CLI commands, options, configuration
+keys, and machine-readable output. Releases follow Semantic Versioning:
 
-### Error Handling
+- PATCH: compatible bug fixes.
+- MINOR: compatible additions or deprecations.
+- MAJOR: incompatible public API changes.
 
-- **Non-topic branches**: If you're not on a topic branch, you'll get a clear error message
-- **Ambiguous branches**: If a branch name could be interpreted multiple ways, you'll be prompted to use the explicit command
-- **Missing branches**: If the branch doesn't exist, appropriate error messages are shown
+The fork is in initial development until its first `1.0.0` release. Git tags are
+the release version source; there are no hard-coded release version numbers.
+`./scripts/build.sh` uses an exact tag at HEAD, or `dev` for an untagged checkout.
+The release workflow validates pushed `v*` tags and their branch ancestry,
+then builds archives and creates the GitHub release. Untagged source builds report
+`dev`; `./scripts/build.sh v0.1.0` can prepare a versioned build locally.
 
-### Command Options
+## Configuration and compatibility
 
-All options and flags are passed through to the underlying commands:
+Settings live under `gitpour.*`; shared configuration lives in `.gitpour`.
+Shell integration uses `GIT_POUR_*` environment variables. Hooks use names such
+as `pre-pour-feature-start` and `filter-pour-feature-start-version`; rename any
+existing hook scripts when opting into the fork.
+This fork does not automatically rewrite an existing git-flow-next configuration;
+initialize it with `git pour init --defaults` to opt into the new workflow.
+Legacy git-flow-avh configuration can still be imported and its historical
+`gitflow.*` keys are read only by the compatibility importer.
 
-```bash
-# Options work exactly like the full commands
-git flow finish --keep --tag  # Keeps the branch and creates a tag
-git flow update --rebase      # Forces rebase strategy for update
-git flow delete --force       # Force deletes the branch
-```
-
-### Supported Branch Types
-
-The shorthand commands work with all standard git-flow branch types:
-
-- **Feature branches**: For new features and enhancements
-- **Release branches**: For preparing new releases
-- **Hotfix branches**: For critical bug fixes
-- **Support branches**: For maintaining older versions
-
-## Documentation
-
-For detailed documentation, please visit our [documentation site](https://git-flow.sh/docs/).
-
-### Configuration Reference
-
-For comprehensive configuration information, see **[CONFIGURATION.md](CONFIGURATION.md)** which includes:
-- Complete list of all configuration options
-- Default values and examples
-- Configuration precedence hierarchy (some options intentionally skip branch defaults)
-- Migration guide from git-flow-avh
-- Best practices and workflows
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get involved.
+The explicit `--preset=classic`, `--preset=github`, and `--preset=gitlab`
+compatibility presets and custom topic types remain available. With a configured
+`release` topic type, `git pour release start/finish` manages that legacy branch;
+the direct tag release command is available when no `release` topic is configured.
+Advanced inherited capabilities are described in [docs](docs/README.md).
 
 ## Development
 
-For information about the project's architecture and technical overview, see [ARCHITECTURE.md](ARCHITECTURE.md).
+```sh
+go test ./...
+go vet ./...
+go build -o git-pour main.go
+```
 
-### Testing Resources
+The shell integration tests require bash, zsh, and fish.
 
-- **[TESTING_GUIDELINES.md](TESTING_GUIDELINES.md)** - Testing conventions, patterns, and best practices
-- **[GIT_TEST_SCENARIOS.md](GIT_TEST_SCENARIOS.md)** - How to set up specific Git test scenarios (merge conflicts, local remotes, state verification)
+## License and attribution
 
-## License
-
-This project is licensed under the BSD 2-Clause License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-This project builds upon the work of:
-- Vincent Driessen's [original git-flow](https://nvie.com/posts/a-successful-git-branching-model/)
-- Peter van der Does' [git-flow (AVH Edition)](https://github.com/petervanderdoes/gitflow-avh)
-
-## About Tower
-
-git-flow-next is maintained by the team behind [Tower](https://www.git-tower.com), the popular Git client for Mac and Windows. With over a decade of experience in Git tooling and version control, we're committed to creating high-quality developer tools that make working with Git more efficient and enjoyable.
+BSD 2-Clause; see [LICENSE](LICENSE). This fork retains the original copyright
+and attribution. The historical changelog describes the upstream project.

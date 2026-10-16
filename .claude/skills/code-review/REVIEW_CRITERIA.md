@@ -42,7 +42,7 @@ Check for: command injection (user input in shell commands), path traversal, exp
 
 ### 7. Documentation
 
-Were docs updated to match the change? Check manpages in `docs/` for command/option changes, `docs/gitflow-config.5.md` for config changes, and help text for CLI changes.
+Were docs updated to match the change? Check manpages in `docs/` for command/option changes, `docs/gitpour-config.5.md` for config changes, and help text for CLI changes.
 
 Evaluate against the documentation requirements in [CODING_GUIDELINES.md](../../../CODING_GUIDELINES.md).
 

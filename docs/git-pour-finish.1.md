@@ -1,14 +1,19 @@
-# GIT-FLOW-FINISH(1)
+# GIT-POUR-FINISH(1)
+
+Examples using `develop`, release branches, or hotfix branches refer to the
+explicit `--preset=classic` compatibility workflow. The default workflow uses
+`main`, `feature/`, and temporary `prerelease/<version>` branches, with releases
+identified by SemVer tags.
 
 ## NAME
 
-git-flow-finish - Complete and merge topic branches
+git-pour-finish - Complete and merge topic branches
 
 ## SYNOPSIS
 
-**git-flow** *topic* **finish** [*name*] [*options*]
+**git-pour** *topic* **finish** [*name*] [*options*]
 
-**git-flow finish** [*options*]
+**git-pour finish** [*options*]
 
 ## DESCRIPTION
 
@@ -28,7 +33,7 @@ The operation maintains a persistent state file that allows it to resume after c
 : The topic branch type (feature, release, hotfix, support, or any configured custom type)
 
 *name*
-: Name of the topic branch to finish. If omitted when using the shorthand **git-flow finish**, the current branch is used.
+: Name of the topic branch to finish. If omitted when using the shorthand **git-pour finish**, the current branch is used.
 
 ## OPTIONS
 
@@ -113,10 +118,10 @@ The operation maintains a persistent state file that allows it to resume after c
 : Custom commit message for squash merge. This is a CLI-only option with no git config equivalent, as squash messages are specific to each branch being finished.
 
 **--merge-message**, **-M** *message*
-: Custom commit message for the upstream merge operation (topic branch to parent). Useful for teams using commit message validation hooks (e.g., conventional commits) where auto-generated messages like "Merge branch 'feature/foo'" would be rejected. Supports placeholders (see MESSAGE PLACEHOLDERS below). Can be configured as default via `gitflow.<type>.finish.mergemessage`.
+: Custom commit message for the upstream merge operation (topic branch to parent). Useful for teams using commit message validation hooks (e.g., conventional commits) where auto-generated messages like "Merge branch 'feature/foo'" would be rejected. Supports placeholders (see MESSAGE PLACEHOLDERS below). Can be configured as default via `gitpour.<type>.finish.mergemessage`.
 
 **--update-message** *message*
-: Custom commit message for child branch update operations (parent to child branches). When finishing a release or hotfix, child branches like develop are automatically updated from the parent. This option allows customizing those merge commit messages. Supports placeholders (see MESSAGE PLACEHOLDERS below). Can be configured as default via `gitflow.<type>.finish.updatemessage`.
+: Custom commit message for child branch update operations (parent to child branches). When finishing a release or hotfix, child branches like develop are automatically updated from the parent. This option allows customizing those merge commit messages. Supports placeholders (see MESSAGE PLACEHOLDERS below). Can be configured as default via `gitpour.<type>.finish.updatemessage`.
 
 **--preserve-merges**, **-p**
 : Preserve merges during rebase operations
@@ -131,60 +136,60 @@ The operation maintains a persistent state file that allows it to resume after c
 : Allow fast-forward merge when possible (default)
 
 **--ff-only**
-: Require that the merge into the parent branch be a fast-forward. This is a precondition, not a merge strategy: if the parent branch carries any commit the topic branch does not — whether the two have truly diverged or the parent is merely ahead — finish runs the configured fetch and then aborts before touching any local branch, tag or the working tree, so what lands on the parent is exactly the tested topic tip. Integrate the parent into the topic branch, re-test, and finish again. The condition is re-checked immediately before the merge, so a parent branch advanced in the meantime — by the pre-finish hook or by a concurrent process — is caught as well; that later abort still performs no merge, creates no tag and deletes no branch, but it is not a no-op, because the pre-finish hook has already run and whatever it did stands. The merge itself is run with Git's own `--ff-only`, so a repository that sets `merge.ff = false` still gets a fast-forward rather than a merge commit, and a parent that moves even later is refused and reported as the same error, with nothing merged — including a parent that moved *past* the topic tip, which Git's `--ff-only` calls "already up to date" and would leave unlanded. `--ff-only` never rewrites the topic branch to make it land: combined with a rebase strategy, the rebase step is skipped — a topology that satisfies the precondition makes it a no-op anyway, and one that does not must be reported rather than rebased away. Overrides git config setting `gitflow.<type>.finish.ff-only`.
+: Require that the merge into the parent branch be a fast-forward. This is a precondition, not a merge strategy: if the parent branch carries any commit the topic branch does not — whether the two have truly diverged or the parent is merely ahead — finish runs the configured fetch and then aborts before touching any local branch, tag or the working tree, so what lands on the parent is exactly the tested topic tip. Integrate the parent into the topic branch, re-test, and finish again. The condition is re-checked immediately before the merge, so a parent branch advanced in the meantime — by the pre-finish hook or by a concurrent process — is caught as well; that later abort still performs no merge, creates no tag and deletes no branch, but it is not a no-op, because the pre-finish hook has already run and whatever it did stands. The merge itself is run with Git's own `--ff-only`, so a repository that sets `merge.ff = false` still gets a fast-forward rather than a merge commit, and a parent that moves even later is refused and reported as the same error, with nothing merged — including a parent that moved *past* the topic tip, which Git's `--ff-only` calls "already up to date" and would leave unlanded. `--ff-only` never rewrites the topic branch to make it land: combined with a rebase strategy, the rebase step is skipped — a topology that satisfies the precondition makes it a no-op anyway, and one that does not must be reported rather than rebased away. Overrides git config setting `gitpour.<type>.finish.ff-only`.
 
 ### Remote Fetch Options
 
 **--fetch**
-: Fetch from remote before finishing the branch (default). This fetches both the base branch and the topic branch to ensure the latest remote changes are known before merging. Overrides git config setting `gitflow.<type>.finish.fetch`. If no remote is configured, the fetch is automatically skipped. The base (parent) branch is fetched best-effort — a failure there is a non-fatal note. A failure fetching the **topic** branch against a reachable-but-failing remote is **fatal**: finish aborts and names the cause, suggesting `--no-fetch` or `--force`. A remote that simply has no ref for the topic (never pushed, or deleted after a remote merge) is treated as benign and the topic's sync check is skipped.
+: Fetch from remote before finishing the branch (default). This fetches both the base branch and the topic branch to ensure the latest remote changes are known before merging. Overrides git config setting `gitpour.<type>.finish.fetch`. If no remote is configured, the fetch is automatically skipped. The base (parent) branch is fetched best-effort — a failure there is a non-fatal note. A failure fetching the **topic** branch against a reachable-but-failing remote is **fatal**: finish aborts and names the cause, suggesting `--no-fetch` or `--force`. A remote that simply has no ref for the topic (never pushed, or deleted after a remote merge) is treated as benign and the topic's sync check is skipped.
 
 **--no-fetch**
-: Don't fetch from remote before finishing. Disables the default fetch behavior. Overrides git config setting `gitflow.<type>.finish.fetch`. The fetch is skipped, but the remote sync check still runs against existing (local) tracking data.
+: Don't fetch from remote before finishing. Disables the default fetch behavior. Overrides git config setting `gitpour.<type>.finish.fetch`. The fetch is skipped, but the remote sync check still runs against existing (local) tracking data.
 
 ### Remote Push Options
 
-By default, finishing a branch performs only local work; nothing is pushed. These options opt in to pushing the results of a completed finish to the configured remote (`gitflow.origin`, default `origin`) as a final stage, after all merges, tags, child updates, and branch deletion are done. The finished topic branch itself is never pushed by these options.
+By default, finishing a branch performs only local work; nothing is pushed. These options opt in to pushing the results of a completed finish to the configured remote (`gitpour.origin`, default `origin`) as a final stage, after all merges, tags, child updates, and branch deletion are done. The finished topic branch itself is never pushed by these options.
 
 When pushing branches, finish pushes the target (parent) branch first, followed by each auto-updated child base branch (for example `main` then `develop` on a release or hotfix finish). Each branch is pushed explicitly to the configured remote with a plain `git push <remote> <branch>`, so it does not depend on or alter the branch's upstream tracking configuration.
 
 **--push**
-: Push the target branch and each auto-updated child base branch (and, by default, the created tag) after finishing. Overrides git config setting `gitflow.<type>.finish.push`.
+: Push the target branch and each auto-updated child base branch (and, by default, the created tag) after finishing. Overrides git config setting `gitpour.<type>.finish.push`.
 
 **--no-push**
-: Don't push branches after finishing. Because the tag-push default derives from the branch-push decision, `--no-push` also suppresses the inherited tag push unless `--pushtag` is given explicitly. Overrides git config setting `gitflow.<type>.finish.push`.
+: Don't push branches after finishing. Because the tag-push default derives from the branch-push decision, `--no-push` also suppresses the inherited tag push unless `--pushtag` is given explicitly. Overrides git config setting `gitpour.<type>.finish.push`.
 
 **--pushtag**
-: Push the created tag after finishing. The default for pushing the tag follows the resolved branch-push setting, so a bare `--push` already pushes the tag; use `--pushtag` to push the tag without pushing branches, or to re-enable the tag push when branch pushing is disabled. Has no effect when no tag was created. Overrides git config setting `gitflow.<type>.finish.pushtag`.
+: Push the created tag after finishing. The default for pushing the tag follows the resolved branch-push setting, so a bare `--push` already pushes the tag; use `--pushtag` to push the tag without pushing branches, or to re-enable the tag push when branch pushing is disabled. Has no effect when no tag was created. Overrides git config setting `gitpour.<type>.finish.pushtag`.
 
 **--no-pushtag**
-: Don't push the created tag after finishing, even when branches are pushed. Overrides git config setting `gitflow.<type>.finish.pushtag`.
+: Don't push the created tag after finishing, even when branches are pushed. Overrides git config setting `gitpour.<type>.finish.pushtag`.
 
 If no remote is configured, the push stage is skipped with a note and finish still exits successfully. If a push is rejected (for example a non-fast-forward update because the remote has diverged), finish exits with an error; the local finish is already complete and nothing is rolled back — re-run the push manually after reconciling.
 
-CLI push flags are not persisted across `--continue`. Options are re-resolved on continue, so to enable a push that must survive a conflict-and-continue, set the `gitflow.<type>.finish.push` config key rather than relying on the flag.
+CLI push flags are not persisted across `--continue`. Options are re-resolved on continue, so to enable a push that must survive a conflict-and-continue, set the `gitpour.<type>.finish.push` config key rather than relying on the flag.
 
 ### Worktree Cleanup
 
-A branch checked out in a linked worktree cannot be deleted while it is checked out there, so once the merge (and any child-branch updates) complete, finish frees the topic branch's worktree before deleting the branch. What "freeing" means depends on who created it: git-flow removes the ones it created; a worktree created by hand (`git worktree add`) is kept, with its HEAD detached from the branch instead — the directory and every file in it, including uncommitted work, stay exactly as they were. Neither flag has a git config equivalent; both are CLI-only, like **git-flow-checkout**(1)'s **--worktree**.
+A branch checked out in a linked worktree cannot be deleted while it is checked out there, so once the merge (and any child-branch updates) complete, finish frees the topic branch's worktree before deleting the branch. What "freeing" means depends on who created it: git-pour removes the ones it created; a worktree created by hand (`git worktree add`) is kept, with its HEAD detached from the branch instead — the directory and every file in it, including uncommitted work, stay exactly as they were. Neither flag has a git config equivalent; both are CLI-only, like **git-pour-checkout**(1)'s **--worktree**.
 
 **--keep-worktree**
-: Keep the branch's worktree instead of removing it, even when git-flow created it. The directory survives on a detached HEAD, and the branch is still deleted. Has no additional effect on a worktree git-flow did not create, which is always detached rather than removed. Persisted across **--continue**, so a conflict resolved after finishing with this flag still detaches rather than removes.
+: Keep the branch's worktree instead of removing it, even when git-pour created it. The directory survives on a detached HEAD, and the branch is still deleted. Has no additional effect on a worktree git-pour did not create, which is always detached rather than removed. Persisted across **--continue**, so a conflict resolved after finishing with this flag still detaches rather than removes.
 
 **--force-worktree**, **-W**
-: Remove a git-flow-created worktree even if it has uncommitted or untracked changes, discarding them. Only applies to the removal path — detaching never needs it, since detaching changes no files. If the worktree has a merge, rebase, bisect, cherry-pick, or revert in progress, finish is refused before the merge starts, regardless of **--force-worktree**: an in-progress operation cannot be abandoned by either freeing path. Persisted across **--continue** like **--keep-worktree**.
+: Remove a git-pour-created worktree even if it has uncommitted or untracked changes, discarding them. Only applies to the removal path — detaching never needs it, since detaching changes no files. If the worktree has a merge, rebase, bisect, cherry-pick, or revert in progress, finish is refused before the merge starts, regardless of **--force-worktree**: an in-progress operation cannot be abandoned by either freeing path. Persisted across **--continue** like **--keep-worktree**.
 
 The worktree pre-flight (the dirty/in-progress check above) runs before the merge starts, and again, identically, at the top of a resumed **--continue** — a finish that reaches branch deletion by either path never arrives there with an unfreeable worktree. **--keep**/**--keeplocal** (which retain the branch itself) skip worktree handling entirely: freeing a worktree is only ever done because the branch is about to disappear.
 
-If you are standing inside the worktree being removed, the destination written to **GIT_FLOW_CD_FILE** (see **git-flow-worktree**(1)) is wherever finish actually landed: ordinarily the parent branch's own worktree if it has one, otherwise the main worktree, but if an auto-update child base branch ended up checked out there instead (see below), that worktree — not the main worktree — is still the right destination, since it is where the operation itself finished. Detaching never navigates: the directory stays exactly where it is. A branch with no worktree, or one checked out in the main worktree, is unaffected by either flag.
+If you are standing inside the worktree being removed, the destination written to **GIT_POUR_CD_FILE** (see **git-pour-worktree**(1)) is wherever finish actually landed: ordinarily the parent branch's own worktree if it has one, otherwise the main worktree, but if an auto-update child base branch ended up checked out there instead (see below), that worktree — not the main worktree — is still the right destination, since it is where the operation itself finished. Detaching never navigates: the directory stays exactly where it is. A branch with no worktree, or one checked out in the main worktree, is unaffected by either flag.
 
-The rebase strategy (**--rebase**, or `gitflow.<type>.finish.rebase`) is the one combination this does not cover: finish refuses outright when the topic branch has its own separate worktree and the merge would actually rebase (not skipped, as it is under **--ff-only**), naming the worktree and suggesting **--merge**, **--squash**, or removing the worktree first. Merge and squash both work correctly from inside such a worktree; only rebase does not yet.
+The rebase strategy (**--rebase**, or `gitpour.<type>.finish.rebase`) is the one combination this does not cover: finish refuses outright when the topic branch has its own separate worktree and the merge would actually rebase (not skipped, as it is under **--ff-only**), naming the worktree and suggesting **--merge**, **--squash**, or removing the worktree first. Merge and squash both work correctly from inside such a worktree; only rebase does not yet.
 
-A child base branch due for auto-update (see **git-flow-config**(5) on `autoUpdate`) is checked out wherever finish's own merge landed, not in its own worktree — so if it has its own separate worktree, finish refuses outright before the merge starts, naming the branch and its worktree and suggesting **git flow worktree remove**. Refusing early here matters more than for the topic branch itself: by the time this checkout would otherwise be attempted, the merge (and any tag) have already completed, and there is no clean way back.
+A child base branch due for auto-update (see **git-pour-config**(5) on `autoUpdate`) is checked out wherever finish's own merge landed, not in its own worktree — so if it has its own separate worktree, finish refuses outright before the merge starts, naming the branch and its worktree and suggesting **git pour worktree remove**. Refusing early here matters more than for the topic branch itself: by the time this checkout would otherwise be attempted, the merge (and any tag) have already completed, and there is no clean way back.
 
 ### Hook Control
 
 **--no-verify**
-: Bypass pre-commit and commit-msg hooks during merge and commit operations. This passes the `--no-verify` flag to the underlying `git merge` and `git commit` commands. Useful when hooks would interfere with automated finishing workflows or when you want to temporarily skip validation. The setting is persisted through `--continue` operations after conflict resolution. Overrides git config setting `gitflow.<type>.finish.noverify`.
+: Bypass pre-commit and commit-msg hooks during merge and commit operations. This passes the `--no-verify` flag to the underlying `git merge` and `git commit` commands. Useful when hooks would interfere with automated finishing workflows or when you want to temporarily skip validation. The setting is persisted through `--continue` operations after conflict resolution. Overrides git config setting `gitpour.<type>.finish.noverify`.
 
 ## REMOTE SYNC CHECK
 
@@ -221,7 +226,7 @@ The parent check is gated the same way as the topic check: it is skipped when no
 Use the **--force** flag to bypass the remote sync check:
 
 ```bash
-git flow feature finish --force my-feature
+git pour feature finish --force my-feature
 ```
 
 This is useful when you intentionally want to discard remote changes, such as when the remote commits were experimental or should not be included in the merge.
@@ -232,13 +237,13 @@ When finish aborts due to being behind the remote, you have several options:
 
 ```bash
 # Option 1: Update your branch with remote changes first
-git flow feature update my-feature
+git pour feature update my-feature
 
 # Option 2: Pull changes directly
 git pull
 
 # Option 3: Force finish (discards remote changes)
-git flow feature finish --force my-feature
+git pour feature finish --force my-feature
 ```
 
 ## MERGE STRATEGIES
@@ -259,8 +264,8 @@ The merge strategy used when finishing follows a three-layer precedence system:
 The merge strategy follows a three-layer precedence system (highest to lowest):
 
 1. **Command-line flags**: `--rebase`, `--squash`, `--no-rebase`, `--no-squash` (highest priority)
-2. **Command-specific config**: `gitflow.<type>.finish.rebase`, `gitflow.<type>.finish.squash`
-3. **Branch defaults**: `gitflow.branch.<type>.upstreamstrategy` (lowest priority)
+2. **Command-specific config**: `gitpour.<type>.finish.rebase`, `gitpour.<type>.finish.squash`
+3. **Branch defaults**: `gitpour.branch.<type>.upstreamstrategy` (lowest priority)
 
 ### Additional Options
 
@@ -299,19 +304,19 @@ Custom merge and update messages can include placeholders that are automatically
 
 ```bash
 # Simple branch name placeholder
-git flow feature finish my-feature --merge-message "feat: merge %b"
+git pour feature finish my-feature --merge-message "feat: merge %b"
 # Result: "feat: merge feature/my-feature"
 
 # Branch and parent placeholders
-git flow feature finish my-feature --merge-message "feat: merge %b into %p"
+git pour feature finish my-feature --merge-message "feat: merge %b into %p"
 # Result: "feat: merge feature/my-feature into develop"
 
 # Child updates with placeholders
-git flow release finish 1.0 --update-message "chore: sync %b from %p"
+git pour release finish 1.0 --update-message "chore: sync %b from %p"
 # Result on develop: "chore: sync develop from main"
 
 # Escaped percent sign
-git flow feature finish my-feature --merge-message "100%% complete: %b"
+git pour feature finish my-feature --merge-message "100%% complete: %b"
 # Result: "100% complete: feature/my-feature"
 ```
 
@@ -321,17 +326,17 @@ git flow feature finish my-feature --merge-message "100%% complete: %b"
 
 Finish current topic branch (shorthand):
 ```bash
-git flow finish
+git pour finish
 ```
 
 Finish specific feature branch:
 ```bash
-git flow feature finish user-authentication
+git pour feature finish user-authentication
 ```
 
 Finish release branch with tag:
 ```bash
-git flow release finish 1.2.0 --tag
+git pour release finish 1.2.0 --tag
 ```
 
 ### Handling Conflicts
@@ -339,80 +344,80 @@ git flow release finish 1.2.0 --tag
 When conflicts occur during finish:
 ```bash
 # Start finish operation
-git flow feature finish my-feature
+git pour feature finish my-feature
 
 # Conflicts occur, resolve them manually
 git add conflicted-files
 git commit
 
 # Continue the finish operation
-git flow feature finish my-feature --continue
+git pour feature finish my-feature --continue
 ```
 
 Or abort if needed:
 ```bash
-git flow feature finish my-feature --abort
+git pour feature finish my-feature --abort
 ```
 
 ### Tag Management
 
 Create signed tag with custom message:
 ```bash
-git flow release finish 1.2.0 --sign --message "Release version 1.2.0"
+git pour release finish 1.2.0 --sign --message "Release version 1.2.0"
 ```
 
 Use specific GPG key:
 ```bash
-git flow release finish 1.2.0 --sign --signingkey ABC123DEF
+git pour release finish 1.2.0 --sign --signingkey ABC123DEF
 ```
 
 ### Merge Strategy Examples
 
 Force rebase strategy regardless of configuration:
 ```bash
-git flow feature finish my-feature --rebase
+git pour feature finish my-feature --rebase
 ```
 
 Squash all commits into single commit:
 ```bash
-git flow feature finish my-feature --squash
+git pour feature finish my-feature --squash
 ```
 
 Rebase with preserved merges:
 ```bash
-git flow feature finish my-feature --rebase --preserve-merges
+git pour feature finish my-feature --rebase --preserve-merges
 ```
 
 Create merge commit even for fast-forward:
 ```bash
-git flow feature finish my-feature --no-ff
+git pour feature finish my-feature --no-ff
 ```
 
 Refuse to finish unless the parent can be fast-forwarded:
 ```bash
-git flow feature finish my-feature --ff-only
+git pour feature finish my-feature --ff-only
 ```
 
 Override configured squash with regular merge:
 ```bash
-git flow feature finish my-feature --no-squash
+git pour feature finish my-feature --no-squash
 ```
 
 Squash with custom commit message:
 ```bash
-git flow feature finish my-feature --squash --squash-message "feat: add login functionality"
+git pour feature finish my-feature --squash --squash-message "feat: add login functionality"
 ```
 
 ### Custom Merge Commit Messages
 
 Use custom merge message for conventional commits:
 ```bash
-git flow feature finish my-feature --merge-message "feat(auth): add user authentication"
+git pour feature finish my-feature --merge-message "feat(auth): add user authentication"
 ```
 
 Custom messages for both merge and child updates:
 ```bash
-git flow release finish 1.2.0 \
+git pour release finish 1.2.0 \
   --merge-message "release: version 1.2.0" \
   --update-message "chore: sync develop with main after release 1.2.0"
 ```
@@ -421,64 +426,64 @@ git flow release finish 1.2.0 \
 
 Keep branch for backporting:
 ```bash
-git flow hotfix finish 1.1.1 --keep
+git pour hotfix finish 1.1.1 --keep
 ```
 
 Clean up both local and remote:
 ```bash
-git flow feature finish my-feature --no-keeplocal --no-keepremote
+git pour feature finish my-feature --no-keeplocal --no-keepremote
 ```
 
 ### Bypassing Hooks
 
 Skip pre-commit and commit-msg hooks during finish:
 ```bash
-git flow feature finish my-feature --no-verify
+git pour feature finish my-feature --no-verify
 ```
 
 Useful in CI/CD environments where hooks might interfere:
 ```bash
-git flow release finish 1.2.0 --no-verify --tag
+git pour release finish 1.2.0 --no-verify --tag
 ```
 
 ### Worktree Cleanup
 
-Finish a branch with a git-flow-created worktree (the worktree is removed automatically):
+Finish a branch with a git-pour-created worktree (the worktree is removed automatically):
 ```bash
-git flow feature finish my-feature
+git pour feature finish my-feature
 ```
 
 Finish the branch but keep its worktree, detached:
 ```bash
-git flow feature finish my-feature --keep-worktree
+git pour feature finish my-feature --keep-worktree
 ```
 
-Finish a branch whose git-flow-created worktree has uncommitted changes:
+Finish a branch whose git-pour-created worktree has uncommitted changes:
 ```bash
-git flow feature finish my-feature --force-worktree
+git pour feature finish my-feature --force-worktree
 ```
 
 ### Pushing After Finish
 
 Push the target branch (and any auto-updated child branches) plus the created tag after finishing:
 ```bash
-git flow release finish 1.2.0 --push
+git pour release finish 1.2.0 --push
 ```
 
 Push the updated branches but not the tag:
 ```bash
-git flow release finish 1.2.0 --push --no-pushtag
+git pour release finish 1.2.0 --push --no-pushtag
 ```
 
 Push only the created tag, leaving branches local:
 ```bash
-git flow release finish 1.2.0 --pushtag
+git pour release finish 1.2.0 --pushtag
 ```
 
 Always push a branch type on finish by enabling it in config:
 ```bash
-git config gitflow.feature.finish.push true
-git flow feature finish my-feature
+git config gitpour.feature.finish.push true
+git pour feature finish my-feature
 ```
 
 ## WORKFLOW BEHAVIOR
@@ -503,12 +508,12 @@ The update process:
 
 Only branches with `autoUpdate=true` are updated:
 ```bash
-git config gitflow.branch.develop.autoUpdate true
+git config gitpour.branch.develop.autoUpdate true
 ```
 
 ### Landing Branch
 
-A completed finish leaves you on the **integration branch**: the last auto-update child of the topic branch's parent — the alphabetically last one when there are several — or on the parent itself when it has no auto-update children. In the default configuration that means `git flow release finish` and `git flow hotfix finish` end on `develop` rather than `main`, and `git flow feature finish` ends on `develop` as before. Finish reports the result as `You are now on branch '<name>'`.
+A completed finish leaves you on the **integration branch**: the last auto-update child of the topic branch's parent — the alphabetically last one when there are several — or on the parent itself when it has no auto-update children. In the default configuration that means `git pour release finish` and `git pour hotfix finish` end on `develop` rather than `main`, and `git pour feature finish` ends on `develop` as before. Finish reports the result as `You are now on branch '<name>'`.
 
 The branch is resolved from the configured topology, not from a branch named `develop`, so it is well defined for custom branch names. The rule is identical whether the topic branch is deleted or kept with **--keep**, on the first run and on **--continue** after a conflict, and for every merge strategy. **--abort** is unaffected: it returns you to the topic branch.
 
@@ -518,32 +523,32 @@ Finish behavior is controlled by these configuration keys:
 
 ### Branch-Level Defaults
 ```bash
-git config gitflow.branch.<type>.upstreamStrategy merge
-git config gitflow.branch.<type>.tag true
+git config gitpour.branch.<type>.upstreamStrategy merge
+git config gitpour.branch.<type>.tag true
 ```
 
 ### Command-Level Overrides
 ```bash
 # Merge strategy overrides
-git config gitflow.<type>.finish.rebase true
-git config gitflow.<type>.finish.squash false
-git config gitflow.<type>.finish.preserve-merges true
-git config gitflow.<type>.finish.no-ff true
-git config gitflow.<type>.finish.ff-only true
+git config gitpour.<type>.finish.rebase true
+git config gitpour.<type>.finish.squash false
+git config gitpour.<type>.finish.preserve-merges true
+git config gitpour.<type>.finish.no-ff true
+git config gitpour.<type>.finish.ff-only true
 
 # Tag creation overrides
-git config gitflow.<type>.finish.sign true
-git config gitflow.<type>.finish.signingkey ABC123DEF
+git config gitpour.<type>.finish.sign true
+git config gitpour.<type>.finish.signingkey ABC123DEF
 
 # Remote fetch options
-git config gitflow.<type>.finish.fetch true
+git config gitpour.<type>.finish.fetch true
 
 # Custom merge commit messages (with placeholder support)
-git config gitflow.<type>.finish.mergemessage "feat: merge %b into %p"
-git config gitflow.<type>.finish.updatemessage "chore: sync %b from %p"
+git config gitpour.<type>.finish.mergemessage "feat: merge %b into %p"
+git config gitpour.<type>.finish.updatemessage "chore: sync %b from %p"
 
 # Hook control
-git config gitflow.<type>.finish.noverify true
+git config gitpour.<type>.finish.noverify true
 ```
 
 ## EXIT STATUS
@@ -552,7 +557,7 @@ git config gitflow.<type>.finish.noverify true
 : Success.
 
 **1**
-: git-flow is not initialized.
+: git-pour is not initialized.
 
 **2**
 : Invalid input (an unknown branch type, an invalid branch name, or conflicting options such as `--ff-only` combined with `--no-ff`, `--ff`, or a squash strategy).
@@ -564,11 +569,11 @@ git config gitflow.<type>.finish.noverify true
 : A required branch (the topic branch or its parent) does not exist.
 
 **6**
-: A validation error (the topic or parent branch is not in sync with its remote, the `--ff-only` precondition failed because the parent carries commits the topic branch does not, the branch's git-flow-created worktree has uncommitted or untracked changes and `--force-worktree` was not given, its worktree has a merge, rebase, bisect, cherry-pick, or revert in progress, the rebase strategy was requested against a topic branch that has its own separate worktree, or an auto-update child base branch has its own separate worktree).
+: A validation error (the topic or parent branch is not in sync with its remote, the `--ff-only` precondition failed because the parent carries commits the topic branch does not, the branch's git-pour-created worktree has uncommitted or untracked changes and `--force-worktree` was not given, its worktree has a merge, rebase, bisect, cherry-pick, or revert in progress, the rebase strategy was requested against a topic branch that has its own separate worktree, or an auto-update child base branch has its own separate worktree).
 
 ## SEE ALSO
 
-**git-flow**(1), **git-flow-start**(1), **git-flow-config**(1), **git-flow-update**(1), **git-flow-delete**(1), **git-flow-worktree**(1), **gitflow-config**(5)
+**git-pour**(1), **git-pour-start**(1), **git-pour-config**(1), **git-pour-update**(1), **git-pour-delete**(1), **git-pour-worktree**(1), **gitpour-config**(5)
 
 ## NOTES
 
@@ -578,9 +583,9 @@ git config gitflow.<type>.finish.noverify true
 - **--squash** and **--rebase** flags are mutually exclusive when both set explicitly
 - Use **--continue** and **--abort** for conflict resolution
 - Tag creation behavior varies by topic branch type configuration
-- The **git-flow finish** shorthand automatically detects current topic branch type
+- The **git-pour finish** shorthand automatically detects current topic branch type
 - Child branches are automatically updated when their parent changes
 - Some topic branch types (like releases and hotfixes) may create tags by default
-- **--merge-message** and **--update-message** can be configured as defaults via `gitflow.<type>.finish.mergemessage` and `gitflow.<type>.finish.updatemessage`
+- **--merge-message** and **--update-message** can be configured as defaults via `gitpour.<type>.finish.mergemessage` and `gitpour.<type>.finish.updatemessage`
 - **--squash-message** is CLI-only with no git config equivalent, as squash messages are specific to each branch being finished
 - Custom messages are preserved in merge state and survive conflict resolution

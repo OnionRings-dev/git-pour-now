@@ -7,7 +7,7 @@ applyTo: "docs/**/*.md"
 ## Update Requirements
 
 - MUST: Update manpages in `docs/` when commands, options, or behavior change
-- MUST: Update both `docs/gitflow-config.5.md` and `CONFIGURATION.md` when configuration keys are added, changed, or removed
+- MUST: Update both `docs/gitpour-config.5.md` and `CONFIGURATION.md` when configuration keys are added, changed, or removed
 - MUST: Create new manpage files for new commands
 - MUST: Update exit codes and error descriptions when error handling changes
 
@@ -21,7 +21,7 @@ applyTo: "docs/**/*.md"
 
 ## Naming and Structure
 
-- SHOULD: Name command manpages as `git-flow-<command>.1.md` (section 1) and configuration manpages as `gitflow-<topic>.5.md` (section 5)
+- SHOULD: Name command manpages as `git-pour-<command>.1.md` (section 1) and configuration manpages as `gitpour-<topic>.5.md` (section 5)
 - SHOULD: Update `docs/README.md` command listing when adding or renaming manpage files
 
 ## Cross-References

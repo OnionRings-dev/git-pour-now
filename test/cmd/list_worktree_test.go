@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ func relCell(t *testing.T, dir string, target string) string {
 }
 
 // handMadeWorktree creates a worktree for branch with plain 'git worktree add',
-// bypassing git-flow entirely so no provenance marker is written, and returns its
+// bypassing git-pour entirely so no provenance marker is written, and returns its
 // symlink-resolved path. It lives in the test's own temporary directory, which
 // the test framework removes.
 func handMadeWorktree(t *testing.T, dir string, branch string) string {
@@ -113,7 +113,7 @@ func countTraceLines(lines []string, substrings ...string) int {
 // asserted byte-for-byte, which is also what pins SC-1 — no header row, no
 // Remote or Parent column, and prefix-stripped names.
 // Steps:
-// 1. Initializes git-flow and creates feature/user-auth with a worktree
+// 1. Initializes git-pour and creates feature/user-auth with a worktree
 // 2. Creates feature/docs with no worktree
 // 3. Runs 'feature list --worktrees'
 // 4. Verifies stdout equals the expected two-row table exactly, with empty stderr
@@ -284,11 +284,11 @@ func TestListWorktreesCleanWorktreeHasNoCount(t *testing.T) {
 }
 
 // TestListWorktreesTagsOnlyUnmanagedWorktrees covers spec scenario 4: a worktree
-// created with plain 'git worktree add' is tagged (unmanaged), one git-flow
+// created with plain 'git worktree add' is tagged (unmanaged), one git-pour
 // created is not. Both cells are asserted by equality, so an erroneous
-// "(managed)" tag on git-flow's own worktree fails too.
+// "(managed)" tag on git-pour's own worktree fails too.
 // Steps:
-// 1. Creates feature/by-flow with 'git flow worktree add'
+// 1. Creates feature/by-flow with 'git pour worktree add'
 // 2. Creates feature/by-hand with plain 'git worktree add'
 // 3. Runs 'feature list --worktrees'
 // 4. Verifies the by-hand cell carries the tag and the by-flow cell does not
@@ -656,7 +656,7 @@ func TestListWorktreesDegradesWhenStatusFails(t *testing.T) {
 // direction, since claiming a worktree is managed misleads about whether cleanup
 // removes it or merely detaches it.
 // Steps:
-// 1. Creates feature/by-flow with 'git flow worktree add', which writes the marker as true
+// 1. Creates feature/by-flow with 'git pour worktree add', which writes the marker as true
 // 2. Rewrites the marker to false by hand, which is the only way that value arises
 // 3. Runs 'feature list --worktrees' and verifies the cell carries "(unmanaged)"
 // 4. Runs 'worktree list' and verifies its row for the same worktree carries the same tag
@@ -668,7 +668,7 @@ func TestListWorktreesFalseMarkerReadsUnmanagedEverywhere(t *testing.T) {
 
 	createFreeBranch(t, dir, "feature/by-flow")
 	flowPath := addWorktree(t, dir, "feature/by-flow")
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktree.feature/by-flow.managed", "false"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktree.feature/by-flow.managed", "false"); err != nil {
 		t.Fatalf("Failed to rewrite the provenance marker: %v\nOutput: %s", err, out)
 	}
 
@@ -696,9 +696,9 @@ func TestListWorktreesFalseMarkerReadsUnmanagedEverywhere(t *testing.T) {
 // managed for both readers. 'worktree list' reads the value per row through a
 // getter that trims, while this column reads the markers in bulk, where git puts
 // its separator before the raw value — so an untrimmed bulk read would report
-// (unmanaged) for a worktree git-flow created and still owns.
+// (unmanaged) for a worktree git-pour created and still owns.
 // Steps:
-// 1. Creates feature/by-flow with 'git flow worktree add', which writes the marker as true
+// 1. Creates feature/by-flow with 'git pour worktree add', which writes the marker as true
 // 2. Rewrites the marker to " true " by hand, padding it with spaces
 // 3. Runs 'feature list --worktrees' and verifies the cell carries no tag
 // 4. Runs 'worktree list' and verifies its row for the same worktree carries none either
@@ -710,7 +710,7 @@ func TestListWorktreesPaddedMarkerReadsManagedEverywhere(t *testing.T) {
 
 	createFreeBranch(t, dir, "feature/by-flow")
 	flowPath := addWorktree(t, dir, "feature/by-flow")
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktree.feature/by-flow.managed", " true "); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktree.feature/by-flow.managed", " true "); err != nil {
 		t.Fatalf("Failed to pad the provenance marker: %v\nOutput: %s", err, out)
 	}
 
@@ -742,7 +742,7 @@ func TestListWorktreesPaddedMarkerReadsManagedEverywhere(t *testing.T) {
 // truncating the value to its first line "true" and reporting managed instead
 // — the same over-claiming direction '(unsafe)' as the false-marker case above.
 // Steps:
-// 1. Creates feature/by-flow with 'git flow worktree add', which writes the marker as true
+// 1. Creates feature/by-flow with 'git pour worktree add', which writes the marker as true
 // 2. Rewrites the marker by hand to the two-line value "true\nfalse"
 // 3. Runs 'feature list --worktrees' and verifies the cell carries "(unmanaged)"
 // 4. Runs 'worktree list' and verifies its row for the same worktree carries the same tag
@@ -754,7 +754,7 @@ func TestListWorktreesNewlineMarkerReadsUnmanagedEverywhere(t *testing.T) {
 
 	createFreeBranch(t, dir, "feature/by-flow")
 	flowPath := addWorktree(t, dir, "feature/by-flow")
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktree.feature/by-flow.managed", "true\nfalse"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktree.feature/by-flow.managed", "true\nfalse"); err != nil {
 		t.Fatalf("Failed to rewrite the provenance marker: %v\nOutput: %s", err, out)
 	}
 
@@ -849,7 +849,7 @@ func TestListWorktreesRendersCountBeforeUnmanagedTag(t *testing.T) {
 // TestListRejectsSingularWorktreeFlag covers SC-8: the flag is the plural
 // --worktrees, and the singular spelling is not silently accepted as an alias.
 // Steps:
-// 1. Initializes git-flow
+// 1. Initializes git-pour
 // 2. Runs 'feature list --worktree'
 // 3. Verifies exit 1, empty stdout, and an unknown-flag message on stderr
 func TestListRejectsSingularWorktreeFlag(t *testing.T) {
@@ -873,7 +873,7 @@ func TestListRejectsSingularWorktreeFlag(t *testing.T) {
 // It is pinned through --help rather than by invoking the shorthand, since tests
 // use long flag variants only.
 // Steps:
-// 1. Initializes git-flow
+// 1. Initializes git-pour
 // 2. Runs 'feature list --help'
 // 3. Verifies the flags block offers --worktrees and no "-w," shorthand
 func TestListWorktreesFlagHasNoShorthand(t *testing.T) {
@@ -897,7 +897,7 @@ func TestListWorktreesFlagHasNoShorthand(t *testing.T) {
 // single generic registration site, so every topic branch type gets it —
 // including a user-defined one.
 // Steps:
-// 1. Initializes git-flow and adds a custom 'spike' topic type
+// 1. Initializes git-pour and adds a custom 'spike' topic type
 // 2. Creates spike/x with a worktree
 // 3. Runs 'spike list --worktrees'
 // 4. Verifies exit 0 and that the cell is the worktree's relative path
@@ -954,7 +954,7 @@ func TestListWorktreesAllDashesWithoutWorktrees(t *testing.T) {
 // with no branches of the type: the empty-state message is unchanged, and in
 // particular carries no trailing period.
 // Steps:
-// 1. Initializes git-flow and creates no feature branches
+// 1. Initializes git-pour and creates no feature branches
 // 2. Runs 'feature list --worktrees'
 // 3. Verifies stdout is exactly "No feature branches found\n" and the command exits 0
 func TestListWorktreesEmptyStillReportsNoBranches(t *testing.T) {
@@ -1000,7 +1000,7 @@ func TestListWorktreesAbortsWhenWorktreeListFails(t *testing.T) {
 }
 
 // TestListWorktreesAbortsWhenMarkerListFails covers SC-13 for the second bulk
-// read. Degrading here would tag a git-flow-created worktree "(unmanaged)" — a
+// read. Degrading here would tag a git-pour-created worktree "(unmanaged)" — a
 // lie in the direction that decides what the cleanup commands may delete.
 // Steps:
 // 1. Creates feature/user-auth with a worktree, so a provenance marker genuinely exists
@@ -1015,7 +1015,7 @@ func TestListWorktreesAbortsWhenMarkerListFails(t *testing.T) {
 
 	createFreeBranch(t, dir, "feature/user-auth")
 	addWorktree(t, dir, "feature/user-auth")
-	env := failingGitShim(t, `config --local --null --get-regexp ^gitflow\.worktree\..*\.managed$`)
+	env := failingGitShim(t, `config --local --null --get-regexp ^gitpour\.worktree\..*\.managed$`)
 
 	stdout, stderr, err := testutil.RunGitFlowStreamsWithEnv(t, dir, env, "feature", "list", "--worktrees")
 	if code := worktreeExitCode(err); code != 3 {
@@ -1033,7 +1033,7 @@ func TestListWorktreesAbortsWhenMarkerListFails(t *testing.T) {
 // pattern filtering its manpage used to document has never existed. This is the
 // test that keeps the removed claim from quietly becoming true again.
 // Steps:
-// 1. Initializes git-flow
+// 1. Initializes git-pour
 // 2. Runs 'feature list user-*'
 // 3. Verifies exit 1 and an unknown-command message on stderr
 func TestListRejectsPatternArgument(t *testing.T) {
@@ -1060,7 +1060,7 @@ func TestListRejectsPatternArgument(t *testing.T) {
 // WorktreeForBranch or marker lookup.
 //
 // GIT_TRACE is pointed at a FILE, never set to 1: the value 1 writes to stderr,
-// which would fold trace lines into the output of git-flow's CombinedOutput call
+// which would fold trace lines into the output of git-pour's CombinedOutput call
 // sites.
 // Steps:
 // 1. Creates ten feature branches and exactly one linked worktree
@@ -1101,7 +1101,7 @@ func TestListWorktreesUsesBulkReads(t *testing.T) {
 		{"branch listings", []string{"git branch '--format="}, 1},
 		{"worktree listings", []string{"git worktree list"}, 1},
 		{"bulk marker reads", []string{"--get-regexp", "managed"}, 1},
-		{"per-branch marker reads", []string{"gitflow.worktree."}, 0},
+		{"per-branch marker reads", []string{"gitpour.worktree."}, 0},
 		{"status calls", []string{"git status --porcelain"}, 1},
 	}
 	for _, check := range checks {

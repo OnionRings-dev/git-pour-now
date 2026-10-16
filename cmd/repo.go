@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
 var (
@@ -17,11 +17,11 @@ var (
 )
 
 // openRepo opens a git.Repo handle for the invocation directory — the process
-// working directory where git-flow was run. All repo-bound operations run
+// working directory where git-pour was run. All repo-bound operations run
 // against this handle's absolute paths, so command behavior does not depend on
 // any later change of working directory.
 //
-// The result is memoized: git-flow is a single-shot CLI whose invocation
+// The result is memoized: git-pour is a single-shot CLI whose invocation
 // directory never changes within a process, so the (potentially several)
 // callers per invocation share one resolution rather than re-running git
 // rev-parse each time.
@@ -37,7 +37,7 @@ func openRepo() (*git.Repo, error) {
 	return cachedRepo, cachedErr
 }
 
-// reopenRepo re-resolves the invocation directory after `git flow init --init`
+// reopenRepo re-resolves the invocation directory after `git pour init --init`
 // has created the repository. openRepo memoizes its result — including the "not
 // a git repository" failure — so it must not be reused once the directory has
 // become a repository. This resolves afresh and primes the memo (marking it
@@ -56,10 +56,10 @@ func reopenRepo() (*git.Repo, error) {
 
 // mustOpenRepo opens the invocation repository or exits the process. A failure
 // here means the invocation directory is not inside a git repository — a git
-// error, not a "git-flow not initialized" condition (which is detected later,
+// error, not a "git-pour not initialized" condition (which is detected later,
 // against an opened repo). It therefore reports a GitError wrapping the
 // underlying cause and exits with the git error code, rather than the
-// misleading NotInitializedError/exit-1 that would send users to 'git flow
+// misleading NotInitializedError/exit-1 that would send users to 'git pour
 // init' instead of 'git init'.
 func mustOpenRepo() *git.Repo {
 	repo, err := openRepo()

@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishFeatureBranchDefaultLocalDeletion tests that feature branches are deleted locally by default.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Finishes the feature branch
@@ -22,10 +22,10 @@ func TestFinishFeatureBranchDefaultLocalDeletion(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -61,7 +61,7 @@ func TestFinishFeatureBranchDefaultLocalDeletion(t *testing.T) {
 
 // TestFinishFeatureBranchDefaultRemoteDeletion tests that feature branches are deleted both locally and remotely by default.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Adds a remote repository
@@ -73,10 +73,10 @@ func TestFinishFeatureBranchDefaultRemoteDeletion(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults and create branches
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults and create branches
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -134,7 +134,7 @@ func TestFinishFeatureBranchDefaultRemoteDeletion(t *testing.T) {
 
 // TestFinishFeatureBranchKeepLocal tests that the keep-local option preserves the local branch when finishing.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Finishes the feature branch with the keeplocal option
@@ -146,10 +146,10 @@ func TestFinishFeatureBranchKeepLocal(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -171,7 +171,7 @@ func TestFinishFeatureBranchKeepLocal(t *testing.T) {
 		t.Fatalf("Failed to commit file: %v", err)
 	}
 
-	// Get path to the git-flow binary
+	// Get path to the git-pour binary
 	gitFlowPath := testutil.GitFlowPath()
 
 	// Finish the feature branch with keeplocal option
@@ -217,7 +217,7 @@ func TestFinishFeatureBranchKeepLocal(t *testing.T) {
 
 // TestFinishFeatureBranchKeepRemote tests that the keep-remote option preserves the remote branch when finishing.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes to the feature branch
 // 4. Adds a remote and pushes the branch
@@ -231,10 +231,10 @@ func TestFinishFeatureBranchKeepRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -269,7 +269,7 @@ func TestFinishFeatureBranchKeepRemote(t *testing.T) {
 		t.Fatalf("Failed to push feature branch: %v", err)
 	}
 
-	// Get path to the git-flow binary
+	// Get path to the git-pour binary
 	gitFlowPath := testutil.GitFlowPath()
 
 	// Finish the feature branch with keepremote option
@@ -327,12 +327,12 @@ func TestFinishFeatureBranchKeepRemote(t *testing.T) {
 
 // TestFinishDeleteBranchUsesConfiguredRemote tests that branch deletion uses the configured remote name.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds a remote named "upstream" (not "origin")
-// 3. Configures gitflow.origin=upstream so git-flow uses the custom remote
+// 3. Configures gitpour.origin=upstream so git-pour uses the custom remote
 // 4. Creates a feature branch and adds a commit
 // 5. Publishes the feature branch to "upstream"
-// 6. Runs 'git flow feature finish'
+// 6. Runs 'git pour feature finish'
 // 7. Verifies the remote branch is deleted from "upstream"
 // 8. Verifies finish completes successfully
 func TestFinishDeleteBranchUsesConfiguredRemote(t *testing.T) {
@@ -341,10 +341,10 @@ func TestFinishDeleteBranchUsesConfiguredRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Add a remote named "upstream" (not "origin")
@@ -354,10 +354,10 @@ func TestFinishDeleteBranchUsesConfiguredRemote(t *testing.T) {
 	}
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	// Configure git-flow to use "upstream" as the remote
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.origin", "upstream")
+	// Configure git-pour to use "upstream" as the remote
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.origin", "upstream")
 	if err != nil {
-		t.Fatalf("Failed to configure gitflow.origin: %v", err)
+		t.Fatalf("Failed to configure gitpour.origin: %v", err)
 	}
 
 	// Create a feature branch
@@ -421,7 +421,7 @@ func TestFinishDeleteBranchUsesConfiguredRemote(t *testing.T) {
 // TestFinishClearsMergeStateWhenBranchDeletionFails tests that merge state is cleared even when
 // remote branch deletion fails during finish.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
+// 1. Sets up a test repository with a remote and initializes git-pour
 // 2. Creates a feature branch with changes and pushes to remote
 // 3. Configures the remote repository to reject branch deletions so deletion will fail
 // 4. Finishes the feature branch (merge succeeds, remote deletion fails)
@@ -432,9 +432,9 @@ func TestFinishClearsMergeStateWhenBranchDeletionFails(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Add a remote repository

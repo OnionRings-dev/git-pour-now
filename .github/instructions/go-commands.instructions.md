@@ -13,7 +13,7 @@ applyTo: "cmd/**/*.go"
 ## Initialization and Validation
 
 - MUST: Check `config.IsInitialized()` at the start of every command except `init`
-- MUST: Return `errors.NotInitializedError{}` when git-flow is not initialized
+- MUST: Return `errors.NotInitializedError{}` when git-pour is not initialized
 - MUST: Validate branch type exists in config before operations — check `cfg.Branches[branchType]`
 - MUST: Validate required inputs early — check for empty branch names, invalid types before performing git operations
 
@@ -22,7 +22,7 @@ applyTo: "cmd/**/*.go"
 - MUST: Implement three-layer config precedence — branch defaults (Layer 1) -> git config overrides (Layer 2) -> CLI flags (Layer 3, always win)
 - MUST: Use pointer types (`*bool`) for CLI flag values to distinguish "not set" from "set to false"
 - MUST: Check layers in order — start with branch config default, apply command-specific config, then apply CLI flags
-- MUST: When adding a new config option, always add Layer 3 (CLI flag) and Layer 2 (`gitflow.<type>.<command>.<option>`) — only add Layer 1 (`gitflow.branch.<type>.<property>` in `BranchConfig`) if it defines a branch type identity or process characteristic
+- MUST: When adding a new config option, always add Layer 3 (CLI flag) and Layer 2 (`gitpour.<type>.<command>.<option>`) — only add Layer 1 (`gitpour.branch.<type>.<property>` in `BranchConfig`) if it defines a branch type identity or process characteristic
 - SHOULD: Only add Layer 1 support for options that define a branch type's identity or process characteristic — operational settings like `fetch`, `sign`, `keep` belong in Layer 2 + Layer 3 only
 
 ## Branch Name Handling

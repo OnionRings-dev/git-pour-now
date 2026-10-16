@@ -1,6 +1,6 @@
-# GitHub Copilot Instructions for git-flow-next
+# GitHub Copilot Instructions for git-pour-now
 
-git-flow-next is a modern Go CLI implementing the git-flow branching model. It manages feature, release, and hotfix branches through a unified, configuration-driven command structure.
+git-pour-now is a modern Go CLI implementing the git-pour branching model. It manages features on main and temporary prerelease branches, with releases identified by SemVer tags.
 
 ## Development Philosophy
 
@@ -13,13 +13,13 @@ git-flow-next is a modern Go CLI implementing the git-flow branching model. It m
 ## Architecture
 
 - All commands follow a three-layer pattern: Cobra handler (parse flags) -> Command wrapper (error/exit) -> Execute function (business logic)
-- Branch types are configuration-driven — behavior defined via Git config under `gitflow.*`
+- Branch types are configuration-driven — behavior defined via Git config under `gitpour.*`
 - Three-layer configuration precedence: branch type defaults -> git config overrides -> CLI flags (always win)
 - All Git operations go through `internal/git/repo.go` wrappers — never call `exec.Command("git", ...)` directly in command code
 
 ## Compatibility
 
-- Maintain backward compatibility with git-flow-avh repositories — import AVH configuration and preserve default branch naming conventions
+- Import git-flow-avh configuration through the compatibility importer; the default workflow uses main, feature/, and prerelease/
 - Changes to config keys, hook arguments, or branch naming must not break existing git-flow-avh repos
 - The CLI targets macOS, Linux, and Windows — platform-specific behavior must be handled explicitly
 
@@ -39,4 +39,4 @@ git-flow-next is a modern Go CLI implementing the git-flow branching model. It m
 - Create or adjust tests for new functionality
 - Run `go test ./...` before committing
 - Update documentation in `docs/` for any command, option, or behavior changes
-- Update both `version/version.go` and `cmd/version.go` when changing version numbers
+- Derive release versions from tags; never hard-code a release version in Go files

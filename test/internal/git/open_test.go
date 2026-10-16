@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // evalSymlinks normalizes a path through filepath.EvalSymlinks so comparisons
@@ -146,7 +146,7 @@ func TestOpenAccessorsAbsoluteForLinkedWorktree(t *testing.T) {
 	repoB := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, repoB)
 
-	wtParent, err := os.MkdirTemp("", "git-flow-linked-wt-*")
+	wtParent, err := os.MkdirTemp("", "git-pour-linked-wt-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}

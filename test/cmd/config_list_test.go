@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // runConfigListRepeatedly runs 'config list' the given number of times and
@@ -17,7 +17,7 @@ func runConfigListRepeatedly(t *testing.T, dir string, runs int) []string {
 	for i := 0; i < runs; i++ {
 		output, err := testutil.RunGitFlow(t, dir, "config", "list")
 		if err != nil {
-			t.Fatalf("Failed to run git-flow config list (run %d): %v\nOutput: %s", i+1, err, output)
+			t.Fatalf("Failed to run git-pour config list (run %d): %v\nOutput: %s", i+1, err, output)
 		}
 		outputs = append(outputs, output)
 	}
@@ -86,7 +86,7 @@ func setConfigListKey(t *testing.T, dir string, key string, value string) {
 // TestConfigListTopicTypeOrderIsDeterministic tests that the topic branch type
 // sections are listed in a stable, alphabetical order across identical runs.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Runs 'config list' five times
 // 3. Verifies every run lists the topic type sections sorted by branch type name
 func TestConfigListTopicTypeOrderIsDeterministic(t *testing.T) {
@@ -95,10 +95,10 @@ func TestConfigListTopicTypeOrderIsDeterministic(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// The default topic types, sorted by branch type name
@@ -116,7 +116,7 @@ func TestConfigListTopicTypeOrderIsDeterministic(t *testing.T) {
 // are stable across identical runs. The default configuration has a single
 // trunk and a single child base branch, so a second one of each is configured.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Adds a second trunk branch and a second child base branch
 // 3. Runs 'config list' five times
 // 4. Verifies every run lists both trunks and both children in sorted order
@@ -126,18 +126,18 @@ func TestConfigListBaseBranchOrderIsDeterministic(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// A second trunk (no parent), sorting before the default main
-	setConfigListKey(t, dir, "gitflow.branch.archive.type", "base")
+	setConfigListKey(t, dir, "gitpour.branch.archive.type", "base")
 
 	// A second child base branch, sorting after the default develop
-	setConfigListKey(t, dir, "gitflow.branch.staging.type", "base")
-	setConfigListKey(t, dir, "gitflow.branch.staging.parent", "main")
+	setConfigListKey(t, dir, "gitpour.branch.staging.type", "base")
+	setConfigListKey(t, dir, "gitpour.branch.staging.parent", "main")
 
 	expectedTrunks := []string{"  archive → (root)", "  main → (root)"}
 	expectedChildren := []string{"  develop → main", "  staging → main"}
@@ -156,12 +156,12 @@ func TestConfigListBaseBranchOrderIsDeterministic(t *testing.T) {
 }
 
 // TestConfigListOmitsActiveTopicBranches tests that a started topic branch is
-// not listed as a branch type. Its runtime gitflow.branch.<branch>.base key
+// not listed as a branch type. Its runtime gitpour.branch.<branch>.base key
 // parses into a branch entry with no type, which is state rather than
 // configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Runs 'git flow feature start plain', which writes the runtime base key
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Runs 'git pour feature start plain', which writes the runtime base key
 // 3. Runs 'config list'
 // 4. Verifies feature/plain is not listed as a topic branch type
 // 5. Verifies the five configured topic types are still listed
@@ -171,13 +171,13 @@ func TestConfigListOmitsActiveTopicBranches(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	// Start a topic branch, which records gitflow.branch.feature/plain.base
+	// Start a topic branch, which records gitpour.branch.feature/plain.base
 	output, err = testutil.RunGitFlow(t, dir, "feature", "start", "plain")
 	if err != nil {
 		t.Fatalf("Failed to start feature branch: %v\nOutput: %s", err, output)
@@ -185,7 +185,7 @@ func TestConfigListOmitsActiveTopicBranches(t *testing.T) {
 
 	output, err = testutil.RunGitFlow(t, dir, "config", "list")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow config list: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour config list: %v\nOutput: %s", err, output)
 	}
 
 	headers := configListTopicTypeHeaders(output)

@@ -15,10 +15,8 @@ Triage → Spec → Planning (test-first) → Implementation → Review → PR �
 **Branching model.** This repository develops single-track on `main`. Feature
 branches (`feature/<issue>-<slug>`) are cut from `main` and merged back into
 `main` — via a pull request for the spec/feature route, or a confirmed local
-merge for `/quick-fix`. There is **no `develop` branch**. The tool's default
-`develop`-based preset (described in CLAUDE.md and the manpages) applies to
-end-user repositories, not to how this project develops itself; do not assume
-a `develop` integration branch anywhere in this workflow.
+merge for `/quick-fix`. There is **no `develop` branch**. The default user workflow also uses `main`; the traditional `develop` workflow
+is available only through the explicit `classic` compatibility preset.
 
 There are four entry points, each driven by a single high-level skill (see
 [Skills Reference](#skills-reference)):
@@ -258,16 +256,16 @@ The implementation phase transforms issues or concepts into working code.
      the branch name after the last `/`.
      ```bash
      # from the main clone; <slug> is e.g. 42-add-squash-merge
-     git worktree add -b feature/<slug> ../git-flow-next.worktrees/<slug> main
-     cd ../git-flow-next.worktrees/<slug>
+     git worktree add -b feature/<slug> ../git-pour-now.worktrees/<slug> main
+     cd ../git-pour-now.worktrees/<slug>
      ```
    - Do the code work (planning-derived changes, tests, commits) from inside the
      worktree. **`.ai/` working artifacts stay in the main clone** — they are
      gitignored, not branch content, and some (scans) span branches; write them
-     to the main clone's `.ai/` (e.g. `../git-flow-next/.ai/...`) when operating
+     to the main clone's `.ai/` (e.g. `../git-pour-now/.ai/...`) when operating
      from a worktree.
    - When the branch is merged or abandoned, remove the worktree:
-     `git worktree remove ../git-flow-next.worktrees/<slug>`
+     `git worktree remove ../git-pour-now.worktrees/<slug>`
 
 2. **Create Implementation Plan (Test-First)**
    - `/create-plan` - Generate a test-first plan from the spec issue, analysis, or concept
@@ -389,7 +387,7 @@ The final stage before code reaches the main branch.
 
 1. **Publish Branch**
    - Push the feature branch so the remote branch has the **same name** and
-     the local branch tracks it. `git flow feature publish <name>` handles
+     the local branch tracks it. `git pour feature publish <name>` handles
      this in the main clone.
    - When pushing by hand — especially **from a worktree**, whose branch is
      based off `origin/main` — do not use `git push -u origin <branch>`: it
@@ -523,7 +521,7 @@ source of truth); these local files are working artifacts and audit trail.
 - **Features**: `feature-<name>/` (matches branch `feature/<name>`)
 - **Quick fixes**: `quick-<slug>/` (matches branch `feature/quick-<slug>`)
 - **Worktrees**: `../<repo>.worktrees/<branch-leaf>/` — a sibling of the clone,
-  one worktree per branch (e.g. `../git-flow-next.worktrees/42-squash-merge/`
+  one worktree per branch (e.g. `../git-pour-now.worktrees/42-squash-merge/`
   for branch `feature/42-squash-merge`). See
   [§3 Implementing](#3-implementing).
 
@@ -645,8 +643,8 @@ The shared Codex gate procedure used by several skills is defined once in
 /analyze-issue 42
 
 # 3. Create feature branch + worktree (sibling root, see §3)
-git worktree add -b feature/42-squash-merge ../git-flow-next.worktrees/42-squash-merge main
-cd ../git-flow-next.worktrees/42-squash-merge
+git worktree add -b feature/42-squash-merge ../git-pour-now.worktrees/42-squash-merge main
+cd ../git-pour-now.worktrees/42-squash-merge
 
 # 4. Create and validate implementation plan
 /create-plan
@@ -660,7 +658,7 @@ cd ../git-flow-next.worktrees/42-squash-merge
 /code-review
 
 # 7. Publish and create PR summary
-git flow feature publish 42-squash-merge
+git pour feature publish 42-squash-merge
 /pr-summary
 ```
 
@@ -672,8 +670,8 @@ mkdir -p .ai/feature-my-feature
 # Write concept.md manually or with Claude's help
 
 # 2. Create feature branch + worktree (sibling root, see §3)
-git worktree add -b feature/my-feature ../git-flow-next.worktrees/my-feature main
-cd ../git-flow-next.worktrees/my-feature
+git worktree add -b feature/my-feature ../git-pour-now.worktrees/my-feature main
+cd ../git-pour-now.worktrees/my-feature
 
 # 3. Create and validate implementation plan
 /create-plan
@@ -685,6 +683,6 @@ cd ../git-flow-next.worktrees/my-feature
 
 # 5. Review and publish
 /code-review
-git flow feature publish my-feature
+git pour feature publish my-feature
 /pr-summary
 ```

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // createRejectingHooks creates hooks that reject merge and commit operations.
@@ -39,7 +39,7 @@ exit 1
 
 // TestFinishFeatureFailsWithRejectingPreCommitHook tests that finish fails when a pre-merge-commit hook rejects.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a test file and commits to the feature branch
 // 4. Adds a different commit on develop to force a non-fast-forward merge
@@ -52,10 +52,10 @@ func TestFinishFeatureFailsWithRejectingPreCommitHook(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a feature branch
@@ -102,7 +102,7 @@ func TestFinishFeatureFailsWithRejectingPreCommitHook(t *testing.T) {
 
 // TestFinishFeatureWithNoVerifyFlagBypassesHook tests that --no-verify bypasses the pre-merge-commit hook.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a test file and commits to the feature branch
 // 4. Adds a different commit on develop to force a non-fast-forward merge
@@ -116,10 +116,10 @@ func TestFinishFeatureWithNoVerifyFlagBypassesHook(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a feature branch
@@ -170,10 +170,10 @@ func TestFinishFeatureWithNoVerifyFlagBypassesHook(t *testing.T) {
 	}
 }
 
-// TestFinishFeatureWithNoVerifyConfig tests that gitflow.feature.finish.noVerify config bypasses the hook.
+// TestFinishFeatureWithNoVerifyConfig tests that gitpour.feature.finish.noVerify config bypasses the hook.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Sets gitflow.feature.finish.noVerify=true in git config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Sets gitpour.feature.finish.noVerify=true in git config
 // 3. Creates a feature branch
 // 4. Adds a test file and commits to the feature branch
 // 5. Adds a different commit on develop to force a non-fast-forward merge
@@ -187,14 +187,14 @@ func TestFinishFeatureWithNoVerifyConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Set noVerify config before creating the branch
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.noVerify", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.noVerify", "true")
 	if err != nil {
 		t.Fatalf("Failed to set noVerify config: %v", err)
 	}
@@ -242,8 +242,8 @@ func TestFinishFeatureWithNoVerifyConfig(t *testing.T) {
 
 // TestFinishFeatureNoVerifyFlagOverridesConfig tests that CLI --no-verify overrides noVerify=false config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Sets gitflow.feature.finish.noVerify=false in git config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Sets gitpour.feature.finish.noVerify=false in git config
 // 3. Creates a feature branch
 // 4. Adds a test file and commits to the feature branch
 // 5. Adds a different commit on develop to force a non-fast-forward merge
@@ -257,14 +257,14 @@ func TestFinishFeatureNoVerifyFlagOverridesConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Explicitly set noVerify=false in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.noVerify", "false")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.noVerify", "false")
 	if err != nil {
 		t.Fatalf("Failed to set noVerify config: %v", err)
 	}
@@ -312,7 +312,7 @@ func TestFinishFeatureNoVerifyFlagOverridesConfig(t *testing.T) {
 
 // TestFinishFeatureNoVerifyPersistedThroughContinue tests that --no-verify persists through --continue.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch with a test file
 // 3. Switches to develop and adds conflicting content to the same file
 // 4. Switches back to feature branch
@@ -329,10 +329,10 @@ func TestFinishFeatureNoVerifyPersistedThroughContinue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a feature branch
@@ -371,7 +371,7 @@ func TestFinishFeatureNoVerifyPersistedThroughContinue(t *testing.T) {
 	}
 
 	// Verify merge state file exists and contains NoVerify=true
-	stateFile := filepath.Join(dir, ".git", "gitflow", "state", "merge.json")
+	stateFile := filepath.Join(dir, ".git", "gitpour", "state", "merge.json")
 	stateContent, err := os.ReadFile(stateFile)
 	if err != nil {
 		t.Fatalf("Failed to read merge state file: %v", err)
@@ -410,7 +410,7 @@ func TestFinishFeatureNoVerifyPersistedThroughContinue(t *testing.T) {
 // The child branch update (develop from main) does NOT use --no-verify (by design).
 // To isolate the release merge test, we disable auto-update on develop.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Disables auto-update on develop branch
 // 3. Creates a release branch (release/1.0.0)
 // 4. Adds a test file and commits to the release branch
@@ -425,15 +425,15 @@ func TestFinishReleaseWithNoVerifyStillCreatesTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Disable auto-update on develop to avoid child branch update triggering hooks
 	// (Child branch updates don't use --no-verify by design)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.develop.autoUpdate", "false")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.develop.autoUpdate", "false")
 	if err != nil {
 		t.Fatalf("Failed to disable auto-update: %v", err)
 	}
@@ -484,7 +484,7 @@ func TestFinishReleaseWithNoVerifyStillCreatesTag(t *testing.T) {
 
 // TestFinishFeatureDefaultDoesNotSkipVerify tests that without --no-verify, hooks run normally.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a test file and commits to the feature branch
 // 4. Adds a different commit on develop to force a non-fast-forward merge
@@ -497,10 +497,10 @@ func TestFinishFeatureDefaultDoesNotSkipVerify(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a feature branch
@@ -543,7 +543,7 @@ func TestFinishFeatureDefaultDoesNotSkipVerify(t *testing.T) {
 // When using squash merge, a separate Commit call is made after the squash operation.
 // This test verifies that --no-verify is correctly passed to both the merge and the final commit.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Configures squash merge strategy for feature finish
 // 3. Creates a feature branch and adds a test file
 // 4. Adds a commit on develop to force non-fast-forward merge
@@ -557,14 +557,14 @@ func TestFinishFeatureSquashWithNoVerify(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Configure squash merge strategy for feature finish
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.squash", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.squash", "true")
 	if err != nil {
 		t.Fatalf("Failed to set squash merge strategy: %v", err)
 	}
@@ -634,9 +634,9 @@ func TestFinishFeatureSquashWithNoVerify(t *testing.T) {
 }
 
 // TestFinishFeatureShorthandWithNoVerify tests that --no-verify works with shorthand command.
-// The shorthand 'git flow finish' auto-detects the branch type from the current branch.
+// The shorthand 'git pour finish' auto-detects the branch type from the current branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch and adds a test file
 // 3. Adds a commit on develop to force non-fast-forward merge
 // 4. Switches back to feature branch
@@ -649,10 +649,10 @@ func TestFinishFeatureShorthandWithNoVerify(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Start a feature branch
@@ -700,10 +700,10 @@ func TestFinishFeatureShorthandWithNoVerify(t *testing.T) {
 // TestFinishFeatureInvalidNoVerifyConfig tests behavior with invalid noVerify config value.
 // Git's config system treats non-boolean values specially - we verify the behavior is predictable.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch and adds a test file
 // 3. Adds a commit on develop to force non-fast-forward merge
-// 4. Sets invalid config: gitflow.feature.finish.noVerify=invalid
+// 4. Sets invalid config: gitpour.feature.finish.noVerify=invalid
 // 5. Installs pre-merge-commit and pre-commit hooks that reject (exit code 1)
 // 6. Attempts to finish without --no-verify flag
 // 7. Verifies behavior (invalid config is treated as false, hook blocks merge)
@@ -712,14 +712,14 @@ func TestFinishFeatureInvalidNoVerifyConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Set invalid noVerify config value (not a valid boolean)
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.noVerify", "invalid")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.noVerify", "invalid")
 	if err != nil {
 		t.Fatalf("Failed to set noVerify config: %v", err)
 	}
@@ -759,11 +759,11 @@ func TestFinishFeatureInvalidNoVerifyConfig(t *testing.T) {
 	}
 }
 
-// TestFinishFeatureNoVerifyConfigOneBypassesHook tests that gitflow.feature.finish.noVerify=1
+// TestFinishFeatureNoVerifyConfigOneBypassesHook tests that gitpour.feature.finish.noVerify=1
 // bypasses the hook, matching git-config's truthy non-zero-integer spelling.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Sets gitflow.feature.finish.noVerify=1 in git config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Sets gitpour.feature.finish.noVerify=1 in git config
 // 3. Creates a feature branch and commits a test file
 // 4. Adds a different commit on develop to force a non-fast-forward merge
 // 5. Installs pre-merge-commit and pre-commit hooks that reject (exit code 1)
@@ -776,11 +776,11 @@ func TestFinishFeatureNoVerifyConfigOneBypassesHook(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.noVerify", "1"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.noVerify", "1"); err != nil {
 		t.Fatalf("Failed to set noVerify config: %v", err)
 	}
 

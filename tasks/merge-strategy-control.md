@@ -12,7 +12,7 @@ Add command-line flags and configuration options to control merge behavior durin
 - Robust configuration resolver system in `internal/config/resolver.go`
 - Three-layer configuration hierarchy (branch defaults → command config → CLI flags)
 - Basic merge strategy execution in `cmd/finish.go` supporting `merge`, `rebase`, and `squash`
-- Support for existing `gitflow.branch.<topic>.upstreamstrategy` configuration
+- Support for existing `gitpour.branch.<topic>.upstreamstrategy` configuration
 
 **🔧 Current Limitations:**
 - No granular control over rebase options (preserve-merges)
@@ -33,7 +33,7 @@ Add command-line flags and configuration options to control merge behavior durin
 type MergeStrategyOptions struct {
     Strategy        *string  // Override for entire strategy
     Rebase          *bool    // --rebase/--no-rebase override
-    PreserveMerges  *bool    // --preserve-merges/--no-preserve-merges  
+    PreserveMerges  *bool    // --preserve-merges/--no-preserve-merges
     NoFF            *bool    // --no-ff/--ff
     Squash          *bool    // --squash/--no-squash override
 }
@@ -41,7 +41,7 @@ type MergeStrategyOptions struct {
 // Extend ResolvedFinishOptions
 type ResolvedFinishOptions struct {
     // Existing fields...
-    
+
     // New merge strategy fields
     MergeStrategy     string  // Final resolved strategy (merge/rebase/squash)
     UseRebase         bool    // Whether to use rebase
@@ -58,7 +58,7 @@ type ResolvedFinishOptions struct {
 ```go
 func addFinishFlags(cmd *cobra.Command) {
     // Existing flags (tag, retention, operation control)...
-    
+
     // New merge strategy flags
     cmd.Flags().Bool("rebase", false, "Rebase topic branch before merging")
     cmd.Flags().Bool("no-rebase", false, "Don't rebase topic branch (use configured strategy)")
@@ -90,13 +90,13 @@ Support these configuration keys in three-layer hierarchy:
 
 ```bash
 # Layer 1: Branch defaults (existing)
-gitflow.branch.<topic>.upstreamstrategy = merge|rebase|squash
+gitpour.branch.<topic>.upstreamstrategy = merge|rebase|squash
 
 # Layer 2: Command-specific overrides (new)
-gitflow.<topic>.finish.rebase = true|false
-gitflow.<topic>.finish.preserve-merges = true|false  
-gitflow.<topic>.finish.ff = true|false
-gitflow.<topic>.finish.squash = true|false
+gitpour.<topic>.finish.rebase = true|false
+gitpour.<topic>.finish.preserve-merges = true|false
+gitpour.<topic>.finish.ff = true|false
+gitpour.<topic>.finish.squash = true|false
 
 # Layer 3: Command-line flags (highest priority)
 ```
@@ -122,8 +122,8 @@ func resolveFinishSquash(cfg *Config, branchType string, baseStrategy string, me
 #### 2.3 Strategy Precedence Logic
 
 1. **Squash flag/config** - Highest precedence when explicitly set
-2. **Rebase flag/config** - Second precedence when explicitly set  
-3. **Base strategy** - From `gitflow.branch.<topic>.upstreamstrategy`
+2. **Rebase flag/config** - Second precedence when explicitly set
+3. **Base strategy** - From `gitpour.branch.<topic>.upstreamstrategy`
 4. **Default** - Fall back to "merge"
 
 ### Phase 3: Enhanced Git Operations
@@ -150,7 +150,7 @@ Replace current merge logic with enhanced strategy handling:
 ```go
 func handleMergeStep(cfg *config.Config, state *mergestate.MergeState, branchConfig config.BranchConfig, resolvedOptions *config.ResolvedFinishOptions) error {
     // Enhanced merge logic using resolvedOptions.MergeStrategy, UseRebase, PreserveMerges, NoFastForward, UseSquash
-    
+
     switch resolvedOptions.MergeStrategy {
     case "rebase":
         // Rebase with preserve-merges option
@@ -233,7 +233,7 @@ Individual tests for configuration precedence:
 
 #### 5.1 Update Command Documentation
 
-**File**: `docs/git-flow-finish.1.md`
+**File**: `docs/git-pour-finish.1.md`
 
 Add comprehensive merge strategy section with:
 - All new command-line flags
@@ -243,20 +243,20 @@ Add comprehensive merge strategy section with:
 
 #### 5.2 Update Configuration Reference
 
-**File**: `docs/gitflow-config.5.md`
+**File**: `docs/gitpour-config.5.md`
 
 Add new configuration keys:
-- `gitflow.<branchtype>.finish.rebase`
-- `gitflow.<branchtype>.finish.preserve-merges`
-- `gitflow.<branchtype>.finish.ff`
-- `gitflow.<branchtype>.finish.squash`
+- `gitpour.<branchtype>.finish.rebase`
+- `gitpour.<branchtype>.finish.preserve-merges`
+- `gitpour.<branchtype>.finish.ff`
+- `gitpour.<branchtype>.finish.squash`
 
 ## Default Behaviors
 
-- **Rebase**: Determined by `gitflow.branch.<topic>.upstreamstrategy`
+- **Rebase**: Determined by `gitpour.branch.<topic>.upstreamstrategy`
 - **Preserve Merges**: Default `false` (flatten merges during rebase)
 - **Fast Forward**: Default `true` (allow fast-forward when possible)
-- **Squash**: Determined by `gitflow.branch.<topic>.upstreamstrategy`
+- **Squash**: Determined by `gitpour.branch.<topic>.upstreamstrategy`
 
 ## Validation Rules
 
@@ -281,14 +281,14 @@ Add new configuration keys:
 ## Implementation Order
 
 1. **Phase 1**: Extend configuration structures and flag system
-2. **Phase 2**: Implement configuration resolution logic  
+2. **Phase 2**: Implement configuration resolution logic
 3. **Phase 3**: Update Git operations and merge logic
 4. **Phase 4**: Add comprehensive test suite (following one-test-per-function rule)
 5. **Phase 5**: Update documentation
 
 ## Backward Compatibility
 
-- All existing `gitflow.branch.<topic>.upstreamstrategy` configurations continue to work
+- All existing `gitpour.branch.<topic>.upstreamstrategy` configurations continue to work
 - New flags default to `false` (no behavior change unless explicitly used)
 - Existing merge strategies (`merge`, `rebase`, `squash`) work as before
 - New configuration keys are optional and have sensible defaults

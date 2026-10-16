@@ -7,7 +7,7 @@ allowed-tools: Bash, Read, Write, Glob, mcp__github__list_issues, mcp__github__s
 
 # Scan Repo
 
-Scan all activity on gittower/git-flow-next since the last scan and produce
+Scan all activity on OnionRings-dev/git-pour-now since the last scan and produce
 a prioritized action list: what came in (discussions, issues, PRs), what
 needs a reaction from us, and in which order to tackle it — quick wins
 first, deeper work later, each item with the command that handles it.
@@ -40,7 +40,7 @@ Collect in parallel where possible:
 
 **Discussions** (GraphQL):
 ```bash
-gh api graphql -f query='query { repository(owner: "gittower", name: "git-flow-next") {
+gh api graphql -f query='query { repository(owner: "OnionRings-dev", name: "git-pour-now") {
   discussions(first: 30, orderBy: {field: UPDATED_AT, direction: DESC}) {
     nodes { number title category { name } isAnswered updatedAt createdAt
       author { login } comments(last: 3) { nodes { author { login } createdAt } } } } } }'
@@ -111,7 +111,7 @@ Write `.ai/scans/scan-<today>.md`:
 ### Quick wins
 | # | Item | Waiting | Why quick | Command |
 |---|------|---------|-----------|---------|
-| 1 | discussion #12 — <title> | 6d | answer is in docs/gitflow-config.5.md | reply directly |
+| 1 | discussion #12 — <title> | 6d | answer is in docs/gitpour-config.5.md | reply directly |
 | 2 | issue #101 — <title> | 3d | duplicate of #87 | /triage 101 |
 
 ### One command

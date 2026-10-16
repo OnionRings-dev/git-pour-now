@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
 // RunPreHook executes a pre-hook script. Returns an error if the hook fails (non-zero exit).
@@ -18,10 +18,10 @@ func RunPreHook(repo *git.Repo, branchType string, action HookAction, ctx HookCo
 	}
 	if result.Executed && result.ExitCode != 0 {
 		if result.Output != "" {
-			return fmt.Errorf("pre-hook '%s-flow-%s-%s' failed with exit code %d:\n%s",
+			return fmt.Errorf("pre-hook '%s-pour-%s-%s' failed with exit code %d:\n%s",
 				HookPre, branchType, action, result.ExitCode, result.Output)
 		}
-		return fmt.Errorf("pre-hook '%s-flow-%s-%s' failed with exit code %d",
+		return fmt.Errorf("pre-hook '%s-pour-%s-%s' failed with exit code %d",
 			HookPre, branchType, action, result.ExitCode)
 	}
 	return nil
@@ -56,7 +56,7 @@ func resolveHooksPath(hooksPath, repoRoot string) string {
 
 // getHooksDir returns the directory where hooks are stored.
 // Resolution follows three-level precedence:
-//  1. gitflow.path.hooks - git-flow-specific override (avh compatibility)
+//  1. gitpour.path.hooks - git-pour-specific override (avh compatibility)
 //  2. core.hooksPath - Git's native hooks path configuration
 //  3. <commonGitDir>/hooks - default location
 //
@@ -65,8 +65,8 @@ func resolveHooksPath(hooksPath, repoRoot string) string {
 // against its own checkout rather than the main one. The default location stays
 // anchored to the common git dir, which linked worktrees legitimately share.
 func getHooksDir(worktreeRoot, commonGitDir string) string {
-	// 1. git-flow-specific override (avh compatibility)
-	if hooksPath, err := configLookup(worktreeRoot, "gitflow.path.hooks"); err == nil && hooksPath != "" {
+	// 1. git-pour-specific override (avh compatibility)
+	if hooksPath, err := configLookup(worktreeRoot, "gitpour.path.hooks"); err == nil && hooksPath != "" {
 		return resolveHooksPath(hooksPath, worktreeRoot)
 	}
 
@@ -88,7 +88,7 @@ func getHooksDir(worktreeRoot, commonGitDir string) string {
 //   - publish: [name, origin, branch]
 //   - track:   [name, origin, branch]
 //   - delete:  [name, origin, branch]
-//   - update:  [name, origin, branch, base] (git-flow-next extension)
+//   - update:  [name, origin, branch, base] (git-pour-now extension)
 func BuildHookArgs(action HookAction, ctx HookContext) []string {
 	switch action {
 	case HookActionStart, HookActionUpdate:
@@ -104,7 +104,7 @@ func BuildHookArgs(action HookAction, ctx HookContext) []string {
 
 // runHook executes a hook script and returns the result.
 func runHook(repo *git.Repo, phase HookPhase, branchType string, action HookAction, ctx HookContext) HookResult {
-	hookName := fmt.Sprintf("%s-flow-%s-%s", phase, branchType, action)
+	hookName := fmt.Sprintf("%s-pour-%s-%s", phase, branchType, action)
 	hooksDir := getHooksDir(repo.WorkTree(), repo.CommonGitDir())
 	hookPath := filepath.Join(hooksDir, hookName)
 

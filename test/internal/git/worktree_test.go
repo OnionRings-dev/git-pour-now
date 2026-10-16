@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/mergestate"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 func TestGetGitDirInRegularRepo(t *testing.T) {
@@ -31,7 +31,7 @@ func TestGetGitDirInWorktree(t *testing.T) {
 	mainRepo := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestMergeStateSaveLoadInWorktree(t *testing.T) {
 	mainRepo := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
-	worktreePath, err := os.MkdirTemp("", "git-flow-worktree-state-test-*")
+	worktreePath, err := os.MkdirTemp("", "git-pour-worktree-state-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree: %v", err)
 	}
@@ -85,7 +85,7 @@ func TestMergeStateSaveLoadInWorktree(t *testing.T) {
 		t.Fatalf("SaveMergeState failed in worktree: %v", err)
 	}
 
-	stateFilePath := filepath.Join(repo.GitDir(), "gitflow", "state", "merge.json")
+	stateFilePath := filepath.Join(repo.GitDir(), "gitpour", "state", "merge.json")
 	if _, err := os.Stat(stateFilePath); os.IsNotExist(err) {
 		t.Errorf("State file was not created at expected path: %s", stateFilePath)
 	}
@@ -122,7 +122,7 @@ func TestMergeStateNotSharedBetweenWorktrees(t *testing.T) {
 	mainRepo := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, mainRepo)
 
-	worktree1, err := os.MkdirTemp("", "git-flow-worktree1-*")
+	worktree1, err := os.MkdirTemp("", "git-pour-worktree1-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree1: %v", err)
 	}
@@ -133,7 +133,7 @@ func TestMergeStateNotSharedBetweenWorktrees(t *testing.T) {
 		t.Fatalf("Failed to create worktree1: %v", err)
 	}
 
-	worktree2, err := os.MkdirTemp("", "git-flow-worktree2-*")
+	worktree2, err := os.MkdirTemp("", "git-pour-worktree2-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp directory for worktree2: %v", err)
 	}

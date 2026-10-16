@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // installPushOptionHook installs a pre-receive hook on the bare remote that captures
@@ -69,8 +69,8 @@ cat  # drain stdin so push doesn't fail
 // TestPublishWithPushOption tests that a single --push-option flag is transmitted to the remote.
 // Steps:
 // 1. Sets up a test repository with a remote and installs a pre-receive hook to capture push options
-// 2. Initializes git-flow and creates a feature branch
-// 3. Runs 'git flow feature publish my-feature --push-option ci.skip'
+// 2. Initializes git-pour and creates a feature branch
+// 3. Runs 'git pour feature publish my-feature --push-option ci.skip'
 // 4. Reads captured push options from the remote hook output file
 // 5. Verifies exactly one push option "ci.skip" was received
 func TestPublishWithPushOption(t *testing.T) {
@@ -103,8 +103,8 @@ func TestPublishWithPushOption(t *testing.T) {
 // TestPublishWithMultiplePushOptions tests that multiple -o flags are all transmitted to the remote.
 // Steps:
 // 1. Sets up a test repository with a remote and installs a pre-receive hook
-// 2. Initializes git-flow and creates a feature branch
-// 3. Runs 'git flow feature publish my-feature -o ci.skip -o merge_request.create'
+// 2. Initializes git-pour and creates a feature branch
+// 3. Runs 'git pour feature publish my-feature -o ci.skip -o merge_request.create'
 // 4. Reads captured push options from the remote hook output file
 // 5. Verifies both "ci.skip" and "merge_request.create" were received in order
 func TestPublishWithMultiplePushOptions(t *testing.T) {
@@ -137,9 +137,9 @@ func TestPublishWithMultiplePushOptions(t *testing.T) {
 // TestPublishWithConfigPushOptions tests that push options from git config are transmitted to the remote.
 // Steps:
 // 1. Sets up a test repository with a remote and installs a pre-receive hook
-// 2. Initializes git-flow and sets gitflow.feature.publish.push-option config values
+// 2. Initializes git-pour and sets gitpour.feature.publish.push-option config values
 // 3. Creates a feature branch
-// 4. Runs 'git flow feature publish my-feature' (no CLI push options)
+// 4. Runs 'git pour feature publish my-feature' (no CLI push options)
 // 5. Reads captured push options and verifies config defaults were sent
 func TestPublishWithConfigPushOptions(t *testing.T) {
 	t.Parallel()
@@ -150,11 +150,11 @@ func TestPublishWithConfigPushOptions(t *testing.T) {
 	readOptions := installPushOptionHook(t, remoteDir)
 
 	// Configure push options for feature branches
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.publish.push-option", "ci.skip")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.publish.push-option", "ci.skip")
 	if err != nil {
 		t.Fatalf("Failed to set push-option config: %v", err)
 	}
-	_, err = testutil.RunGit(t, dir, "config", "--add", "gitflow.feature.publish.push-option", "merge_request.create")
+	_, err = testutil.RunGit(t, dir, "config", "--add", "gitpour.feature.publish.push-option", "merge_request.create")
 	if err != nil {
 		t.Fatalf("Failed to add push-option config: %v", err)
 	}
@@ -181,9 +181,9 @@ func TestPublishWithConfigPushOptions(t *testing.T) {
 // TestPublishWithNoPushOption tests that --no-push-option suppresses config defaults.
 // Steps:
 // 1. Sets up a test repository with a remote and installs a pre-receive hook
-// 2. Initializes git-flow and sets gitflow.feature.publish.push-option config values
+// 2. Initializes git-pour and sets gitpour.feature.publish.push-option config values
 // 3. Creates a feature branch
-// 4. Runs 'git flow feature publish my-feature --no-push-option'
+// 4. Runs 'git pour feature publish my-feature --no-push-option'
 // 5. Reads captured push options and verifies none were sent (count is 0)
 func TestPublishWithNoPushOption(t *testing.T) {
 	t.Parallel()
@@ -194,7 +194,7 @@ func TestPublishWithNoPushOption(t *testing.T) {
 	readOptions := installPushOptionHook(t, remoteDir)
 
 	// Configure push options for feature branches
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.publish.push-option", "ci.skip")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.publish.push-option", "ci.skip")
 	if err != nil {
 		t.Fatalf("Failed to set push-option config: %v", err)
 	}
@@ -218,9 +218,9 @@ func TestPublishWithNoPushOption(t *testing.T) {
 // TestPublishWithConfigAndCliPushOptions tests that CLI options combine with config defaults.
 // Steps:
 // 1. Sets up a test repository with a remote and installs a pre-receive hook
-// 2. Initializes git-flow and sets gitflow.feature.publish.push-option to "ci.skip"
+// 2. Initializes git-pour and sets gitpour.feature.publish.push-option to "ci.skip"
 // 3. Creates a feature branch
-// 4. Runs 'git flow feature publish my-feature --push-option merge_request.create'
+// 4. Runs 'git pour feature publish my-feature --push-option merge_request.create'
 // 5. Reads captured push options and verifies both "ci.skip" and "merge_request.create" received
 func TestPublishWithConfigAndCliPushOptions(t *testing.T) {
 	t.Parallel()
@@ -231,7 +231,7 @@ func TestPublishWithConfigAndCliPushOptions(t *testing.T) {
 	readOptions := installPushOptionHook(t, remoteDir)
 
 	// Configure push option for feature branches
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.publish.push-option", "ci.skip")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.publish.push-option", "ci.skip")
 	if err != nil {
 		t.Fatalf("Failed to set push-option config: %v", err)
 	}
@@ -259,8 +259,8 @@ func TestPublishWithConfigAndCliPushOptions(t *testing.T) {
 // TestPublishWithoutPushOptions tests that no push options are sent when none are configured or provided.
 // Steps:
 // 1. Sets up a test repository with a remote and installs a pre-receive hook
-// 2. Initializes git-flow and creates a feature branch (no push option config)
-// 3. Runs 'git flow feature publish my-feature'
+// 2. Initializes git-pour and creates a feature branch (no push option config)
+// 3. Runs 'git pour feature publish my-feature'
 // 4. Reads captured push options and verifies count is 0 or hook file shows no options
 func TestPublishWithoutPushOptions(t *testing.T) {
 	t.Parallel()

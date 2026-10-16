@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 func assertCommandRejectsExtraArgs(t *testing.T, expected string, args ...string) {

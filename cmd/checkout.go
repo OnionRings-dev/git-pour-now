@@ -6,13 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/navigate"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/navigate"
 )
 
-// CheckoutOptions carries the flags of 'git flow <type> checkout'. They are
+// CheckoutOptions carries the flags of 'git pour <type> checkout'. They are
 // grouped because they travel together through one call; individually they are
 // unrelated switches.
 type CheckoutOptions struct {
@@ -35,8 +35,8 @@ func CheckoutCommand(branchType string, nameOrPrefix string, opts CheckoutOption
 	repo := mustOpenRepo()
 	if err := executeCheckout(repo, branchType, nameOrPrefix, opts); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -123,7 +123,7 @@ func executeCheckout(repo *git.Repo, branchType string, nameOrPrefix string, opt
 
 	if entry != nil {
 		// A registered worktree that is no longer there must never be handed to
-		// the shell as a destination: git-flow would exit 0 while the shell
+		// the shell as a destination: git-pour would exit 0 while the shell
 		// failed to enter it, or entered something unrelated.
 		present, presentErr := worktreeIsPresent(entry.Path)
 		if presentErr != nil {
@@ -132,7 +132,7 @@ func executeCheckout(repo *git.Repo, branchType string, nameOrPrefix string, opt
 		if !present {
 			return &errors.GitError{
 				Operation: fmt.Sprintf("check out branch '%s'", fullBranchName),
-				Err:       fmt.Errorf("its worktree at %s is gone; 'git flow worktree prune' drops stale entries", entry.Path),
+				Err:       fmt.Errorf("its worktree at %s is gone; 'git pour worktree prune' drops stale entries", entry.Path),
 			}
 		}
 
@@ -175,7 +175,7 @@ func executeCheckout(repo *git.Repo, branchType string, nameOrPrefix string, opt
 // Existence alone is not enough. A user who deletes a worktree directory by hand
 // and puts something else at that exact path leaves an entry pointing at a plain
 // directory or a file, and handing either to the shell is the failure SC-7 exists
-// to prevent: git-flow exits 0 while the shell either cannot enter the path at
+// to prevent: git-pour exits 0 while the shell either cannot enter the path at
 // all or lands somewhere that is not the worktree.
 //
 // The .git entry settles it without a git subprocess: a linked worktree carries a

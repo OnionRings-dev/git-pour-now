@@ -82,7 +82,7 @@ doubt. If all of that holds, merge. If any of it wobbles, escalate.
 Run the `/resolve-issue` workflow (read
 `.claude/skills/resolve-issue/SKILL.md`) for issue #`<n>` **in this context**,
 executing its Steps 1–9. It analyzes the spec, creates the feature branch in
-its own worktree (`../git-flow-next.worktrees/<n>-<slug>`), plans test-first,
+its own worktree (`../git-pour-now.worktrees/<n>-<slug>`), plans test-first,
 implements, runs local + Codex review, applies fixes, and writes
 `pr_summary.md`.
 
@@ -213,8 +213,8 @@ open. Repeat up the chain if the report itself has a parent.
 After a successful merge, remove the worktree and local branch:
 
 ```bash
-cd ../git-flow-next
-git worktree remove ../git-flow-next.worktrees/<n>-<slug>
+cd ../git-pour-now
+git worktree remove ../git-pour-now.worktrees/<n>-<slug>
 git branch -D feature/<n>-<slug>   # if it still exists locally
 git fetch --prune
 ```
@@ -234,7 +234,7 @@ no-op. Use this order:
 **Fast path — REST with the full bot login** (confirmed reliable):
 
 ```bash
-gh api repos/gittower/git-flow-next/pulls/<pr>/requested_reviewers \
+gh api repos/OnionRings-dev/git-pour-now/pulls/<pr>/requested_reviewers \
   -X POST -f "reviewers[]=copilot-pull-request-reviewer[bot]"
 ```
 
@@ -245,7 +245,7 @@ array (a 200/201 with no reviewer) is a **silent no-op** — fall through.
 
 ```bash
 # PR node id:
-gh api graphql -f query='query { repository(owner:"gittower",name:"git-flow-next"){ pullRequest(number:<pr>){ id } } }' --jq '.data.repository.pullRequest.id'
+gh api graphql -f query='query { repository(owner:"OnionRings-dev",name:"git-pour-now"){ pullRequest(number:<pr>){ id } } }' --jq '.data.repository.pullRequest.id'
 # Request — use the REVIEWER bot id BOT_kgDOCnlnWA (NOT the swe-agent BOT_kgDOC9w8XQ):
 gh api graphql -f query='mutation($pr:ID!,$bot:ID!){ requestReviews(input:{pullRequestId:$pr, botIds:[$bot], union:true}){ pullRequest { reviewRequests(first:10){ nodes { requestedReviewer { __typename ... on Bot { login } } } } } } }' -f pr="<PR_NODE_ID>" -f bot="BOT_kgDOCnlnWA"
 ```
@@ -262,7 +262,7 @@ Escalation 3.
 **Polling for completion:**
 
 ```bash
-gh api repos/gittower/git-flow-next/pulls/<pr>/reviews \
+gh api repos/OnionRings-dev/git-pour-now/pulls/<pr>/reviews \
   --jq '[.[] | select(.user.login=="copilot-pull-request-reviewer[bot]")] | last | {state, submitted_at}'
 ```
 
@@ -297,7 +297,7 @@ If you need to change the PR title/body, `gh pr edit --body` fails on this repo
 (projectCards deprecation). Use REST:
 
 ```bash
-gh api -X PATCH repos/gittower/git-flow-next/pulls/<pr> -f body="$(cat body.md)"
+gh api -X PATCH repos/OnionRings-dev/git-pour-now/pulls/<pr> -f body="$(cat body.md)"
 ```
 
 ## Notes

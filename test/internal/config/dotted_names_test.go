@@ -4,11 +4,11 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
 )
 
 // setDottedConfig writes the given git config key/value pairs and marks the
-// repo as git-flow-initialized so LoadConfig actually parses the branch keys
+// repo as git-pour-initialized so LoadConfig actually parses the branch keys
 // instead of returning DefaultConfig().
 func setDottedConfig(t *testing.T, dir string, kv map[string]string) {
 	t.Helper()
@@ -20,10 +20,10 @@ func setDottedConfig(t *testing.T, dir string, kv map[string]string) {
 		}
 	}
 	// Mark the repo as initialized so the branch keys are parsed.
-	cmd := exec.Command("git", "config", "gitflow.version", "1.0")
+	cmd := exec.Command("git", "config", "gitpour.version", "1.0")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow version: %v", err)
+		t.Fatalf("Failed to set gitpour version: %v", err)
 	}
 }
 
@@ -36,8 +36,8 @@ func TestLoadConfigDottedBranchName(t *testing.T) {
 	t.Parallel()
 
 	setDottedConfig(t, dir, map[string]string{
-		"gitflow.branch.custom.main.type":             "base",
-		"gitflow.branch.custom.main.upstreamStrategy": "merge",
+		"gitpour.branch.custom.main.type":             "base",
+		"gitpour.branch.custom.main.upstreamStrategy": "merge",
 	})
 
 	cfg, err := config.Load(openRepo(t, dir))
@@ -69,14 +69,14 @@ func TestLoadConfigDottedTopicRoundTrip(t *testing.T) {
 	t.Parallel()
 
 	setDottedConfig(t, dir, map[string]string{
-		"gitflow.branch.qa.release.type":               "topic",
-		"gitflow.branch.qa.release.parent":             "custom.main",
-		"gitflow.branch.qa.release.startPoint":         "custom.dev",
-		"gitflow.branch.qa.release.prefix":             "qa/",
-		"gitflow.branch.qa.release.upstreamStrategy":   "merge",
-		"gitflow.branch.qa.release.downstreamStrategy": "rebase",
-		"gitflow.branch.qa.release.tag":                "true",
-		"gitflow.branch.qa.release.tagPrefix":          "qa-",
+		"gitpour.branch.qa.release.type":               "topic",
+		"gitpour.branch.qa.release.parent":             "custom.main",
+		"gitpour.branch.qa.release.startPoint":         "custom.dev",
+		"gitpour.branch.qa.release.prefix":             "qa/",
+		"gitpour.branch.qa.release.upstreamStrategy":   "merge",
+		"gitpour.branch.qa.release.downstreamStrategy": "rebase",
+		"gitpour.branch.qa.release.tag":                "true",
+		"gitpour.branch.qa.release.tagPrefix":          "qa-",
 	})
 
 	cfg, err := config.Load(openRepo(t, dir))
@@ -133,9 +133,9 @@ func TestLoadConfigDottedBooleanAndPrefix(t *testing.T) {
 	t.Parallel()
 
 	setDottedConfig(t, dir, map[string]string{
-		"gitflow.branch.custom.dev.type":       "base",
-		"gitflow.branch.custom.dev.parent":     "custom.main",
-		"gitflow.branch.custom.dev.autoUpdate": "true",
+		"gitpour.branch.custom.dev.type":       "base",
+		"gitpour.branch.custom.dev.parent":     "custom.main",
+		"gitpour.branch.custom.dev.autoUpdate": "true",
 	})
 
 	cfg, err := config.Load(openRepo(t, dir))
@@ -164,7 +164,7 @@ func TestLoadConfigMultiDotName(t *testing.T) {
 	t.Parallel()
 
 	setDottedConfig(t, dir, map[string]string{
-		"gitflow.branch.release.2.0.type": "base",
+		"gitpour.branch.release.2.0.type": "base",
 	})
 
 	cfg, err := config.Load(openRepo(t, dir))
@@ -199,8 +199,8 @@ func TestLoadConfigMixedCaseDottedName(t *testing.T) {
 	// Write in a fixed order (mixed-case first) so the canonical is deterministic
 	// — a map would iterate in random order and make first-seen flaky.
 	for _, kv := range []struct{ key, value string }{
-		{"gitflow.branch.Custom.Main.type", "base"},
-		{"gitflow.branch.custom.main.parent", "production"},
+		{"gitpour.branch.Custom.Main.type", "base"},
+		{"gitpour.branch.custom.main.parent", "production"},
 	} {
 		cmd := exec.Command("git", "config", kv.key, kv.value)
 		cmd.Dir = dir
@@ -208,10 +208,10 @@ func TestLoadConfigMixedCaseDottedName(t *testing.T) {
 			t.Fatalf("Failed to set git config %s: %v", kv.key, err)
 		}
 	}
-	cmd := exec.Command("git", "config", "gitflow.version", "1.0")
+	cmd := exec.Command("git", "config", "gitpour.version", "1.0")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow version: %v", err)
+		t.Fatalf("Failed to set gitpour version: %v", err)
 	}
 
 	cfg, err := config.Load(openRepo(t, dir))

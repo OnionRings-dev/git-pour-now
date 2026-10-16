@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/worktree"
+	"github.com/OnionRings-dev/git-pour-now/internal/worktree"
 )
 
 // TestRelativeDisplayPathIsRelativeToBase covers SC-7: a worktree path is

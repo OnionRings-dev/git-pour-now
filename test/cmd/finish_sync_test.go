@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishFeatureBranchBehindRemote tests that finish fails when local branch is behind remote.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch and pushes it with tracking
 // 3. Simulates remote changes by cloning, committing, and pushing
 // 4. Fetches in original repo to update remote refs
@@ -127,7 +127,7 @@ func TestFinishFeatureBranchBehindRemote(t *testing.T) {
 // parent and then deletes the topic branch, so requiring a push first would preserve nothing. The
 // preflight downgrades "ahead" to a note (behind/diverged remain fatal — the remote would lose work).
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch and pushes it with tracking
 // 3. Adds a local commit without pushing (ahead by 1)
 // 4. Records develop's SHA before finishing
@@ -233,7 +233,7 @@ func TestFinishFeatureBranchAheadOfRemote(t *testing.T) {
 // message when branches have diverged. This is Scenario 10: diverged now renders its own message
 // rather than reusing the plain "behind" wording.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch and pushes it with tracking
 // 3. Simulates divergence: remote gets commit, local gets different commit
 // 4. Fetches to update remote refs
@@ -353,7 +353,7 @@ func TestFinishFeatureBranchDivergedFromRemote(t *testing.T) {
 
 // TestFinishFeatureBranchNoTrackingBranch tests that finish succeeds without tracking branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow (no remote)
+// 1. Sets up a test repository and initializes git-pour (no remote)
 // 2. Creates a feature branch (local only, no tracking)
 // 3. Adds a commit to the feature branch
 // 4. Finishes the feature branch
@@ -363,10 +363,10 @@ func TestFinishFeatureBranchNoTrackingBranch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create feature branch (local only, no remote)
@@ -410,7 +410,7 @@ func TestFinishFeatureBranchNoTrackingBranch(t *testing.T) {
 
 // TestFinishFeatureBranchForceBypassesRemoteCheck tests that --force bypasses remote check.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch and pushes it with tracking
 // 3. Simulates being behind remote (clone, commit, push from other repo)
 // 4. Fetches to update remote refs
@@ -508,7 +508,7 @@ func TestFinishFeatureBranchForceBypassesRemoteCheck(t *testing.T) {
 // keepremote is enabled so the unrelated remote-branch deletion (which would also fail on the broken
 // remote) does not mask the behavior under test.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow; enables keepremote
+// 1. Sets up a test repository with remote and initializes git-pour; enables keepremote
 // 2. Creates conflicting develop + feature changes; pushes the feature in sync
 // 3. Runs the initial finish, which passes the preflight then hits a merge conflict
 // 4. Verifies the conflict via .git/MERGE_HEAD
@@ -523,7 +523,7 @@ func TestFinishContinueSkipsRemoteCheck(t *testing.T) {
 
 	// Keep the remote branch so the delete step does not touch the (soon-broken) remote —
 	// this isolates the test to the preflight-skip behavior.
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.keepremote", "true")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.keepremote", "true")
 	if err != nil {
 		t.Fatalf("Failed to set keepremote config: %v", err)
 	}
@@ -641,7 +641,7 @@ func TestFinishContinueSkipsRemoteCheck(t *testing.T) {
 
 // TestFinishFeatureBranchEqualToRemote tests that finish succeeds when equal to remote.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, adds commit, and pushes with tracking
 // 3. Finishes the feature branch (local equals remote)
 // 4. Verifies the operation succeeds
@@ -713,7 +713,7 @@ func TestFinishFeatureBranchEqualToRemote(t *testing.T) {
 // fatal (see TestFinishUnreachableRemoteAborts, Scenario 5). Here --no-fetch skips the fetch, so
 // the sync check runs against existing (stale) tracking data and still aborts on "behind".
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, commits, and pushes it with tracking
 // 3. Resets the local branch back one commit so it is behind the remote by 1
 // 4. Records develop's SHA before finishing
@@ -793,7 +793,7 @@ func TestFinishNoFetchStillRunsSyncCheck(t *testing.T) {
 // against an undetermined sync status. This exercises the compare-error branch of the preflight,
 // which HasTrackingBranch gates entry into, so reaching a compare error is unexpected and fatal.
 // Steps:
-//  1. Sets up a test repository with remote and initializes git-flow
+//  1. Sets up a test repository with remote and initializes git-pour
 //  2. Creates a feature branch, commits, and pushes it (establishes a tracking ref)
 //  3. Corrupts the loose remote-tracking ref to point at a nonexistent object, so @{upstream} still
 //     resolves by name (HasTrackingBranch stays true) but rev-list can no longer compare

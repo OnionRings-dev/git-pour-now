@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestIntegrateSquashOverride verifies --squash lands multiple source commits as
@@ -12,7 +12,7 @@ import (
 //
 // Steps:
 //  1. init --defaults; add commits C1 and C2 to develop (not on main).
-//  2. Run: git flow integrate develop --squash.
+//  2. Run: git pour integrate develop --squash.
 //  3. Assert main gains exactly one new commit (not C1/C2 by hash) carrying both
 //     files, with no merge commit.
 func TestIntegrateSquashOverride(t *testing.T) {
@@ -20,8 +20,8 @@ func TestIntegrateSquashOverride(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	c1 := integAddCommit(t, dir, "develop", "a.txt", "1", "Add a.txt on develop")
@@ -50,7 +50,7 @@ func TestIntegrateSquashOverride(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; add X to main and C to develop (diverged).
-//  2. Run: git flow integrate develop --rebase.
+//  2. Run: git pour integrate develop --rebase.
 //  3. Assert develop's C sits on top of X (X ancestor of develop, C hash changed),
 //     main advanced to include the rebased C, and no merge commit was created.
 func TestIntegrateRebaseOverrideRewritesSource(t *testing.T) {
@@ -58,8 +58,8 @@ func TestIntegrateRebaseOverrideRewritesSource(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	xCommit := integAddCommit(t, dir, "main", "x.txt", "X", "Add X on main")
@@ -89,19 +89,19 @@ func TestIntegrateRebaseOverrideRewritesSource(t *testing.T) {
 // upstream strategy is honored without a CLI flag.
 //
 // Steps:
-//  1. init --defaults; set gitflow.branch.develop.upstreamStrategy squash.
+//  1. init --defaults; set gitpour.branch.develop.upstreamStrategy squash.
 //  2. Add commits C1, C2 to develop.
-//  3. Run: git flow integrate develop (no strategy flag).
+//  3. Run: git pour integrate develop (no strategy flag).
 //  4. Assert a single squashed commit on main.
 func TestIntegrateConfiguredUpstreamStrategy(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.develop.upstreamStrategy", "squash"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.develop.upstreamStrategy", "squash"); err != nil {
 		t.Fatalf("Failed to set upstreamStrategy: %v", err)
 	}
 
@@ -127,11 +127,11 @@ func TestIntegrateConfiguredUpstreamStrategy(t *testing.T) {
 }
 
 // TestIntegrateLayer2OverridesLayer1Strategy verifies a Layer-2
-// gitflow.<branch>.integrate.squash overrides the Layer-1 merge default.
+// gitpour.<branch>.integrate.squash overrides the Layer-1 merge default.
 //
 // Steps:
 //  1. init --defaults (Layer-1 develop.upstreamStrategy = merge).
-//  2. Set gitflow.develop.integrate.squash true.
+//  2. Set gitpour.develop.integrate.squash true.
 //  3. Add commits C1, C2 to develop; run integrate develop (no flag).
 //  4. Assert a single squashed commit on main (Layer-2 beats Layer-1).
 func TestIntegrateLayer2OverridesLayer1Strategy(t *testing.T) {
@@ -139,10 +139,10 @@ func TestIntegrateLayer2OverridesLayer1Strategy(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.squash", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.squash", "true"); err != nil {
 		t.Fatalf("Failed to set integrate.squash config: %v", err)
 	}
 
@@ -168,9 +168,9 @@ func TestIntegrateLayer2OverridesLayer1Strategy(t *testing.T) {
 // configured integrate.squash=true default.
 //
 // Steps:
-//  1. init --defaults; set gitflow.develop.integrate.squash true.
+//  1. init --defaults; set gitpour.develop.integrate.squash true.
 //  2. Add commits C1, C2 to develop.
-//  3. Run: git flow integrate develop --no-squash.
+//  3. Run: git pour integrate develop --no-squash.
 //  4. Assert a normal merge/fast-forward: both C1 and C2 reachable on main by
 //     their original hashes (not squashed).
 func TestIntegrateLayer2SquashOverriddenByFlag(t *testing.T) {
@@ -178,10 +178,10 @@ func TestIntegrateLayer2SquashOverriddenByFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.squash", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.squash", "true"); err != nil {
 		t.Fatalf("Failed to set integrate.squash config: %v", err)
 	}
 
@@ -210,15 +210,15 @@ func TestIntegrateLayer2SquashOverriddenByFlag(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; commit develop.txt on develop only (main can fast-forward).
-//  2. Run: git flow integrate develop --no-ff.
+//  2. Run: git pour integrate develop --no-ff.
 //  3. Assert main's tip is a merge commit despite a fast-forward being possible.
 func TestIntegrateNoFFFlagStillCreatesMergeCommit(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	integAddCommit(t, dir, "develop", "develop.txt", "D", "Add develop.txt on develop")
 
@@ -235,21 +235,21 @@ func TestIntegrateNoFFFlagStillCreatesMergeCommit(t *testing.T) {
 // finish-side tri-state refactor.
 //
 // Steps:
-//  1. init --defaults; set gitflow.develop.integrate.no-ff true so --ff has a Layer-2
+//  1. init --defaults; set gitpour.develop.integrate.no-ff true so --ff has a Layer-2
 //     setting to override — without it Layer 1 already fast-forwards and the flag
 //     would be a no-op that no assertion could catch.
 //  2. Commit develop.txt on develop only and capture its tip.
-//  3. Run: git flow integrate develop --ff.
+//  3. Run: git pour integrate develop --ff.
 //  4. Assert main equals the captured develop tip with a single-parent tip commit.
 func TestIntegrateFFFlagStillFastForwards(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.no-ff", "true"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.no-ff", "true"); err != nil {
 		t.Fatalf("Failed to set no-ff config: %v\nOutput: %s", err, out)
 	}
 	developTip := integAddCommit(t, dir, "develop", "develop.txt", "D", "Add develop.txt on develop")
@@ -271,16 +271,16 @@ func TestIntegrateFFFlagStillFastForwards(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults.
-//  2. Run: git flow integrate develop --ff-only.
+//  2. Run: git pour integrate develop --ff-only.
 //  3. Assert the command fails and the output reports an unknown flag. The exit code is
-//     cobra's own (1 via main.go), not a git-flow usage code, so it is not asserted.
+//     cobra's own (1 via main.go), not a git-pour usage code, so it is not asserted.
 func TestIntegrateRejectsFFOnlyFlag(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop", "--ff-only")
@@ -296,19 +296,19 @@ func TestIntegrateRejectsFFOnlyFlag(t *testing.T) {
 // the finish namespace.
 //
 // Steps:
-//  1. init --defaults; set gitflow.develop.integrate.ff-only true.
+//  1. init --defaults; set gitpour.develop.integrate.ff-only true.
 //  2. Commit develop.txt on develop and main.txt on main (diverged).
-//  3. Run: git flow integrate develop.
+//  3. Run: git pour integrate develop.
 //  4. Assert it succeeds and main's tip is a merge commit — no gate fired.
 func TestIntegrateFFOnlyConfigHasNoEffect(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.ff-only", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.ff-only", "true"); err != nil {
 		t.Fatalf("Failed to set integrate.ff-only config: %v", err)
 	}
 	integAddCommit(t, dir, "develop", "develop.txt", "D", "Add develop.txt on develop")

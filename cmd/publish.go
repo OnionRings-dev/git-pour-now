@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
 )
 
 // PublishCommand is the implementation of the publish command for topic branches.
@@ -19,8 +19,8 @@ func PublishCommand(branchType string, name string, pushOptions []string, noPush
 	repo := mustOpenRepo()
 	if err := publish(repo, branchType, name, pushOptions, noPushOption); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -31,10 +31,10 @@ func PublishCommand(branchType string, name string, pushOptions []string, noPush
 
 // publish performs the actual publish logic and returns any errors
 func publish(repo *git.Repo, branchType string, name string, cliPushOptions []string, noPushOption bool) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}
@@ -111,7 +111,7 @@ func publish(repo *git.Repo, branchType string, name string, cliPushOptions []st
 
 	// Resolve push options using three-layer precedence:
 	// Layer 1: No default push options (branch config has no push option field)
-	// Layer 2: Git config (gitflow.<branchType>.publish.push-option)
+	// Layer 2: Git config (gitpour.<branchType>.publish.push-option)
 	// Layer 3: CLI flags add to config defaults
 	// --no-push-option suppresses all options
 	pushOptions := resolvePushOptions(repo, cfg, branchType, cliPushOptions, noPushOption)
@@ -124,7 +124,7 @@ func publish(repo *git.Repo, branchType string, name string, cliPushOptions []st
 
 // resolvePushOptions resolves push options using three-layer precedence:
 // - Layer 1: No default push options (branch config has no push option field)
-// - Layer 2: Git config (gitflow.<branchType>.publish.push-option)
+// - Layer 2: Git config (gitpour.<branchType>.publish.push-option)
 // - Layer 3: CLI flags add to config defaults
 // If noPushOption is true, all push options are suppressed.
 func resolvePushOptions(repo *git.Repo, cfg *config.Config, branchType string, cliPushOptions []string, noPushOption bool) []string {
@@ -136,7 +136,7 @@ func resolvePushOptions(repo *git.Repo, cfg *config.Config, branchType string, c
 	var resolvedOptions []string
 
 	// Layer 2: Load from git config (multi-value key)
-	configKey := fmt.Sprintf("gitflow.%s.publish.push-option", branchType)
+	configKey := fmt.Sprintf("gitpour.%s.publish.push-option", branchType)
 	configOptions, err := repo.GetConfigAllValues(configKey)
 	if err == nil {
 		resolvedOptions = append(resolvedOptions, configOptions...)
@@ -176,6 +176,6 @@ func executePublish(repo *git.Repo, fullBranchName, shortName, branchType, remot
 
 	fmt.Printf("Successfully published '%s' to '%s/%s'\n", fullBranchName, remote, fullBranchName)
 	fmt.Printf("Other team members can now track this branch with:\n")
-	fmt.Printf("    git flow %s track %s\n", branchType, shortName)
+	fmt.Printf("    git pour %s track %s\n", branchType, shortName)
 	return nil
 }

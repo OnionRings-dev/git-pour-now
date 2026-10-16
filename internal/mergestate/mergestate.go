@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
 const (
-	stateDirName = "gitflow/state"
+	stateDirName = "gitpour/state"
 	stateFile    = "merge.json"
 )
 

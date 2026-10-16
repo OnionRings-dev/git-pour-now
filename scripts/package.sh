@@ -7,8 +7,8 @@ set -e
 
 # Get version from command line or use "dev" as default
 VERSION=${1:-dev}
-BINARY_NAME="git-flow"
-PACKAGE_NAME="git-flow-next"
+BINARY_NAME="git-pour"
+PACKAGE_NAME="git-pour-now"
 
 # Build directory
 BUILD_DIR="dist"
@@ -48,32 +48,37 @@ rm -f "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-"*.tar.gz \
       "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-"*.zip \
       "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-checksums.txt"
 
+# Preserve the original BSD notices in every binary distribution.
+for dir in "${PLATFORM_DIRS[@]}"; do
+    cp LICENSE "$BUILD_DIR/$dir/LICENSE"
+done
+
 # Create archives for each binary. Archive filenames keep the version/platform
 # info; the binary inside each archive uses the plain name.
 echo "Creating archives..."
 
 # macOS
 echo "Creating darwin archives..."
-tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-darwin-amd64.tar.gz" -C "$BUILD_DIR/darwin-amd64" "${BINARY_NAME}"
-tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-darwin-arm64.tar.gz" -C "$BUILD_DIR/darwin-arm64" "${BINARY_NAME}"
+tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-darwin-amd64.tar.gz" -C "$BUILD_DIR/darwin-amd64" "${BINARY_NAME}" LICENSE
+tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-darwin-arm64.tar.gz" -C "$BUILD_DIR/darwin-arm64" "${BINARY_NAME}" LICENSE
 
 # Linux
 echo "Creating linux archives..."
-tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-linux-amd64.tar.gz" -C "$BUILD_DIR/linux-amd64" "${BINARY_NAME}"
-tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-linux-arm64.tar.gz" -C "$BUILD_DIR/linux-arm64" "${BINARY_NAME}"
-tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-linux-386.tar.gz" -C "$BUILD_DIR/linux-386" "${BINARY_NAME}"
+tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-linux-amd64.tar.gz" -C "$BUILD_DIR/linux-amd64" "${BINARY_NAME}" LICENSE
+tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-linux-arm64.tar.gz" -C "$BUILD_DIR/linux-arm64" "${BINARY_NAME}" LICENSE
+tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-linux-386.tar.gz" -C "$BUILD_DIR/linux-386" "${BINARY_NAME}" LICENSE
 
 # Windows (using zip instead of tar.gz)
 echo "Creating windows archives..."
 if command -v zip >/dev/null 2>&1; then
-    (cd "$BUILD_DIR/windows-amd64" && zip "../${PACKAGE_NAME}-${VERSION}-windows-amd64.zip" "${BINARY_NAME}.exe")
-    (cd "$BUILD_DIR/windows-386" && zip "../${PACKAGE_NAME}-${VERSION}-windows-386.zip" "${BINARY_NAME}.exe")
-    (cd "$BUILD_DIR/windows-arm64" && zip "../${PACKAGE_NAME}-${VERSION}-windows-arm64.zip" "${BINARY_NAME}.exe")
+    (cd "$BUILD_DIR/windows-amd64" && zip "../${PACKAGE_NAME}-${VERSION}-windows-amd64.zip" "${BINARY_NAME}.exe" LICENSE)
+    (cd "$BUILD_DIR/windows-386" && zip "../${PACKAGE_NAME}-${VERSION}-windows-386.zip" "${BINARY_NAME}.exe" LICENSE)
+    (cd "$BUILD_DIR/windows-arm64" && zip "../${PACKAGE_NAME}-${VERSION}-windows-arm64.zip" "${BINARY_NAME}.exe" LICENSE)
 else
     echo "Warning: zip command not found, falling back to tar.gz for Windows"
-    tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-windows-amd64.tar.gz" -C "$BUILD_DIR/windows-amd64" "${BINARY_NAME}.exe"
-    tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-windows-386.tar.gz" -C "$BUILD_DIR/windows-386" "${BINARY_NAME}.exe"
-    tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-windows-arm64.tar.gz" -C "$BUILD_DIR/windows-arm64" "${BINARY_NAME}.exe"
+    tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-windows-amd64.tar.gz" -C "$BUILD_DIR/windows-amd64" "${BINARY_NAME}.exe" LICENSE
+    tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-windows-386.tar.gz" -C "$BUILD_DIR/windows-386" "${BINARY_NAME}.exe" LICENSE
+    tar czf "$BUILD_DIR/${PACKAGE_NAME}-${VERSION}-windows-arm64.tar.gz" -C "$BUILD_DIR/windows-arm64" "${BINARY_NAME}.exe" LICENSE
 fi
 
 # Remove per-platform staging directories, leaving only the archives in

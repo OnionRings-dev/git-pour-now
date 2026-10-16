@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // integSetupConflict creates a diverged modify/modify conflict on the given file
@@ -29,17 +29,17 @@ func integSetupConflict(t *testing.T, dir, file string) (xCommit, cCommit string
 //
 // Steps:
 //  1. init --defaults; create a diverged conflict on conflict.txt.
-//  2. Run: git flow integrate develop --tag v2.0.0 (conflicts).
+//  2. Run: git pour integrate develop --tag v2.0.0 (conflicts).
 //  3. Assert Git is in a real merge-conflict state and integrate state is saved.
-//  4. Resolve + stage, then git flow integrate --continue.
+//  4. Resolve + stage, then git pour integrate --continue.
 //  5. Assert the merge completes, tag is created, children updated, state cleared.
 func TestIntegrateMergeConflictThenContinue(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	integSetupConflict(t, dir, "conflict.txt")
 
@@ -102,8 +102,8 @@ func TestIntegrateMergeConflictThenContinue(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; create a diverged conflict; capture pre-integrate tips.
-//  2. Run: git flow integrate develop --tag v2.0.0 (conflicts).
-//  3. Run: git flow integrate --abort.
+//  2. Run: git pour integrate develop --tag v2.0.0 (conflicts).
+//  3. Run: git pour integrate --abort.
 //  4. Assert MERGE_HEAD gone, main/develop restored, no tag, state cleared,
 //     HEAD on develop, working tree clean.
 func TestIntegrateMergeConflictThenAbort(t *testing.T) {
@@ -111,8 +111,8 @@ func TestIntegrateMergeConflictThenAbort(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	integSetupConflict(t, dir, "conflict.txt")
 	preMain := integRevParse(t, dir, "main")
@@ -153,9 +153,9 @@ func TestIntegrateMergeConflictThenAbort(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; create a diverged conflict on f.txt.
-//  2. Run: git flow integrate develop --rebase (conflicts during replay).
+//  2. Run: git pour integrate develop --rebase (conflicts during replay).
 //  3. Assert rebase-merge state present and integrate state saved (rebase).
-//  4. Resolve + stage, then git flow integrate --continue.
+//  4. Resolve + stage, then git pour integrate --continue.
 //  5. Assert rebase-merge gone, develop rewritten onto X, main advanced, no merge
 //     commit, state cleared, HEAD on main.
 func TestIntegrateRebaseConflictThenContinue(t *testing.T) {
@@ -163,8 +163,8 @@ func TestIntegrateRebaseConflictThenContinue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	xCommit, originalC := integSetupConflict(t, dir, "f.txt")
 	preMerges := integMergeCount(t, dir, "main")
@@ -225,8 +225,8 @@ func TestIntegrateRebaseConflictThenContinue(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; create a diverged conflict; capture pre-integrate tips.
-//  2. Run: git flow integrate develop --rebase (conflicts).
-//  3. Run: git flow integrate --abort.
+//  2. Run: git pour integrate develop --rebase (conflicts).
+//  3. Run: git pour integrate --abort.
 //  4. Assert rebase aborted, main/develop restored, no tag, state cleared,
 //     HEAD on develop.
 func TestIntegrateRebaseConflictThenAbort(t *testing.T) {
@@ -234,8 +234,8 @@ func TestIntegrateRebaseConflictThenAbort(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	integSetupConflict(t, dir, "f.txt")
 	preMain := integRevParse(t, dir, "main")
@@ -275,9 +275,9 @@ func TestIntegrateRebaseConflictThenAbort(t *testing.T) {
 // Steps:
 //  1. init --defaults; add base child staging (auto-update, merge) with commit S.
 //  2. Add commit C to develop creating conflict.txt (clean into main).
-//  3. Run: git flow integrate develop --tag v2.0.0. Parent merge + tag succeed;
+//  3. Run: git pour integrate develop --tag v2.0.0. Parent merge + tag succeed;
 //     updating staging from main conflicts on conflict.txt.
-//  4. Capture main tip and tag object; resolve + stage; git flow integrate
+//  4. Capture main tip and tag object; resolve + stage; git pour integrate
 //     --continue.
 //  5. Assert main tip and tag object unchanged, no duplicate merge on main,
 //     staging carries main's content, state cleared.
@@ -286,17 +286,17 @@ func TestIntegrateChildUpdateConflictThenContinue(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	if _, err := testutil.RunGit(t, dir, "checkout", "-b", "staging", "main"); err != nil {
 		t.Fatalf("Failed to create staging: %v", err)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "merge")
 	integAddCommit(t, dir, "staging", "conflict.txt", "staging content\n", "Add S on staging")
 
 	integAddCommit(t, dir, "develop", "conflict.txt", "develop content\n", "Add C on develop")
@@ -355,10 +355,10 @@ func TestIntegrateChildUpdateConflictThenContinue(t *testing.T) {
 //     early (auto-update, merge) and staging (auto-update, rebase).
 //  2. Add clean commit C to develop; staging carries a commit that conflicts with
 //     main after the integrate (so its rebase replay conflicts).
-//  3. Run: git flow integrate develop --tag v2.0.0. Parent merge + tag succeed;
+//  3. Run: git pour integrate develop --tag v2.0.0. Parent merge + tag succeed;
 //     staging's rebase update conflicts.
 //  4. Capture main tip, tag object, early tip; confirm rebase-merge present.
-//  5. Run: git flow integrate --abort.
+//  5. Run: git pour integrate --abort.
 //  6. Assert merge + tag preserved, early untouched, rebase-merge gone (proving
 //     child-strategy-aware abort), state cleared.
 func TestIntegrateChildUpdateConflictThenAbort(t *testing.T) {
@@ -366,8 +366,8 @@ func TestIntegrateChildUpdateConflictThenAbort(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	// early: clean auto-update via merge, with its own history so its update is
@@ -375,20 +375,20 @@ func TestIntegrateChildUpdateConflictThenAbort(t *testing.T) {
 	if _, err := testutil.RunGit(t, dir, "checkout", "-b", "early", "main"); err != nil {
 		t.Fatalf("Failed to create early: %v", err)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.early.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.early.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.early.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.early.downstreamStrategy", "merge")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.early.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.early.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.early.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.early.downstreamStrategy", "merge")
 	integAddCommit(t, dir, "early", "early.txt", "early\n", "Add early.txt on early")
 
 	// staging: auto-update via rebase, carries a commit that conflicts with main.
 	if _, err := testutil.RunGit(t, dir, "checkout", "-b", "staging", "main"); err != nil {
 		t.Fatalf("Failed to create staging: %v", err)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.type", "base")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.parent", "main")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.autoUpdate", "true")
-	testutil.RunGit(t, dir, "config", "gitflow.branch.staging.downstreamStrategy", "rebase")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.type", "base")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.parent", "main")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.autoUpdate", "true")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.staging.downstreamStrategy", "rebase")
 	integAddCommit(t, dir, "staging", "conflict.txt", "staging content\n", "Add S on staging")
 
 	// develop: clean commit C that creates conflict.txt (integrates into main
@@ -461,15 +461,15 @@ func TestIntegrateChildUpdateConflictThenAbort(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; start a feature finish that conflicts (Action = finish).
-//  2. Run: git flow integrate --continue.
+//  2. Run: git pour integrate --continue.
 //  3. Assert non-zero exit and the finish state remains (Action still finish).
 func TestIntegrateContinueRejectsFinishState(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	// Conflicting feature finish (feature vs develop merge).
@@ -502,15 +502,15 @@ func TestIntegrateContinueRejectsFinishState(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; start a feature update that conflicts (Action = update).
-//  2. Run: git flow integrate --continue.
+//  2. Run: git pour integrate --continue.
 //  3. Assert non-zero exit and the update state remains (Action still update).
 func TestIntegrateContinueRejectsUpdateState(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	// Conflicting feature update (develop into feature).
@@ -546,15 +546,15 @@ func TestIntegrateContinueRejectsUpdateState(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; start a feature finish that conflicts (Action = finish).
-//  2. Run: git flow integrate --abort.
+//  2. Run: git pour integrate --abort.
 //  3. Assert non-zero exit, finish MERGE_HEAD and state remain.
 func TestIntegrateAbortRejectsFinishState(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	integAddCommit(t, dir, "develop", "conflict.txt", "develop\n", "develop base")
@@ -589,15 +589,15 @@ func TestIntegrateAbortRejectsFinishState(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults (nothing in progress).
-//  2. Run: git flow integrate --abort.
+//  2. Run: git pour integrate --abort.
 //  3. Assert exit 0 and nothing mutated.
 func TestIntegrateAbortNoOp(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	preMain := integRevParse(t, dir, "main")
 	preDevelop := integRevParse(t, dir, "develop")

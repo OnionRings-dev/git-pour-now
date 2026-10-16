@@ -8,7 +8,7 @@ type ExitCode int
 const (
 	// ExitCodeSuccess indicates successful execution
 	ExitCodeSuccess ExitCode = 0
-	// ExitCodeNotInitialized indicates git-flow is not initialized
+	// ExitCodeNotInitialized indicates git-pour is not initialized
 	ExitCodeNotInitialized ExitCode = 1
 	// ExitCodeInvalidInput indicates invalid user input
 	ExitCodeInvalidInput ExitCode = 2
@@ -22,17 +22,17 @@ const (
 	ExitCodeValidationError ExitCode = 6
 )
 
-// Error is the base interface for all git-flow errors
+// Error is the base interface for all git-pour errors
 type Error interface {
 	error
 	ExitCode() ExitCode
 }
 
-// NotInitializedError indicates that git-flow is not initialized
+// NotInitializedError indicates that git-pour is not initialized
 type NotInitializedError struct{}
 
 func (e *NotInitializedError) Error() string {
-	return "git flow is not initialized (run 'git flow init' first)"
+	return "git pour is not initialized (run 'git pour init' first)"
 }
 
 func (e *NotInitializedError) ExitCode() ExitCode {
@@ -65,13 +65,13 @@ func (e *InvalidInputError) ExitCode() ExitCode {
 	return ExitCodeInvalidInput
 }
 
-// SharedConfigDriftError indicates that local git-flow config has drifted from
-// the committed .gitflow file. It carries the drift exit code (validation error)
+// SharedConfigDriftError indicates that local git-pour config has drifted from
+// the committed .gitpour file. It carries the drift exit code (validation error)
 // so `config status` can signal drift distinctly from "not initialized".
 type SharedConfigDriftError struct{}
 
 func (e *SharedConfigDriftError) Error() string {
-	return "local git-flow configuration is out of sync with .gitflow (run 'git flow config sync')"
+	return "local git-pour configuration is out of sync with .gitpour (run 'git pour config sync')"
 }
 
 func (e *SharedConfigDriftError) ExitCode() ExitCode {
@@ -162,7 +162,7 @@ func (e *GitError) Unwrap() error {
 	return e.Err
 }
 
-// MergeInProgressError represents an error when a git-flow operation is already
+// MergeInProgressError represents an error when a git-pour operation is already
 // in progress. It is owner-aware: Action names the owning command ("finish",
 // "update", "integrate") and BranchType (when the owner is a topic type) lets
 // the message print the exact resume/abort commands for that owner.
@@ -172,34 +172,34 @@ type MergeInProgressError struct {
 	BranchType string // topic branch type when applicable; empty for base/top-level
 }
 
-// recoveryCommand returns the base git-flow command that owns the in-progress
+// recoveryCommand returns the base git-pour command that owns the in-progress
 // operation (without the --continue/--abort suffix), tailored to the owner:
-//   - finish:    git flow <type> finish
-//   - integrate: git flow integrate
-//   - update:    git flow <type> update (topic) or git flow update (base/top-level)
+//   - finish:    git pour <type> finish
+//   - integrate: git pour integrate
+//   - update:    git pour <type> update (topic) or git pour update (base/top-level)
 func (e *MergeInProgressError) recoveryCommand() string {
 	switch e.Action {
 	case "finish":
 		if e.BranchType != "" {
-			return fmt.Sprintf("git flow %s finish", e.BranchType)
+			return fmt.Sprintf("git pour %s finish", e.BranchType)
 		}
-		return "git flow finish"
+		return "git pour finish"
 	case "integrate":
-		return "git flow integrate"
+		return "git pour integrate"
 	case "update":
 		if e.BranchType != "" {
-			return fmt.Sprintf("git flow %s update", e.BranchType)
+			return fmt.Sprintf("git pour %s update", e.BranchType)
 		}
-		return "git flow update"
+		return "git pour update"
 	default:
-		return "git flow"
+		return "git pour"
 	}
 }
 
 func (e *MergeInProgressError) Error() string {
 	base := e.recoveryCommand()
 	return fmt.Sprintf(`a %s operation is already in progress for '%s'.
-It must be resolved before running another git-flow operation.
+It must be resolved before running another git-pour operation.
   To resume: %s --continue
   To abort:  %s --abort`,
 		e.Action, e.BranchName, base, base)
@@ -220,7 +220,7 @@ func (e *NoMergeInProgressError) ExitCode() ExitCode {
 	return ExitCodeGitError
 }
 
-// UnrecognizedOperationError represents an in-progress git-flow state whose
+// UnrecognizedOperationError represents an in-progress git-pour state whose
 // Action is empty or unknown. It is never auto-cleared; the user must resolve it
 // manually or remove the state file.
 type UnrecognizedOperationError struct {
@@ -232,9 +232,9 @@ func (e *UnrecognizedOperationError) Error() string {
 	// name and passes "". Omit the "for '<name>'" clause entirely in that case
 	// rather than printing an unhelpful "for ''".
 	if e.BranchName == "" {
-		return "an unrecognized git-flow operation is in progress; resolve it manually or remove the state file (.git/gitflow/state/merge.json)"
+		return "an unrecognized git-pour operation is in progress; resolve it manually or remove the state file (.git/gitpour/state/merge.json)"
 	}
-	return fmt.Sprintf("an unrecognized git-flow operation is in progress for '%s'; resolve it manually or remove the state file (.git/gitflow/state/merge.json)", e.BranchName)
+	return fmt.Sprintf("an unrecognized git-pour operation is in progress for '%s'; resolve it manually or remove the state file (.git/gitpour/state/merge.json)", e.BranchName)
 }
 
 func (e *UnrecognizedOperationError) ExitCode() ExitCode {
@@ -340,7 +340,7 @@ type BranchNotInSyncError struct {
 	CommitCount  int
 	BranchType   string
 	// Operation names the command that tripped the sync gate ("finish" or "delete"). It tailors
-	// the action verb and the suggested `git flow <type> <op> --force` command to the caller.
+	// the action verb and the suggested `git pour <type> <op> --force` command to the caller.
 	// Empty means "finish".
 	Operation string
 }
@@ -369,7 +369,7 @@ To resolve:
   git pull                       # reconcile with the remote first
 
 To delete anyway (dropping local-only commits):
-  git flow %s delete --force %s`,
+  git pour %s delete --force %s`,
 				e.BranchName, e.RemoteBranch, e.CommitCount, e.BranchType, shortName)
 		}
 		return fmt.Sprintf(`local branch '%s' is behind '%s' by %d commit(s).
@@ -381,7 +381,7 @@ To resolve:
   git pull                       # bring in the remote commits first
 
 To delete anyway:
-  git flow %s delete --force %s`,
+  git pour %s delete --force %s`,
 			e.BranchName, e.RemoteBranch, e.CommitCount, e.BranchType, shortName)
 	}
 
@@ -396,7 +396,7 @@ To resolve:
   git push                       # publish your local commits first
 
 To finish anyway (without pushing):
-  git flow %s finish --force %s`,
+  git pour %s finish --force %s`,
 			e.BranchName, e.RemoteBranch, e.CommitCount,
 			e.BranchType, shortName)
 	case SyncStatusDiverged:
@@ -409,7 +409,7 @@ To resolve:
   git pull                       # merge/rebase the remote changes first
 
 To finish anyway (discarding remote changes):
-  git flow %s finish --force %s`,
+  git pour %s finish --force %s`,
 			e.BranchName, e.RemoteBranch, e.CommitCount,
 			e.BranchType, shortName)
 	default: // SyncStatusBehind
@@ -422,7 +422,7 @@ To resolve:
   git pull                       # merge/rebase the remote changes first
 
 To finish anyway (discarding remote changes):
-  git flow %s finish --force %s`,
+  git pour %s finish --force %s`,
 			e.BranchName, e.RemoteBranch, e.CommitCount,
 			e.BranchType, shortName)
 	}
@@ -535,7 +535,7 @@ type NotBaseBranchError struct {
 }
 
 func (e *NotBaseBranchError) Error() string {
-	return fmt.Sprintf("branch '%s' is not a base branch; 'git flow integrate' applies only to base branches (use 'git flow finish' for topic branches)", e.BranchName)
+	return fmt.Sprintf("branch '%s' is not a base branch; 'git pour integrate' applies only to base branches (use 'git pour finish' for topic branches)", e.BranchName)
 }
 
 func (e *NotBaseBranchError) ExitCode() ExitCode {
@@ -595,11 +595,11 @@ func (e *TagEnabledNoNameError) ExitCode() ExitCode {
 	return ExitCodeInvalidInput
 }
 
-// AlreadyInitializedError indicates git-flow is already configured
+// AlreadyInitializedError indicates git-pour is already configured
 type AlreadyInitializedError struct{}
 
 func (e *AlreadyInitializedError) Error() string {
-	return "git-flow is already initialized in this repository. Use --force to reconfigure"
+	return "git-pour is already initialized in this repository. Use --force to reconfigure"
 }
 
 func (e *AlreadyInitializedError) ExitCode() ExitCode {
@@ -685,14 +685,14 @@ func (e *WorktreeNotFoundError) ExitCode() ExitCode {
 }
 
 // MainWorktreeError indicates an operation was aimed at the main worktree, which
-// git-flow never removes or detaches.
+// git-pour never removes or detaches.
 type MainWorktreeError struct {
 	Operation string
 	Path      string
 }
 
 func (e *MainWorktreeError) Error() string {
-	return fmt.Sprintf("refusing to %s the main worktree at %s: git-flow never removes or detaches the main worktree", e.Operation, e.Path)
+	return fmt.Sprintf("refusing to %s the main worktree at %s: git-pour never removes or detaches the main worktree", e.Operation, e.Path)
 }
 
 func (e *MainWorktreeError) ExitCode() ExitCode {
@@ -760,7 +760,7 @@ type RebaseWorktreeError struct {
 }
 
 func (e *RebaseWorktreeError) Error() string {
-	return fmt.Sprintf("cannot finish '%s' with the rebase strategy: it has its own worktree at %s; use --merge or --squash instead, or remove that worktree first ('git flow worktree remove %s')", e.Branch, e.Path, e.Branch)
+	return fmt.Sprintf("cannot finish '%s' with the rebase strategy: it has its own worktree at %s; use --merge or --squash instead, or remove that worktree first ('git pour worktree remove %s')", e.Branch, e.Path, e.Branch)
 }
 
 func (e *RebaseWorktreeError) ExitCode() ExitCode {
@@ -784,7 +784,7 @@ type ChildBranchWorktreeError struct {
 }
 
 func (e *ChildBranchWorktreeError) Error() string {
-	return fmt.Sprintf("cannot finish: child base branch '%s' has its own worktree at %s, which this finish cannot check out; remove or detach that worktree first ('git flow worktree remove %s')", e.Branch, e.Path, e.Branch)
+	return fmt.Sprintf("cannot finish: child base branch '%s' has its own worktree at %s, which this finish cannot check out; remove or detach that worktree first ('git pour worktree remove %s')", e.Branch, e.Path, e.Branch)
 }
 
 func (e *ChildBranchWorktreeError) ExitCode() ExitCode {
@@ -815,7 +815,7 @@ func (e *RemovalRefusedError) ExitCode() ExitCode {
 type MissingUserIdentityError struct{}
 
 func (e *MissingUserIdentityError) Error() string {
-	return "git user identity is not configured. Set it before running git flow init:\n" +
+	return "git user identity is not configured. Set it before running git pour init:\n" +
 		"  git config --global user.name \"Your Name\"\n" +
 		"  git config --global user.email \"you@example.com\""
 }

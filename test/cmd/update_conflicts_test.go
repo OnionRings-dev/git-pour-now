@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // =============================================================================
@@ -16,7 +16,7 @@ import (
 // Steps:
 //  1. Sets up an update merge conflict on feature/x (downstream=merge).
 //  2. Captures pre-update develop and feature/x tips.
-//  3. Resolves c.txt, stages, runs 'git flow feature update --continue x'.
+//  3. Resolves c.txt, stages, runs 'git pour feature update --continue x'.
 //  4. Verifies the merge commits, feature/x has develop as ancestor, MERGE_HEAD
 //     gone, state cleared, HEAD on feature/x, exit 0.
 //  5. Verifies exactly one completion: no tag, develop tip unchanged, feature/x kept.
@@ -64,7 +64,7 @@ func TestUpdateMergeConflictThenContinue(t *testing.T) {
 // back cleanly on abort.
 // Steps:
 //  1. Sets up an update merge conflict on feature/x; captures feature/x, develop tips.
-//  2. Runs 'git flow feature update --abort x'.
+//  2. Runs 'git pour feature update --abort x'.
 //  3. Verifies MERGE_HEAD gone, feature/x and develop restored, state cleared,
 //     HEAD on feature/x, clean working tree, exit 0.
 func TestUpdateMergeConflictThenAbort(t *testing.T) {
@@ -105,7 +105,7 @@ func TestUpdateMergeConflictThenAbort(t *testing.T) {
 // Steps:
 //  1. Sets up an update rebase conflict on feature/x (default downstream=rebase);
 //     verifies rebase-merge present and head-name is refs/heads/feature/x.
-//  2. Resolves c.txt, stages, runs 'git flow feature update --continue x'.
+//  2. Resolves c.txt, stages, runs 'git pour feature update --continue x'.
 //  3. Verifies rebase completes, rebase-merge gone, develop is an ancestor of
 //     feature/x, state cleared, HEAD on feature/x, exit 0.
 func TestUpdateRebaseConflictThenContinue(t *testing.T) {
@@ -146,15 +146,15 @@ func TestUpdateRebaseConflictThenContinue(t *testing.T) {
 // Steps:
 //  1. Builds feature/x with two commits each editing files that also diverged on
 //     develop, so the rebase conflicts twice.
-//  2. Runs 'git flow feature update x' (rebase) to reach the first conflict.
-//  3. Resolves the first conflict, stages, runs 'git flow feature update --continue x'.
+//  2. Runs 'git pour feature update x' (rebase) to reach the first conflict.
+//  3. Resolves the first conflict, stages, runs 'git pour feature update --continue x'.
 //  4. Verifies --continue reports unresolved conflicts (exit 3), the state file
 //     bytes are unchanged, and rebase-merge is still present (resumable).
 func TestUpdateRebaseReconflictStaysResumable(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "x"); err != nil {
@@ -196,7 +196,7 @@ func TestUpdateRebaseReconflictStaysResumable(t *testing.T) {
 // rolls back on abort.
 // Steps:
 //  1. Sets up an update rebase conflict on feature/x; captures feature/x tip.
-//  2. Runs 'git flow feature update --abort x'.
+//  2. Runs 'git pour feature update --abort x'.
 //  3. Verifies rebase-merge gone, feature/x restored, state cleared, HEAD on
 //     feature/x, exit 0.
 func TestUpdateRebaseConflictThenAbort(t *testing.T) {
@@ -227,10 +227,10 @@ func TestUpdateRebaseConflictThenAbort(t *testing.T) {
 
 // setupBaseUpdateInProgress sets up a top-level base-branch update conflict on
 // develop (develop <- main, downstream=merge by default). Leaves MERGE_HEAD and
-// HEAD on develop, and asserts the initial top-level 'git flow update' exits 3.
+// HEAD on develop, and asserts the initial top-level 'git pour update' exits 3.
 func setupBaseUpdateInProgress(t *testing.T, dir string) {
 	t.Helper()
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
 		t.Fatalf("init failed: %v\n%s", err, out)
 	}
 	integAddCommit(t, dir, "main", "c.txt", "main\n", "main c")
@@ -249,8 +249,8 @@ func setupBaseUpdateInProgress(t *testing.T, dir string) {
 // TestTopLevelUpdateBaseBranchContinue verifies the top-level base-branch update
 // surface is resumable via --continue.
 // Steps:
-// 1. Sets up a develop <- main update conflict via 'git flow update' (exit 3).
-// 2. Resolves c.txt, stages, runs 'git flow update --continue'.
+// 1. Sets up a develop <- main update conflict via 'git pour update' (exit 3).
+// 2. Resolves c.txt, stages, runs 'git pour update --continue'.
 // 3. Verifies the merge completes, develop updated from main, state cleared, exit 0.
 func TestTopLevelUpdateBaseBranchContinue(t *testing.T) {
 	t.Parallel()
@@ -283,8 +283,8 @@ func TestTopLevelUpdateBaseBranchContinue(t *testing.T) {
 // TestTopLevelUpdateBaseBranchAbort verifies the top-level base-branch update
 // surface is abortable via --abort.
 // Steps:
-// 1. Sets up a develop <- main update conflict via 'git flow update'; captures develop tip.
-// 2. Runs 'git flow update --abort'.
+// 1. Sets up a develop <- main update conflict via 'git pour update'; captures develop tip.
+// 2. Runs 'git pour update --abort'.
 // 3. Verifies MERGE_HEAD gone, develop restored, state cleared, HEAD on develop, exit 0.
 func TestTopLevelUpdateBaseBranchAbort(t *testing.T) {
 	t.Parallel()

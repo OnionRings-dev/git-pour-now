@@ -46,5 +46,5 @@ applyTo: "**/*.go"
 
 ## Compatibility
 
-- MUST: Preserve backward compatibility with git-flow-avh config keys, hook arguments, and branch naming
+- MUST: Keep the git-flow-avh config importer; use gitpour.* settings and pour hook names for the fork
 - SHOULD: Reuse existing helpers (e.g., `getBoolFlag`) instead of duplicating flag/config parsing logic

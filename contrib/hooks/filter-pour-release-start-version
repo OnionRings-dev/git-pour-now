@@ -1,12 +1,12 @@
 #!/bin/sh
-# filter-flow-release-start-version
+# filter-pour-release-start-version
 #
 # This filter normalizes version numbers for release branches.
 # It ensures versions have a 'v' prefix for consistency.
 #
 # Usage: Copy to .git/hooks/ and make executable:
-#   cp contrib/hooks/filter-flow-release-start-version .git/hooks/
-#   chmod +x .git/hooks/filter-flow-release-start-version
+#   cp contrib/hooks/filter-pour-release-start-version .git/hooks/
+#   chmod +x .git/hooks/filter-pour-release-start-version
 #
 # Arguments:
 #   $1 - The version provided by the user

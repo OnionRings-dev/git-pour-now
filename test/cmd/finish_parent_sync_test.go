@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // This file covers issue #99: before finish merges a topic branch into its parent (merge-target)
@@ -14,7 +14,7 @@ import (
 // a previous unpushed finish). --force skips the check; the check is gated the same way as the topic
 // check (skipped with no remote / no tracking branch / a benign missing remote ref).
 //
-// The standard fixture parent is develop (git-flow defaults: feature parent = develop), and
+// The standard fixture parent is develop (git-pour defaults: feature parent = develop), and
 // SetupTestRepoWithRemote pushes develop with upstream tracking.
 
 // advanceRemoteDevelop clones the bare remote into a throwaway working copy, adds a commit on
@@ -307,8 +307,8 @@ func TestFinishNoRemoteParentCheckSkipped(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to init git-flow: %v", err)
+	if _, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to init git-pour: %v", err)
 	}
 
 	if _, err := testutil.RunGitFlow(t, dir, "feature", "start", "no-remote"); err != nil {

@@ -7,21 +7,23 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/util"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/util"
 	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize git-flow in a repository",
+	Short: "Initialize git-pour in a repository",
 	Args:  cobra.NoArgs,
-	Long: `Initialize git-flow in a repository.
-This will set up the necessary configuration for git-flow to work.
+	Long: `Initialize git-pour in a repository.
+This will set up the necessary configuration for git-pour to work.
 
-You can use presets for common workflows:
+The default workflow uses main, feature/, and temporary prerelease/ branches.
+Stable releases are tagged on main; prereleases on prerelease/<version>.
+You can also select compatibility presets:
   --preset=classic    Traditional GitFlow with main, develop, feature, release, hotfix
   --preset=github     GitHub Flow with main and feature branches
   --preset=gitlab     GitLab Flow with production, staging, main, feature, and hotfix
@@ -31,12 +33,12 @@ Configuration scope options control where settings are stored:
   --global            Store in user's ~/.gitconfig
   --system            Store in system-wide /etc/gitconfig
   --file=<path>       Store in specified file
-  --shared            Write a committable .gitflow file and copy it into local config
+  --shared            Write a committable .gitpour file and copy it into local config
 
 Outside a git repository, --init creates one in the current directory and then
-initializes git-flow in it; without --init an interactive run asks first, and a
+initializes git-pour in it; without --init an interactive run asks first, and a
 non-interactive run fails. The created repository's initial branch is the
-resolved git-flow trunk.
+resolved git-pour trunk.
 
 Use --custom for interactive custom configuration.
 If git-flow-avh configuration exists, it will be imported.`,
@@ -68,8 +70,8 @@ If git-flow-avh configuration exists, it will be imported.`,
 func InitCommand(useDefaults, createBranches, force bool, preset string, custom bool, mainBranch, developBranch, featurePrefix, bugfixPrefix, releasePrefix, hotfixPrefix, supportPrefix, tagPrefix string, localScope, globalScope, systemScope bool, fileScope string, sharedScope bool, initRepo bool) {
 	if err := initFlow(useDefaults, createBranches, force, preset, custom, mainBranch, developBranch, featurePrefix, bugfixPrefix, releasePrefix, hotfixPrefix, supportPrefix, tagPrefix, localScope, globalScope, systemScope, fileScope, sharedScope, initRepo); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -81,8 +83,8 @@ func InitCommand(useDefaults, createBranches, force bool, preset string, custom 
 // initFlow performs the actual initialization logic and returns any errors
 func initFlow(useDefaults, createBranches, force bool, preset string, custom bool, mainBranch, developBranch, featurePrefix, bugfixPrefix, releasePrefix, hotfixPrefix, supportPrefix, tagPrefix string, localScope, globalScope, systemScope bool, fileScope string, sharedScope bool, initRepo bool) error {
 	// Validate mutual exclusivity of scope flags. --shared is not a git config
-	// scope; it selects "write structured config to <toplevel>/.gitflow, then
-	// copy gitflow.* into local .git/config", so it cannot be combined with the
+	// scope; it selects "write structured config to <toplevel>/.gitpour, then
+	// copy gitpour.* into local .git/config", so it cannot be combined with the
 	// single-scope write flags.
 	scopeCount := 0
 	if localScope {
@@ -116,7 +118,7 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 		scope = git.ConfigScopeFile
 		// Normalize a relative --file path against the invocation directory
 		// BEFORE the parent-directory existence check, so a nested relative path
-		// (e.g. cfgdir/myconfig) resolves against the directory git-flow was run
+		// (e.g. cfgdir/myconfig) resolves against the directory git-pour was run
 		// from, matching where the config is later written (git config --file runs
 		// in the invocation directory), not the work-tree root.
 		scopeFile = normalizeInvocationPath(fileScope)
@@ -154,13 +156,13 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 	}
 
 	// Shared scope has its own "already configured" detection based on the
-	// presence of the committed .gitflow file, not on git config scopes. On the
+	// presence of the committed .gitpour file, not on git config scopes. On the
 	// create path there is no repository yet, so the probe looks in the invocation
 	// directory — the work-tree root the repository is about to get. It has to run
 	// before creation, both so a refusal leaves no stray .git behind and because
-	// `git config --file` merges into an existing .gitflow instead of truncating
+	// `git config --file` merges into an existing .gitpour instead of truncating
 	// it: without this guard a pre-existing file (a source tarball shipping
-	// .gitflow but no .git, say) would silently blend its stale keys into the new
+	// .gitpour but no .git, say) would silently blend its stale keys into the new
 	// configuration.
 	if sharedScope && !force {
 		sharedExists := false
@@ -174,19 +176,19 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 			sharedExists = config.SharedConfigExistsIn(dir)
 		}
 		if sharedExists {
-			fmt.Fprintln(os.Stderr, "Git-flow is already configured via the shared .gitflow file. Use --force to rewrite it.")
+			fmt.Fprintln(os.Stderr, "Git-pour is already configured via the shared .gitpour file. Use --force to rewrite it.")
 			return &errors.AlreadyInitializedError{}
 		}
 	}
 
-	// Check if git-flow-next is already initialized at the specified scope. This
+	// Check if git-pour-now is already initialized at the specified scope. This
 	// standard scope-based detection is skipped for --shared (handled above), so
 	// a local copy left by a previous shared activation does not block re-authoring.
 	var status config.InitializedStatus
 	if !sharedScope {
 		status, err = config.IsGitFlowNextInitializedWithScope(scope, scopeFile)
 		if err != nil {
-			return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+			return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 		}
 	}
 
@@ -199,21 +201,21 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 		var msg string
 		switch {
 		case scope == git.ConfigScopeDefault && status.SourceScope == git.ConfigScopeGlobal:
-			msg = "Git-flow is configured via global config. Use --local to create repo-specific config, or --force to reconfigure."
+			msg = "Git-pour is configured via global config. Use --local to create repo-specific config, or --force to reconfigure."
 		case scope == git.ConfigScopeDefault && status.SourceScope == git.ConfigScopeSystem:
-			msg = "Git-flow is configured via system config. Use --local to create repo-specific config, or --force to reconfigure."
+			msg = "Git-pour is configured via system config. Use --local to create repo-specific config, or --force to reconfigure."
 		case scope == git.ConfigScopeDefault && status.SourceScope == git.ConfigScopeLocal:
-			msg = "Git-flow is already configured in this repository."
+			msg = "Git-pour is already configured in this repository."
 		case scope == git.ConfigScopeLocal:
-			msg = "Git-flow is already configured in local config."
+			msg = "Git-pour is already configured in local config."
 		case scope == git.ConfigScopeGlobal:
-			msg = "Git-flow is already configured in global config."
+			msg = "Git-pour is already configured in global config."
 		case scope == git.ConfigScopeSystem:
-			msg = "Git-flow is already configured in system config."
+			msg = "Git-pour is already configured in system config."
 		case scope == git.ConfigScopeFile:
-			msg = fmt.Sprintf("Git-flow is already configured in %s.", scopeFile)
+			msg = fmt.Sprintf("Git-pour is already configured in %s.", scopeFile)
 		default:
-			msg = "Git-flow is already configured."
+			msg = "Git-pour is already configured."
 		}
 
 		if isNonInteractive {
@@ -236,7 +238,7 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 
 	// If forcing reconfiguration, show a note
 	if status.Initialized && force {
-		fmt.Println("Reconfiguring git-flow (--force specified)...")
+		fmt.Println("Reconfiguring git-pour (--force specified)...")
 	}
 
 	var cfg *config.Config
@@ -264,26 +266,40 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 		// Determine configuration method
 		if preset != "" {
 			// Use preset configuration
-			fmt.Printf("Initializing git-flow with %s preset\n", preset)
+			fmt.Printf("Initializing git-pour with %s preset\n", preset)
 			presetType := config.PresetType(preset)
 			cfg = config.PresetConfig(presetType)
 		} else if custom {
 			// Use custom configuration
-			fmt.Println("Initializing git-flow with custom configuration")
+			fmt.Println("Initializing git-pour with custom configuration")
 			cfg = customConfiguration()
 		} else if useDefaults {
 			// Use default configuration
-			fmt.Println("Initializing git-flow with default settings")
+			fmt.Println("Initializing git-pour with default settings")
 			cfg = config.DefaultConfig()
 		} else if hasConfigFlags {
 			// Use default configuration with command-line overrides
-			fmt.Println("Initializing git-flow")
+			fmt.Println("Initializing git-pour")
 			cfg = config.DefaultConfig()
 		} else {
-			// Interactive mode - use legacy interactive config for backward compatibility
+			// Interactive mode uses the default single-trunk workflow.
 			cfg = config.DefaultConfig()
-			interactiveOverrides := interactiveConfig()
+			interactiveOverrides := interactivePourConfig()
 			cfg = config.ApplyOverrides(cfg, interactiveOverrides)
+		}
+	}
+
+	// Overrides of compatibility-only types require a preset that defines them.
+	for branch, value := range map[string]string{"develop": developBranch, "bugfix": bugfixPrefix, "release": releasePrefix, "hotfix": hotfixPrefix, "support": supportPrefix} {
+		if value != "" {
+			if _, exists := cfg.Branches[branch]; !exists {
+				return &errors.InvalidInputError{Message: fmt.Sprintf("--%s requires a preset defining %s (for example --preset=classic)", branch, branch)}
+			}
+		}
+	}
+	if tagPrefix != "" {
+		if _, exists := cfg.Branches["release"]; !exists {
+			return &errors.InvalidInputError{Message: "--tag configures legacy release branches; use --preset=classic, or use 'git pour release <version>' for SemVer tags"}
 		}
 	}
 
@@ -305,7 +321,7 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 	}
 
 	// Create the repository now that configuration resolution has settled: the
-	// initial branch must be the resolved git-flow trunk, overriding any ambient
+	// initial branch must be the resolved git-pour trunk, overriding any ambient
 	// init.defaultBranch. This has to happen before the identity fast-fail and the
 	// config save below, both of which need a live repository / a .git directory.
 	if createRepo {
@@ -358,17 +374,17 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 	}
 
 	// Save configuration. --shared authors the structured config into the
-	// committable <toplevel>/.gitflow file and then copies gitflow.* into local
+	// committable <toplevel>/.gitpour file and then copies gitpour.* into local
 	// .git/config so every read site (including the direct git-config readers)
 	// sees the shared settings.
 	if sharedScope {
 		sharedPath := config.SharedConfigPath(repo)
-		// A forced re-init removes any existing .gitflow first so the rewrite
+		// A forced re-init removes any existing .gitpour first so the rewrite
 		// cannot leave stale keys behind.
 		if force {
 			if _, statErr := os.Stat(sharedPath); statErr == nil {
 				if err := os.Remove(sharedPath); err != nil {
-					return &errors.GitError{Operation: "remove existing .gitflow", Err: err}
+					return &errors.GitError{Operation: "remove existing .gitpour", Err: err}
 				}
 			}
 		}
@@ -397,7 +413,7 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 		}
 	}
 
-	fmt.Println("Git flow has been initialized")
+	fmt.Println("Git pour has been initialized")
 	return nil
 }
 
@@ -510,15 +526,15 @@ func customConfiguration() *config.Config {
 	fmt.Printf("✓ Trunk branch: %s\n", trunkBranch)
 	fmt.Println()
 	fmt.Println("Configuration commands:")
-	fmt.Println("  git-flow config add base <name> [<parent>] [options...]")
-	fmt.Println("  git-flow config add topic <name> <parent> [options...]")
-	fmt.Println("  git-flow config rename base <old-name> <new-name>")
-	fmt.Println("  git-flow config rename topic <old-name> <new-name>")
-	fmt.Println("  git-flow config edit base <name> [options...]")
-	fmt.Println("  git-flow config edit topic <name> [options...]")
-	fmt.Println("  git-flow config delete base <name>")
-	fmt.Println("  git-flow config delete topic <name>")
-	fmt.Println("  git-flow config list")
+	fmt.Println("  git-pour config add base <name> [<parent>] [options...]")
+	fmt.Println("  git-pour config add topic <name> <parent> [options...]")
+	fmt.Println("  git-pour config rename base <old-name> <new-name>")
+	fmt.Println("  git-pour config rename topic <old-name> <new-name>")
+	fmt.Println("  git-pour config edit base <name> [options...]")
+	fmt.Println("  git-pour config edit topic <name> [options...]")
+	fmt.Println("  git-pour config delete base <name>")
+	fmt.Println("  git-pour config delete topic <name>")
+	fmt.Println("  git-pour config list")
 	fmt.Println()
 	fmt.Println("Use these commands to configure your workflow after initialization.")
 
@@ -539,78 +555,6 @@ func customConfiguration() *config.Config {
 	}
 
 	return cfg
-}
-
-// interactiveConfig prompts the user for configuration values (legacy function)
-func interactiveConfig() config.ConfigOverrides {
-	reader := bufio.NewReader(os.Stdin)
-	overrides := config.ConfigOverrides{}
-
-	// Prompt for main branch name
-	fmt.Print("Branch name for production releases [main]: ")
-	mainBranch, _ := reader.ReadString('\n')
-	mainBranch = strings.TrimSpace(mainBranch)
-	if mainBranch != "" {
-		overrides.MainBranch = mainBranch
-	}
-
-	// Prompt for develop branch name
-	fmt.Print("Branch name for development [develop]: ")
-	developBranch, _ := reader.ReadString('\n')
-	developBranch = strings.TrimSpace(developBranch)
-	if developBranch != "" {
-		overrides.DevelopBranch = developBranch
-	}
-
-	// Prompt for feature branch prefix
-	fmt.Print("Feature branch prefix [feature/]: ")
-	featurePrefix, _ := reader.ReadString('\n')
-	featurePrefix = strings.TrimSpace(featurePrefix)
-	if featurePrefix != "" {
-		overrides.FeaturePrefix = featurePrefix
-	}
-
-	// Prompt for bugfix branch prefix
-	fmt.Print("Bugfix branch prefix [bugfix/]: ")
-	bugfixPrefix, _ := reader.ReadString('\n')
-	bugfixPrefix = strings.TrimSpace(bugfixPrefix)
-	if bugfixPrefix != "" {
-		overrides.BugfixPrefix = bugfixPrefix
-	}
-
-	// Prompt for release branch prefix
-	fmt.Print("Release branch prefix [release/]: ")
-	releasePrefix, _ := reader.ReadString('\n')
-	releasePrefix = strings.TrimSpace(releasePrefix)
-	if releasePrefix != "" {
-		overrides.ReleasePrefix = releasePrefix
-	}
-
-	// Prompt for hotfix branch prefix
-	fmt.Print("Hotfix branch prefix [hotfix/]: ")
-	hotfixPrefix, _ := reader.ReadString('\n')
-	hotfixPrefix = strings.TrimSpace(hotfixPrefix)
-	if hotfixPrefix != "" {
-		overrides.HotfixPrefix = hotfixPrefix
-	}
-
-	// Prompt for support branch prefix
-	fmt.Print("Support branch prefix [support/]: ")
-	supportPrefix, _ := reader.ReadString('\n')
-	supportPrefix = strings.TrimSpace(supportPrefix)
-	if supportPrefix != "" {
-		overrides.SupportPrefix = supportPrefix
-	}
-
-	// Prompt for version tag prefix
-	fmt.Print("Version tag prefix []: ")
-	tagPrefix, _ := reader.ReadString('\n')
-	tagPrefix = strings.TrimSpace(tagPrefix)
-	if tagPrefix != "" {
-		overrides.TagPrefix = tagPrefix
-	}
-
-	return overrides
 }
 
 func init() {
@@ -637,5 +581,15 @@ func init() {
 	initCmd.Flags().Bool("global", false, "Store configuration in user's global ~/.gitconfig")
 	initCmd.Flags().Bool("system", false, "Store configuration in system-wide /etc/gitconfig")
 	initCmd.Flags().String("file", "", "Store configuration in specified file")
-	initCmd.Flags().Bool("shared", false, "Write a committable .gitflow file at the repo root and copy it into local config (mutually exclusive with the other scope flags)")
+	initCmd.Flags().Bool("shared", false, "Write a committable .gitpour file at the repo root and copy it into local config (mutually exclusive with the other scope flags)")
+}
+
+// interactivePourConfig asks only about branches used by the default workflow.
+func interactivePourConfig() config.ConfigOverrides {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Main branch [main]: ")
+	main, _ := reader.ReadString('\n')
+	fmt.Print("Feature branch prefix [feature/]: ")
+	feature, _ := reader.ReadString('\n')
+	return config.ConfigOverrides{MainBranch: strings.TrimSpace(main), FeaturePrefix: strings.TrimSpace(feature)}
 }

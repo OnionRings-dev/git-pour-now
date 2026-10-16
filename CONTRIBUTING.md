@@ -1,6 +1,6 @@
-# Contributing to git-flow-next
+# Contributing to git-pour-now
 
-Thank you for your interest in contributing to git-flow-next! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to git-pour-now! This document provides guidelines and instructions for contributing.
 
 ## Quick Start for Contributors
 
@@ -146,17 +146,17 @@ code you touched) belong in the same PR; anything else doesn't.
 2. **Local Development**
    ```bash
    # Clone your fork
-   git clone https://github.com/YOUR_USERNAME/git-flow-next.git
-   cd git-flow-next
+   git clone https://github.com/YOUR_USERNAME/git-pour-now.git
+   cd git-pour-now
 
    # Add upstream remote
-   git remote add upstream https://github.com/gittower/git-flow-next.git
+   git remote add upstream https://github.com/OnionRings-dev/git-pour-now.git
 
    # Create branch
    git checkout -b your-feature
 
    # Build
-   go build -o git-flow
+   go build -o git-pour
 
    # Run tests
    go test ./...
@@ -253,4 +253,4 @@ Contributors will be:
 - Mentioned in release notes for significant contributions
 - Recognized in project documentation where appropriate
 
-Thank you for contributing to git-flow-next! 
+Thank you for contributing to git-pour-now!

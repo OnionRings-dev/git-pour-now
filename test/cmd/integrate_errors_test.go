@@ -4,23 +4,23 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestIntegrateRejectsTopicBranch verifies integrate refuses a topic branch and
 // points at finish.
 //
 // Steps:
-//  1. init --defaults; git flow feature start foo.
-//  2. Run: git flow integrate feature/foo.
+//  1. init --defaults; git pour feature start foo.
+//  2. Run: git pour integrate feature/foo.
 //  3. Assert non-zero exit, message mentions base branches and finish, no mutation.
 func TestIntegrateRejectsTopicBranch(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "foo"); err != nil {
 		t.Fatalf("Failed to start feature: %v\nOutput: %s", err, out)
@@ -47,15 +47,15 @@ func TestIntegrateRejectsTopicBranch(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults (main has no parent).
-//  2. Run: git flow integrate main.
+//  2. Run: git pour integrate main.
 //  3. Assert non-zero exit, error mentions parent, nothing mutated.
 func TestIntegrateNoParent(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	preMain := integRevParse(t, dir, "main")
 
@@ -75,18 +75,18 @@ func TestIntegrateNoParent(t *testing.T) {
 // before any mutation.
 //
 // Steps:
-//  1. init --defaults; set gitflow.branch.develop.parent develop.
-//  2. Run: git flow integrate develop.
+//  1. init --defaults; set gitpour.branch.develop.parent develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert non-zero exit, self-parent error, nothing mutated.
 func TestIntegrateSelfParent(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.parent", "develop")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.parent", "develop")
 	preDevelop := integRevParse(t, dir, "develop")
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop")
@@ -105,18 +105,18 @@ func TestIntegrateSelfParent(t *testing.T) {
 // strategy is none cannot be integrated.
 //
 // Steps:
-//  1. init --defaults; set gitflow.branch.develop.upstreamStrategy none.
-//  2. Run: git flow integrate develop.
+//  1. init --defaults; set gitpour.branch.develop.upstreamStrategy none.
+//  2. Run: git pour integrate develop.
 //  3. Assert non-zero exit, strategy error, nothing merged.
 func TestIntegrateUpstreamStrategyNone(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
-	testutil.RunGit(t, dir, "config", "gitflow.branch.develop.upstreamStrategy", "none")
+	testutil.RunGit(t, dir, "config", "gitpour.branch.develop.upstreamStrategy", "none")
 	preMain := integRevParse(t, dir, "main")
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop")
@@ -135,15 +135,15 @@ func TestIntegrateUpstreamStrategyNone(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults.
-//  2. Run: git flow integrate nonexistent.
+//  2. Run: git pour integrate nonexistent.
 //  3. Assert non-zero exit.
 func TestIntegrateUnknownBranch(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "nonexistent")
@@ -156,16 +156,16 @@ func TestIntegrateUnknownBranch(t *testing.T) {
 // current branch errors.
 //
 // Steps:
-//  1. init --defaults; git flow feature start foo (HEAD on feature/foo).
-//  2. Run: git flow integrate (no arg).
+//  1. init --defaults; git pour feature start foo (HEAD on feature/foo).
+//  2. Run: git pour integrate (no arg).
 //  3. Assert non-zero exit, error mentions base branch.
 func TestIntegrateCurrentBranchNotBase(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "foo"); err != nil {
 		t.Fatalf("Failed to start feature: %v\nOutput: %s", err, out)
@@ -184,15 +184,15 @@ func TestIntegrateCurrentBranchNotBase(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; checkout develop; delete main locally.
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert non-zero exit, nothing mutated.
 func TestIntegrateParentMissing(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if _, err := testutil.RunGit(t, dir, "checkout", "develop"); err != nil {
 		t.Fatalf("Failed to checkout develop: %v", err)
@@ -217,7 +217,7 @@ func TestIntegrateParentMissing(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; checkout main; delete the configured develop branch.
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert non-zero exit, error mentions the branch does not exist, no merge
 //     state was written, and main is unchanged.
 func TestIntegrateSourceBranchDeleted(t *testing.T) {
@@ -225,8 +225,8 @@ func TestIntegrateSourceBranchDeleted(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if _, err := testutil.RunGit(t, dir, "checkout", "main"); err != nil {
 		t.Fatalf("Failed to checkout main: %v", err)
@@ -252,12 +252,12 @@ func TestIntegrateSourceBranchDeleted(t *testing.T) {
 	}
 }
 
-// TestIntegrateNotInitialized verifies integrate errors when git-flow is not
+// TestIntegrateNotInitialized verifies integrate errors when git-pour is not
 // initialized.
 //
 // Steps:
-//  1. SetupTestRepo without git flow init.
-//  2. Run: git flow integrate develop.
+//  1. SetupTestRepo without git pour init.
+//  2. Run: git pour integrate develop.
 //  3. Assert non-zero exit with a not-initialized error.
 func TestIntegrateNotInitialized(t *testing.T) {
 	t.Parallel()

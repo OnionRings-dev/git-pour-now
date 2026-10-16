@@ -5,19 +5,20 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "git-flow",
-	Short: "git-flow-next is a modern reimplementation of git-flow",
-	Long: `git-flow-next is a modern reimplementation of git-flow in Go that offers 
-greater flexibility while maintaining backward compatibility with git-flow-avh.
-
-It provides a set of commands to work with Git branches according to the git-flow model.`,
-	Example: `  git flow init
-  git flow feature start my-feature
-  git flow feature finish my-feature
-  git flow release start 1.0.0
-  git flow release finish 1.0.0`,
-	// First-run activation of a committable .gitflow file runs before any
-	// command. It is a no-op unless the repo is unconfigured and a valid .gitflow
+	Use:   "git-pour",
+	Short: "git-pour-now manages features on main and releases through SemVer tags",
+	Long: `git-pour-now keeps development on main, with short-lived feature branches.
+Prepare prereleases on temporary prerelease/<version> branches.
+Release a committed main revision by creating an immutable SemVer tag.`,
+	Example: `  git pour init --defaults
+  git pour feature start my-feature
+  git pour feature finish my-feature
+  git pour prerelease start 0.1.0
+  git pour release 0.1.0-rc.1
+  git pour prerelease finish 0.1.0
+  git pour release 0.1.0`,
+	// First-run activation of a committable .gitpour file runs before any
+	// command. It is a no-op unless the repo is unconfigured and a valid .gitpour
 	// is present (see firstRunActivation).
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return firstRunActivation(cmd)

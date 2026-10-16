@@ -1,5 +1,5 @@
 // Package worktree computes where a branch's worktree belongs and records which
-// worktrees git-flow created.
+// worktrees git-pour created.
 package worktree
 
 import (
@@ -9,16 +9,16 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
 )
 
-// DefaultTemplate is the path template used when gitflow.worktreePath is unset
+// DefaultTemplate is the path template used when gitpour.worktreePath is unset
 // or empty: a sibling directory of the repository, one subdirectory per branch.
 const DefaultTemplate = "../{{ repo }}-worktrees/{{ branch }}"
 
 // TemplateConfigKey is the git config key holding the path template.
-const TemplateConfigKey = "gitflow.worktreePath"
+const TemplateConfigKey = "gitpour.worktreePath"
 
 // placeholderPattern matches {{ name }} and {{name}} alike, so both brace forms
 // expand identically. This is deliberately not internal/util's %b/%p placeholder
@@ -26,7 +26,7 @@ const TemplateConfigKey = "gitflow.worktreePath"
 var placeholderPattern = regexp.MustCompile(`\{\{\s*(\w+)\s*\}\}`)
 
 // ComputePath returns the absolute path where branch's worktree belongs,
-// according to the gitflow.worktreePath template.
+// according to the gitpour.worktreePath template.
 //
 // The template supports {{ repo }} (the main worktree's directory name),
 // {{ branch }} (the full branch name), {{ branchName }} (the branch without its
@@ -88,7 +88,7 @@ func ComputePath(cfg *config.Config, repo *git.Repo, branch string) (string, err
 // The key is read case-insensitively on purpose: a direct `git config --get`
 // honors the camelCase spelling, but git lowercases variable names in
 // --get-regexp output, so the same key arrives in cfg.CommandConfig as
-// "gitflow.worktreepath". Falling back to a case-insensitive scan of the loaded
+// "gitpour.worktreepath". Falling back to a case-insensitive scan of the loaded
 // config keeps both spellings working.
 func resolveTemplate(cfg *config.Config, repo *git.Repo) string {
 	if value, err := repo.GetConfig(TemplateConfigKey); err == nil && strings.TrimSpace(value) != "" {
@@ -139,7 +139,7 @@ func splitTopicBranch(cfg *config.Config, branch string) (topicType string, bran
 // same expansion as '~/wt/{{ branch }}', while on Unix a backslash stays what it
 // is there — an ordinary character in a filename.
 //
-// A "~user" form is deliberately not expanded: git-flow has no portable way to
+// A "~user" form is deliberately not expanded: git-pour has no portable way to
 // resolve another user's home, and leaving it alone is better than silently
 // rooting it in the current user's home.
 func tildeRest(path string) (rest string, ok bool) {

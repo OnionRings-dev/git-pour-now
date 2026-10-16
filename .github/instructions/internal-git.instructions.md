@@ -26,5 +26,5 @@ applyTo: "internal/git/**/*.go"
 
 ## Compatibility
 
-- MUST: Preserve behavior compatibility with git-flow-avh — same config key names, same hook argument order, same branch naming defaults
+- MUST: Use main, feature/, and prerelease/ by default; preserve legacy AVH config import as a compatibility path
 - SHOULD: Handle both `main` and `master` as potential production branch names

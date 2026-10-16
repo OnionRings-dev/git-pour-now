@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestRenameFeature tests the basic functionality of renaming a feature branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch and adds some changes
 // 3. Renames the feature branch
 // 4. Verifies the old branch is deleted
@@ -21,10 +21,10 @@ func TestRenameFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -77,7 +77,7 @@ func TestRenameFeature(t *testing.T) {
 
 // TestRenameCurrentFeature tests renaming the currently checked out feature branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates and checks out a feature branch
 // 3. Renames the current feature branch
 // 4. Verifies we're still on the renamed branch
@@ -88,10 +88,10 @@ func TestRenameCurrentFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and checkout a feature branch
@@ -123,7 +123,7 @@ func TestRenameCurrentFeature(t *testing.T) {
 
 // TestRenameNonExistentFeature tests the behavior when attempting to rename a non-existent feature branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to rename a non-existent feature branch
 // 3. Verifies the operation fails with appropriate error
 // 4. Verifies the refused rename created no branch state under the new name
@@ -133,10 +133,10 @@ func TestRenameNonExistentFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to rename non-existent branch
@@ -149,14 +149,14 @@ func TestRenameNonExistentFeature(t *testing.T) {
 	if testutil.GitConfigExists(t, dir, baseKeyFor("feature/new-name")) {
 		t.Error("Expected no base key for feature/new-name after a refused rename")
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
 		t.Error("Expected no worktree provenance marker after a refused rename")
 	}
 }
 
 // TestRenameToExistingFeature tests the behavior when attempting to rename a feature branch to a name that already exists.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow
+//  1. Sets up a test repository and initializes git-pour
 //  2. Creates two feature branches
 //  3. Sets the second branch's recorded base to 'main', so the two branches carry
 //     distinguishable state
@@ -170,10 +170,10 @@ func TestRenameToExistingFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create first feature branch
@@ -215,7 +215,7 @@ func TestRenameToExistingFeature(t *testing.T) {
 
 // TestRenameWithInvalidBranchType tests the behavior when attempting to rename a branch with an invalid type.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to rename a branch with an invalid type
 // 3. Verifies the operation fails with appropriate error
 func TestRenameWithInvalidBranchType(t *testing.T) {
@@ -224,10 +224,10 @@ func TestRenameWithInvalidBranchType(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to rename with invalid branch type
@@ -238,22 +238,22 @@ func TestRenameWithInvalidBranchType(t *testing.T) {
 }
 
 // TestRenameWithoutInitialization tests the rename command in a repository where
-// git-flow has not been initialized.
+// git-pour has not been initialized.
 // Steps:
-//  1. Sets up a plain Git repository without running git flow init
+//  1. Sets up a plain Git repository without running git pour init
 //  2. Attempts to rename a feature branch
 //  3. Verifies the command fails with the "not initialized" error and exit code,
 //     rather than a misleading "branch does not exist" error
 func TestRenameWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Attempt to rename a feature branch without initialization
 	output, err := testutil.RunGitFlow(t, dir, "feature", "rename", "foo", "bar")
 	if err == nil {
-		t.Fatal("Expected rename to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected rename to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -266,21 +266,21 @@ func TestRenameWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message is the "not initialized" message, not "does not exist"
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 	if strings.Contains(output, "does not exist") {
 		t.Errorf("Expected no misleading 'does not exist' error, got: %s", output)
 	}
 
-	// Verify neither branch was created and git-flow is still not initialized
+	// Verify neither branch was created and git-pour is still not initialized
 	if testutil.BranchExists(t, dir, "feature/foo") {
 		t.Error("Expected no branch to be created, but 'feature/foo' exists")
 	}
 	if testutil.BranchExists(t, dir, "feature/bar") {
 		t.Error("Expected no branch to be created, but 'feature/bar' exists")
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.version"); err == nil {
-		t.Error("Expected git-flow to still not be initialized after failed command")
+	if _, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.version"); err == nil {
+		t.Error("Expected git-pour to still not be initialized after failed command")
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ func assertBranchWithoutWorktree(t *testing.T, dir string, branch string) {
 
 // assertWorktreeCreatedAt fails unless branch has a worktree at want: the
 // directory exists, git registers it for the branch, and the provenance marker
-// records git-flow as its creator.
+// records git-pour as its creator.
 func assertWorktreeCreatedAt(t *testing.T, dir string, branch string, want string) {
 	t.Helper()
 	if info, err := os.Stat(want); err != nil || !info.IsDir() {
@@ -135,7 +135,7 @@ func sentinelHook(t *testing.T, dir string, name string) string {
 // differs from the one the user typed.
 func startVersionFilter(t *testing.T, dir string) {
 	t.Helper()
-	createHookScript(t, dir, "filter-flow-feature-start-version", "#!/bin/sh\necho \"$1-filtered\"\n")
+	createHookScript(t, dir, "filter-pour-feature-start-version", "#!/bin/sh\necho \"$1-filtered\"\n")
 }
 
 // ---------------------------------------------------------------------------
@@ -149,9 +149,9 @@ func startVersionFilter(t *testing.T, dir string) {
 // writes the key explicitly for every topic type, so without the unset this would
 // duplicate scenario 12 and the absent-key path would never be exercised.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Unsets gitflow.branch.feature.worktree so the key is genuinely absent
-// 3. Runs 'git flow feature start x'
+// 1. Sets up a repository with git-pour defaults
+// 2. Unsets gitpour.branch.feature.worktree so the key is genuinely absent
+// 3. Runs 'git pour feature start x'
 // 4. Verifies exit code 0 and that feature/x exists
 // 5. Verifies no linked worktree and no provenance marker were created
 // 6. Verifies stdout carries the branch line and no worktree, cd or tip line
@@ -162,7 +162,7 @@ func TestStartWithoutWorktreeCreatesNoWorktree(t *testing.T) {
 	defer os.RemoveAll(worktreeRootFor(dir))
 
 	// Tolerates a missing key: before the writer exists there is nothing to unset.
-	_, _ = testutil.RunGit(t, dir, "config", "--local", "--unset", "gitflow.branch.feature.worktree")
+	_, _ = testutil.RunGit(t, dir, "config", "--local", "--unset", "gitpour.branch.feature.worktree")
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "x")
 	if err != nil {
@@ -192,8 +192,8 @@ func TestStartWithoutWorktreeCreatesNoWorktree(t *testing.T) {
 // TestStartWorktreeCreatesAtComputedPath covers scenario 2: --worktree creates the
 // branch and a worktree at the computed path.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --worktree'
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --worktree'
 // 3. Verifies exit code 0, that feature/x exists and that the worktree is registered at the computed path
 // 4. Verifies stdout carries the branch line, the worktree line and the cd hint in that order
 // 5. Verifies the printed path is the absolute computed path
@@ -238,12 +238,12 @@ func TestStartWorktreeCreatesAtComputedPath(t *testing.T) {
 }
 
 // TestStartWorktreeWritesProvenanceMarker covers scenario 3: a worktree created by
-// start is recorded as git-flow's own.
+// start is recorded as git-pour's own.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --worktree'
-// 3. Verifies gitflow.worktree.feature/x.managed is true
-// 4. Verifies 'git flow worktree list' shows the worktree without the (unmanaged) tag
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --worktree'
+// 3. Verifies gitpour.worktree.feature/x.managed is true
+// 4. Verifies 'git pour worktree list' shows the worktree without the (unmanaged) tag
 func TestStartWorktreeWritesProvenanceMarker(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -256,7 +256,7 @@ func TestStartWorktreeWritesProvenanceMarker(t *testing.T) {
 	}
 
 	if marker := testutil.GitConfigValue(t, dir, managedMarkerFor("feature/x")); marker != "true" {
-		t.Errorf("Expected gitflow.worktree.feature/x.managed=true, got %q", marker)
+		t.Errorf("Expected gitpour.worktree.feature/x.managed=true, got %q", marker)
 	}
 
 	list, err := testutil.RunGitFlow(t, dir, "worktree", "list")
@@ -274,9 +274,9 @@ func TestStartWorktreeWritesProvenanceMarker(t *testing.T) {
 // TestStartTypeDefaultCreatesWorktree covers scenario 4: the Layer-1 type default
 // makes worktree creation automatic.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Sets gitflow.branch.feature.worktree true
-// 3. Runs 'git flow feature start x' with no flags
+// 1. Sets up a repository with git-pour defaults
+// 2. Sets gitpour.branch.feature.worktree true
+// 3. Runs 'git pour feature start x' with no flags
 // 4. Verifies the worktree exists at the computed path, is registered and is marked
 // 5. Verifies stdout carries the worktree line
 func TestStartTypeDefaultCreatesWorktree(t *testing.T) {
@@ -285,7 +285,7 @@ func TestStartTypeDefaultCreatesWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.worktree", "true"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.worktree", "true"); err != nil {
 		t.Fatalf("Failed to set the type default: %v\nOutput: %s", err, out)
 	}
 
@@ -303,8 +303,8 @@ func TestStartTypeDefaultCreatesWorktree(t *testing.T) {
 // TestStartNoWorktreeOverridesTypeDefault covers scenario 5: --no-worktree beats a
 // Layer-1 default of true.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and gitflow.branch.feature.worktree true
-// 2. Runs 'git flow feature start x --no-worktree'
+// 1. Sets up a repository with git-pour defaults and gitpour.branch.feature.worktree true
+// 2. Runs 'git pour feature start x --no-worktree'
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies no linked worktree, no marker and no worktree line
 func TestStartNoWorktreeOverridesTypeDefault(t *testing.T) {
@@ -313,7 +313,7 @@ func TestStartNoWorktreeOverridesTypeDefault(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.worktree", "true"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.worktree", "true"); err != nil {
 		t.Fatalf("Failed to set the type default: %v\nOutput: %s", err, out)
 	}
 
@@ -339,8 +339,8 @@ func TestStartNoWorktreeOverridesTypeDefault(t *testing.T) {
 // TestStartWorktreePathImpliesCreationAndMarks covers scenario 6: --worktree-path
 // implies creation and puts the worktree where it says.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --worktree-path ../<repo>-custom' without --worktree
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --worktree-path ../<repo>-custom' without --worktree
 // 3. Verifies exit code 0 and that the worktree is registered for feature/x at that path
 // 4. Verifies the printed path is the hand-typed destination, made absolute against the resolved invocation directory
 // 5. Verifies nothing was created under the computed worktree root
@@ -369,8 +369,8 @@ func TestStartWorktreePathImpliesCreationAndMarks(t *testing.T) {
 // other two flags — and a later --no-worktree therefore wins (decisions.md
 // SC-5/SC-6, SC-11).
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --worktree-path ../<repo>-custom --no-worktree'
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --worktree-path ../<repo>-custom --no-worktree'
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies no registered worktree and no provenance marker
 // 5. Verifies nothing was created at the hand-typed path
@@ -397,8 +397,8 @@ func TestStartWorktreePathThenNoWorktreeCreatesNoWorktree(t *testing.T) {
 // --no-worktree revives creation AND supplies the destination, so the flag counts
 // as a creation signal rather than as a mere setting consulted later.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --no-worktree --worktree-path ../<repo>-custom'
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --no-worktree --worktree-path ../<repo>-custom'
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies the worktree was created at the hand-typed path and is marked
 // 5. Verifies nothing was created under the computed worktree root
@@ -425,8 +425,8 @@ func TestStartNoWorktreeThenWorktreePathCreatesAtPath(t *testing.T) {
 // TestStartWorktreeQuietSuppressesShellInitTip covers scenario 7: --quiet drops the
 // shell-init tip and nothing else.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and GIT_FLOW_CD_FILE unset, the only state where the tip would print
-// 2. Runs 'git flow feature start x --worktree --quiet'
+// 1. Sets up a repository with git-pour defaults and GIT_POUR_CD_FILE unset, the only state where the tip would print
+// 2. Runs 'git pour feature start x --worktree --quiet'
 // 3. Verifies exit code 0 and that the worktree exists
 // 4. Verifies stdout still carries the worktree line and the cd hint
 // 5. Verifies stdout carries no Tip: line
@@ -458,8 +458,8 @@ func TestStartWorktreeQuietSuppressesShellInitTip(t *testing.T) {
 // non-vacuity control for --quiet: without it the tip does print, so a build that
 // never printed the tip at all cannot pass the suppression test.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and GIT_FLOW_CD_FILE unset
-// 2. Runs 'git flow feature start x --worktree'
+// 1. Sets up a repository with git-pour defaults and GIT_POUR_CD_FILE unset
+// 2. Runs 'git pour feature start x --worktree'
 // 3. Verifies stdout carries the shell-init tip naming the <shell> placeholder
 func TestStartWorktreePrintsShellInitTipWithoutQuiet(t *testing.T) {
 	t.Parallel()
@@ -472,7 +472,7 @@ func TestStartWorktreePrintsShellInitTipWithoutQuiet(t *testing.T) {
 		t.Fatalf("feature start --worktree failed: %v\nStderr: %s", err, stderr)
 	}
 
-	if !strings.Contains(stdout, "Tip: run 'git flow shell-init <shell>' for automatic directory switching") {
+	if !strings.Contains(stdout, "Tip: run 'git pour shell-init <shell>' for automatic directory switching") {
 		t.Errorf("Expected the shell-init tip, got: %s", stdout)
 	}
 }
@@ -480,9 +480,9 @@ func TestStartWorktreePrintsShellInitTipWithoutQuiet(t *testing.T) {
 // TestStartWorktreeOccupiedPathCreatesNothing covers scenario 8: an occupied target
 // path is refused before anything is created.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and records the checked-out branch
+// 1. Sets up a repository with git-pour defaults and records the checked-out branch
 // 2. Creates a non-empty directory at the computed path for feature/x
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 6 and that stderr names the occupied path
 // 5. Verifies no branch, no registered worktree and no provenance marker
 // 6. Verifies the obstruction is untouched and HEAD is still the pre-command branch
@@ -516,8 +516,8 @@ func TestStartWorktreeOccupiedPathCreatesNothing(t *testing.T) {
 // flag that appears LAST wins. The branch is still created — opting out of a
 // worktree is not opting out of starting the branch.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --worktree --no-worktree'
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --worktree --no-worktree'
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies no registered worktree and no provenance marker
 // 5. Verifies stdout carries no worktree line
@@ -542,8 +542,8 @@ func TestStartWorktreeThenNoWorktreeCreatesNoWorktree(t *testing.T) {
 // order-sensitivity control: reversing the same two flags reverses the outcome,
 // so a build that simply ignored one of them cannot pass both tests.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x --no-worktree --worktree' with the flags reversed
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x --no-worktree --worktree' with the flags reversed
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies the worktree exists at the computed path, is registered and is marked
 func TestStartNoWorktreeThenWorktreeCreatesWorktree(t *testing.T) {
@@ -570,8 +570,8 @@ func TestStartNoWorktreeThenWorktreeCreatesWorktree(t *testing.T) {
 // through a different parser path than --worktree, and clustering (-wq) through a
 // third.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start x -wq --no-worktree', clustering the shorthand
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start x -wq --no-worktree', clustering the shorthand
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies no registered worktree and no provenance marker
 func TestStartWorktreeShorthandThenNoWorktreeCreatesNoWorktree(t *testing.T) {
@@ -593,8 +593,8 @@ func TestStartWorktreeShorthandThenNoWorktreeCreatesNoWorktree(t *testing.T) {
 // ordinary participant in the ordering and shadows a type default of true. It
 // does NOT mean "flag absent".
 // Steps:
-// 1. Sets up a repository with git-flow defaults and gitflow.branch.feature.worktree true
-// 2. Runs 'git flow feature start x --worktree=false'
+// 1. Sets up a repository with git-pour defaults and gitpour.branch.feature.worktree true
+// 2. Runs 'git pour feature start x --worktree=false'
 // 3. Verifies exit code 0 and that feature/x exists
 // 4. Verifies no registered worktree and no provenance marker
 func TestStartWorktreeExplicitFalseOverridesTypeDefault(t *testing.T) {
@@ -603,7 +603,7 @@ func TestStartWorktreeExplicitFalseOverridesTypeDefault(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.worktree", "true"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.worktree", "true"); err != nil {
 		t.Fatalf("Failed to set the type default: %v\nOutput: %s", err, out)
 	}
 
@@ -618,12 +618,12 @@ func TestStartWorktreeExplicitFalseOverridesTypeDefault(t *testing.T) {
 // TestStartWorktreeWithCustomStartPoint covers scenario 10: an explicit start point
 // is honored when a worktree is created.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an extra commit on main
+// 1. Sets up a repository with git-pour defaults and an extra commit on main
 // 2. Returns to develop, so main and develop point at different commits
-// 3. Runs 'git flow feature start x main --worktree'
+// 3. Runs 'git pour feature start x main --worktree'
 // 4. Verifies feature/x points at main's tip
 // 5. Verifies the new worktree's HEAD is that same commit and is on feature/x
-// 6. Verifies gitflow.branch.feature/x.base is main
+// 6. Verifies gitpour.branch.feature/x.base is main
 func TestStartWorktreeWithCustomStartPoint(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -679,8 +679,8 @@ func TestStartWorktreeWithCustomStartPoint(t *testing.T) {
 		t.Errorf("Expected the worktree to be on feature/x, got %q", branch)
 	}
 
-	if base := testutil.GitConfigValue(t, dir, "gitflow.branch.feature/x.base"); base != "main" {
-		t.Errorf("Expected gitflow.branch.feature/x.base=main, got %q", base)
+	if base := testutil.GitConfigValue(t, dir, "gitpour.branch.feature/x.base"); base != "main" {
+		t.Errorf("Expected gitpour.branch.feature/x.base=main, got %q", base)
 	}
 }
 
@@ -688,8 +688,8 @@ func TestStartWorktreeWithCustomStartPoint(t *testing.T) {
 // unaffected by worktree creation. It is also the control for E8 Test C, which
 // asserts the fetch is skipped when the path is occupied.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a configured remote
-// 2. Runs 'git flow feature start x --worktree --fetch'
+// 1. Sets up a repository with git-pour defaults and a configured remote
+// 2. Runs 'git pour feature start x --worktree --fetch'
 // 3. Verifies exit code 0 and that stdout carries the fetch line
 // 4. Verifies the worktree was created and registered
 func TestStartWorktreeWithFetchStillFetches(t *testing.T) {
@@ -713,8 +713,8 @@ func TestStartWorktreeWithFetchStillFetches(t *testing.T) {
 // TestStartWorktreeWithNoFetchDoesNotFetch covers scenario 11 Test B: --no-fetch
 // still suppresses the fetch when a worktree is created.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a configured remote
-// 2. Runs 'git flow feature start x --worktree --no-fetch'
+// 1. Sets up a repository with git-pour defaults and a configured remote
+// 2. Runs 'git pour feature start x --worktree --no-fetch'
 // 3. Verifies exit code 0 and that stdout carries no fetch line
 // 4. Verifies the worktree was still created
 func TestStartWorktreeWithNoFetchDoesNotFetch(t *testing.T) {
@@ -739,9 +739,9 @@ func TestStartWorktreeWithNoFetchDoesNotFetch(t *testing.T) {
 // creation does not disturb the existing fetch resolution, so the flag still beats
 // a config false.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a configured remote
-// 2. Sets gitflow.feature.start.fetch false
-// 3. Runs 'git flow feature start x --worktree --fetch'
+// 1. Sets up a repository with git-pour defaults and a configured remote
+// 2. Sets gitpour.feature.start.fetch false
+// 3. Runs 'git pour feature start x --worktree --fetch'
 // 4. Verifies stdout carries the fetch line, so the flag won
 // 5. Verifies the worktree was created
 func TestStartWorktreeFetchFlagOverridesConfig(t *testing.T) {
@@ -751,7 +751,7 @@ func TestStartWorktreeFetchFlagOverridesConfig(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.feature.start.fetch", "false"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.feature.start.fetch", "false"); err != nil {
 		t.Fatalf("Failed to set the fetch config: %v\nOutput: %s", err, out)
 	}
 
@@ -769,9 +769,9 @@ func TestStartWorktreeFetchFlagOverridesConfig(t *testing.T) {
 // TestStartExplicitFalseTypeDefaultCreatesNoWorktree covers scenario 12: an
 // explicit false type default behaves exactly like an absent one.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Sets gitflow.branch.feature.worktree false
-// 3. Runs 'git flow feature start x' with no worktree flag, so the intent is untouched
+// 1. Sets up a repository with git-pour defaults
+// 2. Sets gitpour.branch.feature.worktree false
+// 3. Runs 'git pour feature start x' with no worktree flag, so the intent is untouched
 // 4. Verifies feature/x exists with no worktree and no provenance marker
 func TestStartExplicitFalseTypeDefaultCreatesNoWorktree(t *testing.T) {
 	t.Parallel()
@@ -779,7 +779,7 @@ func TestStartExplicitFalseTypeDefaultCreatesNoWorktree(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.worktree", "false"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.worktree", "false"); err != nil {
 		t.Fatalf("Failed to set the type default: %v\nOutput: %s", err, out)
 	}
 
@@ -792,10 +792,10 @@ func TestStartExplicitFalseTypeDefaultCreatesNoWorktree(t *testing.T) {
 }
 
 // TestStartWorktreeWritesNavigationDestination covers scenario 13: with
-// GIT_FLOW_CD_FILE set, the new worktree's absolute path is handed to the shell.
+// GIT_POUR_CD_FILE set, the new worktree's absolute path is handed to the shell.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow feature start x --worktree' with the variable set
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour feature start x --worktree' with the variable set
 // 3. Verifies exit code 0 and that the worktree exists
 // 4. Verifies the file holds the absolute computed worktree path
 // 5. Verifies no shell-init tip prints, since the channel is plainly in use
@@ -827,8 +827,8 @@ func TestStartWorktreeWritesNavigationDestination(t *testing.T) {
 // This is the exact-stdout pin for #173. A test repository with no remote prints
 // no fetch line, so the four lines are the whole of stdout.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and creates a CD file that is NOT exported
-// 2. Runs 'git flow feature start x --worktree' with GIT_FLOW_CD_FILE unset
+// 1. Sets up a repository with git-pour defaults and creates a CD file that is NOT exported
+// 2. Runs 'git pour feature start x --worktree' with GIT_POUR_CD_FILE unset
 // 3. Verifies the worktree was created
 // 4. Verifies stdout is exactly the branch, worktree, cd and tip lines in that order
 // 5. Verifies stderr is empty and the unexported CD file was never written
@@ -850,7 +850,7 @@ func TestStartWorktreeWithoutCDFilePrintsHintAndTip(t *testing.T) {
 	want := "Created branch 'feature/x' from 'develop'\n" +
 		"Created worktree for branch 'feature/x' at " + wtPath + "\n" +
 		"To switch to it: cd " + wtPath + "\n" +
-		"Tip: run 'git flow shell-init <shell>' for automatic directory switching\n"
+		"Tip: run 'git pour shell-init <shell>' for automatic directory switching\n"
 	if stdout != want {
 		t.Errorf("Expected stdout %q, got %q", want, stdout)
 	}
@@ -863,8 +863,8 @@ func TestStartWorktreeWithoutCDFilePrintsHintAndTip(t *testing.T) {
 // TestStartWorktreeNoCDLeavesFileEmpty covers scenario 15: --no-cd suppresses the
 // channel write and nothing else.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow feature start x --worktree --no-cd' with the variable set
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour feature start x --worktree --no-cd' with the variable set
 // 3. Verifies the branch, worktree and provenance marker were all created
 // 4. Verifies the CD file is still empty
 // 5. Verifies the cd hint still prints, since --no-cd suppresses only the channel write
@@ -894,8 +894,8 @@ func TestStartWorktreeNoCDLeavesFileEmpty(t *testing.T) {
 // TestStartWithoutWorktreeLeavesCDFileEmpty covers scenario 16: a start that
 // creates no worktree writes nothing to the channel and prints what it always did.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow feature start x' with the variable set
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour feature start x' with the variable set
 // 3. Verifies the CD file is still empty
 // 4. Verifies stdout is exactly the branch line, with no worktree or navigation lines
 func TestStartWithoutWorktreeLeavesCDFileEmpty(t *testing.T) {
@@ -924,8 +924,8 @@ func TestStartWithoutWorktreeLeavesCDFileEmpty(t *testing.T) {
 // test does not override PWD, so os.Getwd falls back to the kernel's resolved
 // working directory. See customWorktreeDest.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
-// 2. Runs 'git flow feature start x --worktree-path ../<repo>-custom' with the variable set
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
+// 2. Runs 'git pour feature start x --worktree-path ../<repo>-custom' with the variable set
 // 3. Verifies the CD file holds the absolute destination, never the literal relative form
 func TestStartWorktreePathWritesAbsoluteDestination(t *testing.T) {
 	t.Parallel()
@@ -951,9 +951,9 @@ func TestStartWorktreePathWritesAbsoluteDestination(t *testing.T) {
 // resolveWorktreeTarget is never validated against an occupied destination and an
 // implementation that skipped the check for hand-typed paths would still pass.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
 // 2. Creates a non-empty directory at the custom destination
-// 3. Runs 'git flow feature start x --worktree-path ../<repo>-custom' with the variable set
+// 3. Runs 'git pour feature start x --worktree-path ../<repo>-custom' with the variable set
 // 4. Verifies exit code 6 and that stderr names the occupied custom path
 // 5. Verifies no branch, no registered worktree and no provenance marker
 // 6. Verifies the obstruction is untouched, the computed root was never used and the CD file is empty
@@ -987,9 +987,9 @@ func TestStartWorktreePathOccupiedCreatesNothing(t *testing.T) {
 // TestStartWorktreeOccupiedPathLeavesCDFileEmpty covers scenario 18: a refusal
 // writes nothing to the navigation channel.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
 // 2. Creates a non-empty directory at the computed path for feature/x
-// 3. Runs 'git flow feature start x --worktree' with the variable set
+// 3. Runs 'git pour feature start x --worktree' with the variable set
 // 4. Verifies exit code 6
 // 5. Verifies no branch, no registered worktree and no provenance marker
 // 6. Verifies the CD file is still empty
@@ -1022,9 +1022,9 @@ func TestStartWorktreeOccupiedPathLeavesCDFileEmpty(t *testing.T) {
 // Without it a reversion would fail only with git's own "already used by worktree"
 // message, which is easy to misdiagnose.
 // Steps:
-// 1. Sets up a repository with git-flow defaults, checked out on develop
+// 1. Sets up a repository with git-pour defaults, checked out on develop
 // 2. Records the current branch and commit
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies the invocation repository is still on develop at the same commit
 // 5. Verifies the new worktree directory is the one on feature/x
 func TestStartWorktreeLeavesHeadUnchanged(t *testing.T) {
@@ -1068,8 +1068,8 @@ func TestStartWorktreeLeavesHeadUnchanged(t *testing.T) {
 // leaves the user on the new branch, so the no-checkout creation never becomes the
 // default.
 // Steps:
-// 1. Sets up a repository with git-flow defaults, checked out on develop
-// 2. Runs 'git flow feature start x' with no worktree flags
+// 1. Sets up a repository with git-pour defaults, checked out on develop
+// 2. Runs 'git pour feature start x' with no worktree flags
 // 3. Verifies the current branch is feature/x
 func TestStartWithoutWorktreeChecksOutNewBranch(t *testing.T) {
 	t.Parallel()
@@ -1089,8 +1089,8 @@ func TestStartWithoutWorktreeChecksOutNewBranch(t *testing.T) {
 // TestStartWorktreeFromLinkedWorktree covers E5: run from a linked worktree, the
 // new worktree still lands at the path computed from the MAIN worktree root.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and adds a linked worktree for a free branch
-// 2. Runs 'git flow feature start x --worktree' with the linked worktree as the working directory
+// 1. Sets up a repository with git-pour defaults and adds a linked worktree for a free branch
+// 2. Runs 'git pour feature start x --worktree' with the linked worktree as the working directory
 // 3. Verifies exit code 0 and that the worktree is at the main-worktree-relative computed path
 // 4. Verifies the linked worktree's HEAD is unchanged
 // 5. Verifies the marker reached the shared config, so both directories list the new worktree as managed
@@ -1101,7 +1101,7 @@ func TestStartWorktreeFromLinkedWorktree(t *testing.T) {
 	defer os.RemoveAll(worktreeRootFor(dir))
 	createFreeBranch(t, dir, "wt-test")
 
-	wtPath, err := os.MkdirTemp("", "git-flow-test-wt-*")
+	wtPath, err := os.MkdirTemp("", "git-pour-test-wt-*")
 	if err != nil {
 		t.Fatalf("Failed to create the linked worktree directory: %v", err)
 	}
@@ -1142,9 +1142,9 @@ func TestStartWorktreeFromLinkedWorktree(t *testing.T) {
 // TestStartWorktreeAcceptsEmptyTargetDirectory covers E6 (#172 decision 12): an
 // existing EMPTY directory is a valid target, matching plain 'git worktree add'.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
+// 1. Sets up a repository with git-pour defaults
 // 2. Creates the computed path for feature/x as an empty directory
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 0, that the worktree was created in that directory and that the marker was written
 func TestStartWorktreeAcceptsEmptyTargetDirectory(t *testing.T) {
 	t.Parallel()
@@ -1169,9 +1169,9 @@ func TestStartWorktreeAcceptsEmptyTargetDirectory(t *testing.T) {
 // repository with no commits cannot back a second worktree, so --worktree is
 // refused before anything happens.
 // Steps:
-// 1. Sets up a commit-less repository and runs 'git flow init --defaults --no-create-branches'
+// 1. Sets up a commit-less repository and runs 'git pour init --defaults --no-create-branches'
 // 2. Asserts the precondition: HEAD is unborn and develop does not exist
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 2 and an explanation on stderr
 // 5. Verifies no branch, no worktree, no marker and still no commit
 func TestStartWorktreeInCommitlessRepositoryRefused(t *testing.T) {
@@ -1179,7 +1179,7 @@ func TestStartWorktreeInCommitlessRepositoryRefused(t *testing.T) {
 	dir := testutil.SetupEmptyTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--no-create-branches"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--no-create-branches"); err != nil {
 		t.Fatalf("init --defaults --no-create-branches failed: %v\nOutput: %s", err, out)
 	}
 	if _, err := testutil.RunGit(t, dir, "rev-parse", "--verify", "HEAD"); err == nil {
@@ -1207,15 +1207,15 @@ func TestStartWorktreeInCommitlessRepositoryRefused(t *testing.T) {
 // the non-vacuity control: without --worktree the same repository fails later and
 // differently, so the exit-2 refusal is a genuinely new, earlier failure.
 // Steps:
-// 1. Sets up a commit-less repository and runs 'git flow init --defaults --no-create-branches'
-// 2. Runs 'git flow feature start x' with no worktree flag
+// 1. Sets up a commit-less repository and runs 'git pour init --defaults --no-create-branches'
+// 2. Runs 'git pour feature start x' with no worktree flag
 // 3. Verifies exit code 5 and the missing start point message
 func TestStartWithoutWorktreeInCommitlessRepositoryFailsOnStartPoint(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupEmptyTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--no-create-branches"); err != nil {
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--no-create-branches"); err != nil {
 		t.Fatalf("init --defaults --no-create-branches failed: %v\nOutput: %s", err, out)
 	}
 
@@ -1232,9 +1232,9 @@ func TestStartWithoutWorktreeInCommitlessRepositoryFailsOnStartPoint(t *testing.
 // command that cannot succeed runs no pre-start hook, so "nothing is created" also
 // means nothing ran.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a pre-flow-feature-start hook that writes a sentinel
+// 1. Sets up a repository with git-pour defaults and a pre-pour-feature-start hook that writes a sentinel
 // 2. Creates a non-empty directory at the computed path for feature/x
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 6 and that the sentinel file was never written
 // 5. Verifies no branch, no registered worktree and no provenance marker
 func TestStartWorktreeOccupiedPathSkipsPreStartHook(t *testing.T) {
@@ -1243,7 +1243,7 @@ func TestStartWorktreeOccupiedPathSkipsPreStartHook(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	sentinel := sentinelHook(t, dir, "pre-flow-feature-start")
+	sentinel := sentinelHook(t, dir, "pre-pour-feature-start")
 	writeObstruction(t, computedWorktreePath(t, dir, "feature/x"), "keep.txt", "precious")
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "x", "--worktree")
@@ -1262,9 +1262,9 @@ func TestStartWorktreeOccupiedPathSkipsPreStartHook(t *testing.T) {
 // whose worktree path never entered the hook wrapper cannot pass the suppression
 // test.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a pre-flow-feature-start hook that writes a sentinel
+// 1. Sets up a repository with git-pour defaults and a pre-pour-feature-start hook that writes a sentinel
 // 2. Leaves the computed path free
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 0, that the sentinel exists and that the worktree was created
 func TestStartWorktreeRunsPreStartHookOnViablePath(t *testing.T) {
 	t.Parallel()
@@ -1272,7 +1272,7 @@ func TestStartWorktreeRunsPreStartHookOnViablePath(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer os.RemoveAll(worktreeRootFor(dir))
 
-	sentinel := sentinelHook(t, dir, "pre-flow-feature-start")
+	sentinel := sentinelHook(t, dir, "pre-pour-feature-start")
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "start", "x", "--worktree")
 	if err != nil {
@@ -1289,9 +1289,9 @@ func TestStartWorktreeRunsPreStartHookOnViablePath(t *testing.T) {
 // SC-7: a doomed command runs no fetch either. Scenario 11 Test A is the paired
 // control proving the fetch line does print on a viable path.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a configured remote
+// 1. Sets up a repository with git-pour defaults and a configured remote
 // 2. Creates a non-empty directory at the computed path for feature/x
-// 3. Runs 'git flow feature start x --worktree --fetch'
+// 3. Runs 'git pour feature start x --worktree --fetch'
 // 4. Verifies exit code 6 and that stdout carries no fetch line
 // 5. Verifies no branch, no registered worktree and no provenance marker
 func TestStartWorktreeOccupiedPathSkipsFetch(t *testing.T) {
@@ -1318,8 +1318,8 @@ func TestStartWorktreeOccupiedPathSkipsFetch(t *testing.T) {
 // version filter runs before the worktree path is computed, so the worktree
 // follows the filtered name.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a version filter rewriting x to x-filtered
-// 2. Runs 'git flow feature start x --worktree'
+// 1. Sets up a repository with git-pour defaults and a version filter rewriting x to x-filtered
+// 2. Runs 'git pour feature start x --worktree'
 // 3. Verifies the branch is feature/x-filtered
 // 4. Verifies the worktree is at the computed path for feature/x-filtered
 func TestStartWorktreeUsesFilteredBranchName(t *testing.T) {
@@ -1345,9 +1345,9 @@ func TestStartWorktreeUsesFilteredBranchName(t *testing.T) {
 // check runs against the FILTERED path, and refuses before anything is created
 // under either name.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a version filter rewriting x to x-filtered
+// 1. Sets up a repository with git-pour defaults and a version filter rewriting x to x-filtered
 // 2. Creates a non-empty directory at the computed path for feature/x-filtered
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 6
 // 5. Verifies all three negatives against BOTH the filtered and the unfiltered branch names
 func TestStartWorktreeChecksFilteredPathForOccupancy(t *testing.T) {
@@ -1372,9 +1372,9 @@ func TestStartWorktreeChecksFilteredPathForOccupancy(t *testing.T) {
 // at the PRE-filter path is irrelevant. This is the assertion that fails if the
 // path validation is moved above the version filter.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and a version filter rewriting x to x-filtered
+// 1. Sets up a repository with git-pour defaults and a version filter rewriting x to x-filtered
 // 2. Creates a non-empty directory at the computed path for the pre-filter name feature/x
-// 3. Runs 'git flow feature start x --worktree'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies exit code 0 and that the worktree landed at the filtered path
 // 5. Verifies the pre-filter obstruction is untouched
 func TestStartWorktreeIgnoresUnfilteredPathOccupancy(t *testing.T) {
@@ -1412,10 +1412,10 @@ func TestStartWorktreeIgnoresUnfilteredPathOccupancy(t *testing.T) {
 // which os.IsNotExist does not match, so the command would refuse in
 // pre-validation and nothing would be created at all.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and an empty GIT_FLOW_CD_FILE
-// 2. Creates a read-only directory outside the repository and points gitflow.worktreePath inside it
+// 1. Sets up a repository with git-pour defaults and an empty GIT_POUR_CD_FILE
+// 2. Creates a read-only directory outside the repository and points gitpour.worktreePath inside it
 // 3. Probes whether the filesystem enforces the write bit and skips if it does not
-// 4. Runs 'git flow feature start x --worktree'
+// 4. Runs 'git pour feature start x --worktree'
 // 5. Verifies exit code 3 and that stderr reports the worktree failure
 // 6. Verifies feature/x still exists with its base recorded, and that nothing else was left behind
 func TestStartWorktreeFailureKeepsBranch(t *testing.T) {
@@ -1444,7 +1444,7 @@ func TestStartWorktreeFailureKeepsBranch(t *testing.T) {
 	}
 
 	template := filepath.Join(blocked, "{{ branch }}")
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", template); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", template); err != nil {
 		t.Fatalf("Failed to set the path template: %v\nOutput: %s", err, out)
 	}
 
@@ -1459,8 +1459,8 @@ func TestStartWorktreeFailureKeepsBranch(t *testing.T) {
 	if !testutil.BranchExists(t, dir, "feature/x") {
 		t.Error("Expected feature/x to survive the failed worktree creation")
 	}
-	if base := testutil.GitConfigValue(t, dir, "gitflow.branch.feature/x.base"); base != "develop" {
-		t.Errorf("Expected gitflow.branch.feature/x.base=develop, got %q", base)
+	if base := testutil.GitConfigValue(t, dir, "gitpour.branch.feature/x.base"); base != "develop" {
+		t.Errorf("Expected gitpour.branch.feature/x.base=develop, got %q", base)
 	}
 	if marker := testutil.GitConfigValue(t, dir, managedMarkerFor("feature/x")); marker != "" {
 		t.Errorf("Expected no provenance marker after a failed creation, got %q", marker)
@@ -1477,8 +1477,8 @@ func TestStartWorktreeFailureKeepsBranch(t *testing.T) {
 // TestStartWorktreeCreatesNestedParentDirectories covers E11: a branch name with
 // slashes computes a nested path whose intermediate directories are created.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Runs 'git flow feature start deep/nested/name --worktree'
+// 1. Sets up a repository with git-pour defaults
+// 2. Runs 'git pour feature start deep/nested/name --worktree'
 // 3. Verifies exit code 0 and that the worktree exists at <root>/feature/deep/nested/name
 // 4. Verifies the provenance marker round-trips the full branch name through the git subsection
 func TestStartWorktreeCreatesNestedParentDirectories(t *testing.T) {
@@ -1494,17 +1494,17 @@ func TestStartWorktreeCreatesNestedParentDirectories(t *testing.T) {
 
 	branch := "feature/deep/nested/name"
 	assertWorktreeCreatedAt(t, dir, branch, computedWorktreePath(t, dir, branch))
-	if marker := testutil.GitConfigValue(t, dir, "gitflow.worktree."+branch+".managed"); marker != "true" {
-		t.Errorf("Expected gitflow.worktree.%s.managed=true, got %q", branch, marker)
+	if marker := testutil.GitConfigValue(t, dir, "gitpour.worktree."+branch+".managed"); marker != "true" {
+		t.Errorf("Expected gitpour.worktree.%s.managed=true, got %q", branch, marker)
 	}
 }
 
 // TestStartWorktreeHonorsCustomPathTemplate covers E12: a custom
-// gitflow.worktreePath template decides where the worktree goes.
+// gitpour.worktreePath template decides where the worktree goes.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Sets gitflow.worktreePath to '../{{ repo }}-wt/{{ topicType }}/{{ branchName }}'
-// 3. Runs 'git flow feature start x --worktree'
+// 1. Sets up a repository with git-pour defaults
+// 2. Sets gitpour.worktreePath to '../{{ repo }}-wt/{{ topicType }}/{{ branchName }}'
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies the worktree is at <parent>/<repo>-wt/feature/x and registered for feature/x
 // 5. Verifies the printed path matches
 func TestStartWorktreeHonorsCustomPathTemplate(t *testing.T) {
@@ -1517,7 +1517,7 @@ func TestStartWorktreeHonorsCustomPathTemplate(t *testing.T) {
 	customRoot := filepath.Join(filepath.Dir(root), filepath.Base(root)+"-wt")
 	t.Cleanup(func() { os.RemoveAll(customRoot) })
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "../{{ repo }}-wt/{{ topicType }}/{{ branchName }}"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "../{{ repo }}-wt/{{ topicType }}/{{ branchName }}"); err != nil {
 		t.Fatalf("Failed to set the path template: %v\nOutput: %s", err, out)
 	}
 
@@ -1535,11 +1535,11 @@ func TestStartWorktreeHonorsCustomPathTemplate(t *testing.T) {
 
 // TestStartWorktreeHonorsLowercasedPathTemplateKey covers E12 Test B: the template
 // is read case-insensitively, because git lowercases variable names in
-// --get-regexp output and the key arrives as gitflow.worktreepath.
+// --get-regexp output and the key arrives as gitpour.worktreepath.
 // Steps:
-// 1. Sets up a repository with git-flow defaults
-// 2. Sets the template under the lowercased key gitflow.worktreepath
-// 3. Runs 'git flow feature start x --worktree'
+// 1. Sets up a repository with git-pour defaults
+// 2. Sets the template under the lowercased key gitpour.worktreepath
+// 3. Runs 'git pour feature start x --worktree'
 // 4. Verifies the worktree is at <parent>/<repo>-wt/feature/x and registered for feature/x
 func TestStartWorktreeHonorsLowercasedPathTemplateKey(t *testing.T) {
 	t.Parallel()
@@ -1551,7 +1551,7 @@ func TestStartWorktreeHonorsLowercasedPathTemplateKey(t *testing.T) {
 	customRoot := filepath.Join(filepath.Dir(root), filepath.Base(root)+"-wt")
 	t.Cleanup(func() { os.RemoveAll(customRoot) })
 
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreepath", "../{{ repo }}-wt/{{ topicType }}/{{ branchName }}"); err != nil {
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreepath", "../{{ repo }}-wt/{{ topicType }}/{{ branchName }}"); err != nil {
 		t.Fatalf("Failed to set the path template: %v\nOutput: %s", err, out)
 	}
 
@@ -1571,10 +1571,10 @@ func TestStartWorktreeHonorsLowercasedPathTemplateKey(t *testing.T) {
 // It is also the sharpest ordering probe in the suite: it fails the moment the
 // pre-validation moves below executeStart's branch-exists check.
 // Steps:
-// 1. Sets up a repository with git-flow defaults and creates feature/x with a plain start
+// 1. Sets up a repository with git-pour defaults and creates feature/x with a plain start
 // 2. Returns to develop and records feature/x's tip
 // 3. Creates a non-empty directory at the computed path for feature/x
-// 4. Runs 'git flow feature start x --worktree'
+// 4. Runs 'git pour feature start x --worktree'
 // 5. Verifies exit code 6, not 4, and that stderr names the occupied path
 // 6. Verifies no worktree and no marker, and that both the branch and the obstruction are untouched
 func TestStartWorktreeOccupiedPathWinsOverExistingBranch(t *testing.T) {

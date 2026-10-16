@@ -1,6 +1,13 @@
-# git-flow-next Technical Overview
+# git-pour-now Technical Overview
 
-git-flow-next is a modern, flexible implementation of Git workflow management that builds upon the original git-flow concepts while providing extensive customization capabilities for modern development practices.
+The default git-pour-now workflow uses `main`, `feature/`, and temporary
+`prerelease/<version>` branches. Stable tags are created on main; prerelease tags
+on the matching prerelease branch. No develop branch is created. Examples below
+using develop/release/hotfix belong to the explicit `--preset=classic` workflow.
+The test suite requests that preset explicitly for inherited GitFlow scenarios.
+
+
+git-pour-now is a modern, flexible implementation of Git workflow management that builds upon the original git-pour concepts while providing extensive customization capabilities for modern development practices.
 
 > **See also:** [CODE_REFERENCE.md](CODE_REFERENCE.md) for a quick codebase navigation guide with file paths, struct definitions, and implementation details.
 
@@ -9,7 +16,7 @@ git-flow-next is a modern, flexible implementation of Git workflow management th
 The project follows Go best practices with clear separation of concerns:
 
 ```
-git-flow-next/
+git-pour-now/
 ├── cmd/                    # Command implementations
 │   ├── root.go            # Root CLI command setup with Cobra
 │   ├── init.go            # Repository initialization command
@@ -37,9 +44,9 @@ git-flow-next/
 │   │   ├── repo.go       # Git operations with error handling
 │   │   └── worktree.go   # Worktree add/remove/list/prune/detach
 │   ├── worktree/         # Worktree path templates and provenance markers
-│   │   ├── path.go       # gitflow.worktreePath expansion
-│   │   └── provenance.go # Markers recording which worktrees git-flow created
-│   ├── navigate/         # GIT_FLOW_CD_FILE destination channel
+│   │   ├── path.go       # gitpour.worktreePath expansion
+│   │   └── provenance.go # Markers recording which worktrees git-pour created
+│   ├── navigate/         # GIT_POUR_CD_FILE destination channel
 │   │   └── cdfile.go     # Hand a destination directory to the calling shell
 │   ├── mergestate/       # Merge conflict state persistence
 │   │   └── mergestate.go # State management for multi-step operations
@@ -74,10 +81,10 @@ git-flow-next/
 
 ### Branch Dependency Model
 
-The foundation of git-flow-next is a **branch dependency model** that formalizes the parent-child relationship between branches. This model enables:
+The foundation of git-pour-now is a **branch dependency model** that formalizes the parent-child relationship between branches. This model enables:
 
 - Automatic tracking of dependencies between branches
-- Intelligent synchronization of changes across branch hierarchies  
+- Intelligent synchronization of changes across branch hierarchies
 - Consistent propagation of changes through the dependency tree
 - Visualization of branch relationships
 
@@ -85,7 +92,7 @@ Every branch (except root branches) has a parent, and branches can have multiple
 
 ### Branch Types
 
-git-flow-next defines two fundamental branch types:
+git-pour-now defines two fundamental branch types:
 
 #### Base Branches (Long-living)
 - Exist throughout the project lifecycle
@@ -103,18 +110,18 @@ git-flow-next defines two fundamental branch types:
 
 ### Unified Command Structure
 
-Instead of separate commands for `feature`, `hotfix`, and `release` branches, git-flow-next implements a **single topic branch mechanism**:
+Instead of separate commands for `feature`, `hotfix`, and `release` branches, git-pour-now implements a **single topic branch mechanism**:
 
 ```bash
-# Traditional git-flow
-git flow feature start my-feature
-git flow hotfix start critical-fix
-git flow release start v1.0
+# Traditional git-pour
+git pour feature start my-feature
+git pour hotfix start critical-fix
+git pour release start v1.0
 
-# git-flow-next unified approach
-git flow feature start my-feature
-git flow hotfix start critical-fix
-git flow release start v1.0
+# git-pour-now unified approach
+git pour feature start my-feature
+git pour hotfix start critical-fix
+git pour release start v1.0
 ```
 
 All topic branches use the same `start` and `finish` commands, with behavior determined by configuration rather than branch type.
@@ -135,7 +142,7 @@ Topic branch behavior is defined through Git configuration at two levels. **Bran
 
 ### Default Configuration Overview
 
-git-flow-next provides sensible defaults that work for most teams while remaining fully customizable.
+git-pour-now provides sensible defaults that work for most teams while remaining fully customizable.
 
 #### Branch Structure
 ```
@@ -144,7 +151,7 @@ main/master     ← Production releases
 develop         ← Integration branch (auto-updated from main)
     ↓
 feature/        ← New features
-release/        ← Release preparation  
+release/        ← Release preparation
 hotfix/         ← Emergency fixes
 ```
 
@@ -152,16 +159,16 @@ hotfix/         ← Emergency fixes
 
 | Branch | Type | Parent | Config Key | Auto-Update from Parent |
 |--------|------|--------|------------|------------------------|
-| `main` | base | (root) | `gitflow.branch.main` | None |
-| `develop` | base | `main` | `gitflow.branch.develop` | ✅ Yes |
+| `main` | base | (root) | `gitpour.branch.main` | None |
+| `develop` | base | `main` | `gitpour.branch.develop` | ✅ Yes |
 
 #### Topic Branches
 
 | Branch Type | Prefix | Parent | Start Point | Config Key | Created by Default |
 |-------------|--------|--------|-------------|------------|-------------------|
-| Feature | `feature/` | `develop` | `develop` | `gitflow.branch.feature` | ✅ Yes |
-| Release | `release/` | `main` | `develop` | `gitflow.branch.release` | ✅ Yes |
-| Hotfix | `hotfix/` | `main` | `main` | `gitflow.branch.hotfix` | ✅ Yes |
+| Feature | `feature/` | `develop` | `develop` | `gitpour.branch.feature` | ✅ Yes |
+| Release | `release/` | `main` | `develop` | `gitpour.branch.release` | ✅ Yes |
+| Hotfix | `hotfix/` | `main` | `main` | `gitpour.branch.hotfix` | ✅ Yes |
 
 #### Merge Strategies
 
@@ -205,44 +212,44 @@ hotfix/         ← Emergency fixes
 
 ```bash
 # Base branch names
-git config gitflow.branch.main main
-git config gitflow.branch.develop develop
+git config gitpour.branch.main main
+git config gitpour.branch.develop develop
 
 # Base branch relationships
-git config gitflow.branch.develop.parent main
-git config gitflow.branch.develop.upstreamStrategy merge
-git config gitflow.branch.develop.downstreamStrategy merge
-git config gitflow.branch.develop.autoUpdate true
+git config gitpour.branch.develop.parent main
+git config gitpour.branch.develop.upstreamStrategy merge
+git config gitpour.branch.develop.downstreamStrategy merge
+git config gitpour.branch.develop.autoUpdate true
 
 # Topic branch prefixes
-git config gitflow.branch.feature.prefix feature/
-git config gitflow.branch.release.prefix release/
-git config gitflow.branch.hotfix.prefix hotfix/
+git config gitpour.branch.feature.prefix feature/
+git config gitpour.branch.release.prefix release/
+git config gitpour.branch.hotfix.prefix hotfix/
 
 # Branch relationships
-git config gitflow.branch.feature.parent develop
-git config gitflow.branch.release.parent main
-git config gitflow.branch.hotfix.parent main
+git config gitpour.branch.feature.parent develop
+git config gitpour.branch.release.parent main
+git config gitpour.branch.hotfix.parent main
 
 # Merge strategies (upstream - finish operations)
-git config gitflow.branch.feature.upstreamStrategy merge
-git config gitflow.branch.release.upstreamStrategy merge
-git config gitflow.branch.hotfix.upstreamStrategy merge
+git config gitpour.branch.feature.upstreamStrategy merge
+git config gitpour.branch.release.upstreamStrategy merge
+git config gitpour.branch.hotfix.upstreamStrategy merge
 
 # Merge strategies (downstream - update operations)
-git config gitflow.branch.feature.downstreamStrategy rebase
-git config gitflow.branch.release.downstreamStrategy merge
-git config gitflow.branch.hotfix.downstreamStrategy rebase
+git config gitpour.branch.feature.downstreamStrategy rebase
+git config gitpour.branch.release.downstreamStrategy merge
+git config gitpour.branch.hotfix.downstreamStrategy rebase
 
 # Tag settings
-git config gitflow.feature.finish.notag true
-git config gitflow.release.finish.notag false
-git config gitflow.hotfix.finish.notag false
+git config gitpour.feature.finish.notag true
+git config gitpour.release.finish.notag false
+git config gitpour.hotfix.finish.notag false
 
 # Usage examples
-git flow update feature/my-feature              # Uses configured strategy
-git flow update feature/my-feature --rebase     # Forces rebase strategy
-git flow rebase                                 # Shorthand for update --rebase
+git pour update feature/my-feature              # Uses configured strategy
+git pour update feature/my-feature --rebase     # Forces rebase strategy
+git pour rebase                                 # Shorthand for update --rebase
 ```
 
 **Note**: Release and hotfix branches merge only into `main`, then `develop` is automatically updated from `main` to stay synchronized.
@@ -252,13 +259,13 @@ git flow rebase                                 # Shorthand for update --rebase
 Base branches are configured with dependency relationships:
 
 ```ini
-[gitflow "branch.main"]
+[gitpour "branch.main"]
     type = base
-    parent = 
+    parent =
     upstreamStrategy = none
     downstreamStrategy = none
 
-[gitflow "branch.develop"] 
+[gitpour "branch.develop"]
     type = base
     parent = main
     upstreamStrategy = merge
@@ -268,7 +275,7 @@ Base branches are configured with dependency relationships:
 Topic branch types are configured with the same key format:
 
 ```ini
-[gitflow "branch.feature"]
+[gitpour "branch.feature"]
     type = topic
     parent = develop
     startPoint = develop
@@ -286,7 +293,7 @@ These properties define the branch type's identity and process characteristics. 
 - **downstreamStrategy**: How updates flow from parent (process)
 - **autoUpdate**: Whether the branch receives updates automatically on finish (process)
 
-#### For Topic Branch Types (using gitflow.branch.* keys):
+#### For Topic Branch Types (using gitpour.branch.* keys):
 - **parent**: Default parent base branch (structural)
 - **startPoint**: Branch to create from — can differ from parent (structural)
 - **prefix**: Branch name prefix (structural)
@@ -299,7 +306,7 @@ These properties define the branch type's identity and process characteristics. 
 
 ### Merge Strategies
 
-git-flow-next supports multiple merge strategies:
+git-pour-now supports multiple merge strategies:
 
 - **merge**: Standard Git merge with merge commit
 - **rebase**: Rebase changes onto target branch
@@ -313,20 +320,20 @@ git-flow-next supports multiple merge strategies:
 Perfect for continuous deployment with hotfix capability:
 
 ```ini
-[gitflow "branch.main"]
+[gitpour "branch.main"]
     type = base
-    parent = 
+    parent =
     upstreamStrategy = none
     downstreamStrategy = none
 
-[gitflow "branch.feature"]
+[gitpour "branch.feature"]
     type = topic
     parent = main
     startPoint = main
     upstreamStrategy = rebase
     downstreamStrategy = rebase
 
-[gitflow "branch.hotfix"]
+[gitpour "branch.hotfix"]
     type = topic
     parent = main
     startPoint = main
@@ -344,29 +351,29 @@ main
 
 ### 2. Traditional Git-Flow
 
-Classic git-flow with develop branch and release management:
+Classic git-pour with develop branch and release management:
 
 ```ini
-[gitflow "branch.main"]
+[gitpour "branch.main"]
     type = base
-    parent = 
+    parent =
     upstreamStrategy = none
     downstreamStrategy = none
 
-[gitflow "branch.develop"]
+[gitpour "branch.develop"]
     type = base
     parent = main
     upstreamStrategy = merge
     downstreamStrategy = merge
 
-[gitflow "branch.feature"]
+[gitpour "branch.feature"]
     type = topic
     parent = develop
     startPoint = develop
     upstreamStrategy = rebase
     downstreamStrategy = merge
 
-[gitflow "branch.release"]
+[gitpour "branch.release"]
     type = topic
     parent = main
     startPoint = develop
@@ -374,7 +381,7 @@ Classic git-flow with develop branch and release management:
     downstreamStrategy = none
     tag = true
 
-[gitflow "branch.hotfix"]
+[gitpour "branch.hotfix"]
     type = topic
     parent = main
     startPoint = main
@@ -400,32 +407,32 @@ main
 Multi-environment deployment with staging and production:
 
 ```ini
-[gitflow "branch.production"]
+[gitpour "branch.production"]
     type = base
-    parent = 
+    parent =
     upstreamStrategy = none
     downstreamStrategy = none
 
-[gitflow "branch.staging"]
+[gitpour "branch.staging"]
     type = base
     parent = production
     upstreamStrategy = merge
     downstreamStrategy = merge
 
-[gitflow "branch.main"]
+[gitpour "branch.main"]
     type = base
     parent = staging
     upstreamStrategy = merge
     downstreamStrategy = merge
 
-[gitflow "branch.feature"]
+[gitpour "branch.feature"]
     type = topic
     parent = main
     startPoint = main
     upstreamStrategy = rebase
     downstreamStrategy = rebase
 
-[gitflow "branch.hotfix"]
+[gitpour "branch.hotfix"]
     type = topic
     parent = production
     startPoint = production
@@ -450,7 +457,7 @@ production
 Configure branches to automatically receive updates from their parent:
 
 ```ini
-[gitflow "branch.develop"]
+[gitpour "branch.develop"]
     parent = main
     autoUpdate = true
     downstreamStrategy = merge
@@ -472,21 +479,21 @@ Changes can cascade through multiple levels of the dependency tree:
 Automatic tag creation with configurable naming:
 
 ```ini
-[gitflow "branch.release"]
+[gitpour "branch.release"]
     tag = true
     tagPrefix = "v"
 ```
 
 ### Child Branch Updates
 
-When finishing a topic branch, git-flow-next automatically updates child base branches that depend on the target parent branch. This ensures consistency across the branch hierarchy:
+When finishing a topic branch, git-pour-now automatically updates child base branches that depend on the target parent branch. This ensures consistency across the branch hierarchy:
 
 ```bash
 # Finishing a hotfix into main automatically updates develop
-git flow hotfix finish security-patch
+git pour hotfix finish security-patch
 
 # The system will:
-# 1. Merge hotfix/security-patch into main  
+# 1. Merge hotfix/security-patch into main
 # 2. Automatically update develop from main (if configured)
 # 3. Update any other child branches of main
 ```
@@ -494,7 +501,7 @@ git flow hotfix finish security-patch
 Configure automatic updates in base branch settings:
 
 ```ini
-[gitflow "branch.develop"]
+[gitpour "branch.develop"]
     parent = main
     autoUpdate = true
     downstreamStrategy = merge
@@ -505,33 +512,33 @@ Configure automatic updates in base branch settings:
 ### Core Commands
 
 ```bash
-# Initialize git-flow configuration
-git flow init
+# Initialize git-pour configuration
+git pour init
 
 # Topic branch operations
-git flow <type> start <name>
-git flow <type> finish <name>
-git flow <type> list
+git pour <type> start <name>
+git pour <type> finish <name>
+git pour <type> list
 
 # Base branch operations
-git flow integrate <branch>        # Integrate a base branch into its parent
-git flow update <branch>
-git flow update <branch> --rebase  # Force rebase strategy
+git pour integrate <branch>        # Integrate a base branch into its parent
+git pour update <branch>
+git pour update <branch> --rebase  # Force rebase strategy
 
 # Shorthand commands (auto-detect branch type)
-git flow rebase                    # Shorthand for: git flow <type> update --rebase
-git flow update                    # Shorthand for: git flow <type> update
-git flow finish                    # Shorthand for: git flow <type> finish
+git pour rebase                    # Shorthand for: git pour <type> update --rebase
+git pour update                    # Shorthand for: git pour <type> update
+git pour finish                    # Shorthand for: git pour <type> finish
 
 # Worktree operations (addressed by full branch name)
-git flow worktree add <branch>
-git flow worktree remove <branch>
-git flow worktree list
-git flow worktree prune
-git flow worktree path <branch>
+git pour worktree add <branch>
+git pour worktree remove <branch>
+git pour worktree list
+git pour worktree prune
+git pour worktree path <branch>
 
 # Overview
-git flow overview
+git pour overview
 ```
 
 ### Dynamically Generated Commands
@@ -541,28 +548,28 @@ configured type (feature, release, hotfix, support, and any custom type) gets
 the same set of subcommands:
 
 ```bash
-git flow feature start <name>    # start a feature branch
-git flow hotfix finish <name>    # finish a hotfix branch
-git flow release list            # list release branches
+git pour feature start <name>    # start a feature branch
+git pour hotfix finish <name>    # finish a hotfix branch
+git pour release list            # list release branches
 ```
 
 ### Shorthand Commands
 
-git-flow-next provides convenient shorthand commands that automatically detect your current topic branch:
+git-pour-now provides convenient shorthand commands that automatically detect your current topic branch:
 
 ```bash
-git flow rebase                   # → git flow <type> update --rebase
-git flow update                   # → git flow <type> update
-git flow finish                   # → git flow <type> finish
-git flow delete                   # → git flow <type> delete
-git flow rename <name>            # → git flow <type> rename <name>
+git pour rebase                   # → git pour <type> update --rebase
+git pour update                   # → git pour <type> update
+git pour finish                   # → git pour <type> finish
+git pour delete                   # → git pour <type> delete
+git pour rename <name>            # → git pour <type> rename <name>
 ```
 
 ## Command Implementation
 
 ### Command Structure Overview
 
-Commands in git-flow-next are implemented using the Cobra CLI framework with a clear architectural pattern:
+Commands in git-pour-now are implemented using the Cobra CLI framework with a clear architectural pattern:
 
 1. **Root Command** (`cmd/root.go`): Sets up the main CLI structure and global flags
 2. **Dynamic Registration** (`cmd/topicbranch.go`): Automatically registers branch type commands based on configuration
@@ -572,7 +579,7 @@ All commands follow a consistent pattern: validate inputs, load configuration, e
 
 ### The Finish Command: A Deep Dive
 
-The finish command (`cmd/finish.go`) is the most complex command in the system, demonstrating the sophisticated architecture used throughout git-flow-next.
+The finish command (`cmd/finish.go`) is the most complex command in the system, demonstrating the sophisticated architecture used throughout git-pour-now.
 
 #### Step-Based State Machine
 
@@ -596,7 +603,7 @@ For implementation details—struct definitions, handler functions, and code exa
 
 ### Tower Integration
 
-git-flow-next integrates seamlessly with [Tower](https://www.git-tower.com), providing graphical workflow management while using the same configuration system.
+git-pour-now integrates seamlessly with [Tower](https://www.git-tower.com), providing graphical workflow management while using the same configuration system.
 
 ### CI/CD Integration
 
@@ -608,21 +615,21 @@ The flexible configuration system enables easy integration with modern CI/CD pip
 
 ## Migration from git-flow-avh
 
-git-flow-next maintains compatibility with existing git-flow-avh configurations while providing migration tools for enhanced features:
+git-pour-now maintains compatibility with existing git-flow-avh configurations while providing migration tools for enhanced features:
 
 ```bash
 # Existing git-flow-avh configuration is imported automatically on init
 # (when AVH config is present and no explicit options are given)
-git flow init
+git pour init
 ```
 
 ## Extensibility
 
-The unified topic branch implementation and configuration-driven approach make git-flow-next highly extensible:
+The unified topic branch implementation and configuration-driven approach make git-pour-now highly extensible:
 
 - Add custom branch types through configuration
 - Define organization-specific workflow templates
 - Create custom merge strategies through hooks
 - Extend functionality through plugin architecture
 
-This technical foundation enables teams to implement any branching strategy while maintaining the automation and convenience that made git-flow popular.
+This technical foundation enables teams to implement any branching strategy while maintaining the automation and convenience that made git-pour popular.

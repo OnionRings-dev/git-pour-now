@@ -6,26 +6,26 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // baseKeyFor returns the git config key recording the start point a topic branch
 // was created from.
 func baseKeyFor(branch string) string {
-	return "gitflow.branch." + branch + ".base"
+	return "gitpour.branch." + branch + ".base"
 }
 
 // TestRenameMovesWorktreeMarker verifies the worktree provenance marker follows a
-// branch through a rename, so a git-flow-created worktree is not demoted to
+// branch through a rename, so a git-pour-created worktree is not demoted to
 // (unmanaged) by the rename.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Verifies gitflow.worktree.feature/old.managed is 'true'
-//  4. Runs 'git flow feature rename old new' from the main worktree
-//  5. Verifies gitflow.worktree.feature/new.managed is 'true' and the old key is gone
-//  6. Runs 'git flow worktree list' and verifies the row for feature/new shows the
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Verifies gitpour.worktree.feature/old.managed is 'true'
+//  4. Runs 'git pour feature rename old new' from the main worktree
+//  5. Verifies gitpour.worktree.feature/new.managed is 'true' and the old key is gone
+//  6. Runs 'git pour worktree list' and verifies the row for feature/new shows the
 //     worktree path and is not tagged (unmanaged)
 func TestRenameMovesWorktreeMarker(t *testing.T) {
 	t.Parallel()
@@ -71,10 +71,10 @@ func TestRenameMovesWorktreeMarker(t *testing.T) {
 // TestRenameKeepsFeatureListWorktreeManaged verifies the bulk marker read behind
 // '<type> list --worktrees' also sees the marker under the new branch name.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Runs 'git flow feature rename old new'
-//  4. Runs 'git flow feature list --worktrees'
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Runs 'git pour feature rename old new'
+//  4. Runs 'git pour feature list --worktrees'
 //  5. Verifies the row for 'new' shows the worktree path and carries no
 //     (unmanaged) tag
 func TestRenameKeepsFeatureListWorktreeManaged(t *testing.T) {
@@ -110,12 +110,12 @@ func TestRenameKeepsFeatureListWorktreeManaged(t *testing.T) {
 // new branch name is still reachable by the cleanup path, so no provenance marker
 // outlives the worktree it describes.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Runs 'git flow feature rename old new'
-//  4. Runs 'git flow worktree remove feature/new'
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Runs 'git pour feature rename old new'
+//  4. Runs 'git pour worktree remove feature/new'
 //  5. Verifies the worktree directory is gone
-//  6. Verifies no gitflow.worktree.* key survives under either branch name
+//  6. Verifies no gitpour.worktree.* key survives under either branch name
 func TestRenameMovedMarkerClearedByWorktreeRemove(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -139,7 +139,7 @@ func TestRenameMovedMarkerClearedByWorktreeRemove(t *testing.T) {
 	if _, statErr := os.Stat(wtPath); !os.IsNotExist(statErr) {
 		t.Errorf("Expected the worktree directory %q to be removed", wtPath)
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
 		t.Error("Expected no worktree provenance marker to survive the removal")
 	}
 }
@@ -147,18 +147,18 @@ func TestRenameMovedMarkerClearedByWorktreeRemove(t *testing.T) {
 // TestRenameMovesBaseKey verifies the recorded start point follows a branch
 // through a rename, so the key does not outlive the branch it describes.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old develop'
-//  3. Verifies gitflow.branch.feature/old.base is 'develop'
-//  4. Runs 'git flow feature rename old new'
-//  5. Verifies gitflow.branch.feature/new.base is 'develop' and the old key is gone
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old develop'
+//  3. Verifies gitpour.branch.feature/old.base is 'develop'
+//  4. Runs 'git pour feature rename old new'
+//  5. Verifies gitpour.branch.feature/new.base is 'develop' and the old key is gone
 func TestRenameMovesBaseKey(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "old", "develop"); err != nil {
 		t.Fatalf("Failed to start the feature branch: %v\nOutput: %s", err, out)
@@ -180,21 +180,21 @@ func TestRenameMovesBaseKey(t *testing.T) {
 }
 
 // TestRenameHandMadeBranchCreatesNoKeys verifies renaming a branch that carries
-// neither git-flow key invents nothing under the new name.
+// neither git-pour key invents nothing under the new name.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
+//  1. Sets up a test repository and initializes git-pour with defaults
 //  2. Creates feature/old with plain 'git branch', so neither key exists
-//  3. Runs 'git flow feature rename old new'
+//  3. Runs 'git pour feature rename old new'
 //  4. Verifies feature/new exists and feature/old does not
-//  5. Verifies no gitflow.worktree.* key exists and no base key exists under
+//  5. Verifies no gitpour.worktree.* key exists and no base key exists under
 //     either branch name
 func TestRenameHandMadeBranchCreatesNoKeys(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGit(t, dir, "branch", "feature/old", "develop"); err != nil {
 		t.Fatalf("Failed to create feature/old by hand: %v\nOutput: %s", err, out)
@@ -210,7 +210,7 @@ func TestRenameHandMadeBranchCreatesNoKeys(t *testing.T) {
 	if testutil.BranchExists(t, dir, "feature/old") {
 		t.Error("Expected feature/old to be gone after the rename")
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
 		t.Error("Expected the rename to invent no worktree provenance marker")
 	}
 	if testutil.GitConfigExists(t, dir, baseKeyFor("feature/old")) {
@@ -224,13 +224,13 @@ func TestRenameHandMadeBranchCreatesNoKeys(t *testing.T) {
 // TestRenameHandMadeWorktreeStaysUnmanaged verifies renaming a branch whose
 // worktree the user created by hand does not fabricate a provenance marker.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
+//  1. Sets up a test repository and initializes git-pour with defaults
 //  2. Creates feature/old with plain 'git branch' so it can take a linked worktree
 //  3. Adds a worktree for it with plain 'git worktree add', writing no marker
-//  4. Runs 'git flow feature rename old new'
-//  5. Runs 'git flow worktree list' and verifies the row for feature/new is still
+//  4. Runs 'git pour feature rename old new'
+//  5. Runs 'git pour worktree list' and verifies the row for feature/new is still
 //     tagged (unmanaged)
-//  6. Verifies no gitflow.worktree.* key was created
+//  6. Verifies no gitpour.worktree.* key was created
 func TestRenameHandMadeWorktreeStaysUnmanaged(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -261,21 +261,21 @@ func TestRenameHandMadeWorktreeStaysUnmanaged(t *testing.T) {
 	if !strings.HasSuffix(rows[0], "(unmanaged)") {
 		t.Errorf("Expected a hand-made worktree to stay (unmanaged) after the rename, got %q", rows[0])
 	}
-	if testutil.GitConfigHasPrefix(t, dir, "gitflow.worktree.") {
+	if testutil.GitConfigHasPrefix(t, dir, "gitpour.worktree.") {
 		t.Error("Expected the rename to create no worktree provenance marker")
 	}
 }
 
 // TestRenamePreservesHandWrittenFalseMarker verifies the marker's value is moved
-// raw, so a hand-written 'false' is not normalized into a claim that git-flow
+// raw, so a hand-written 'false' is not normalized into a claim that git-pour
 // created the worktree.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Overwrites gitflow.worktree.feature/old.managed with 'false'
-//  4. Runs 'git flow feature rename old new'
-//  5. Verifies gitflow.worktree.feature/new.managed is 'false' and the old key is gone
-//  6. Runs 'git flow worktree list' and verifies the row is still tagged (unmanaged)
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Overwrites gitpour.worktree.feature/old.managed with 'false'
+//  4. Runs 'git pour feature rename old new'
+//  5. Verifies gitpour.worktree.feature/new.managed is 'false' and the old key is gone
+//  6. Runs 'git pour worktree list' and verifies the row is still tagged (unmanaged)
 func TestRenamePreservesHandWrittenFalseMarker(t *testing.T) {
 	t.Parallel()
 	dir := initWorktreeRepo(t)
@@ -316,11 +316,11 @@ func TestRenamePreservesHandWrittenFalseMarker(t *testing.T) {
 // TestRenameSourceReplacesStaleDestinationKeys verifies the source branch's values
 // overwrite keys left behind under the destination name by an earlier branch.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
 //  3. Sets the source marker to 'false' so it differs from the stale destination
 //  4. Plants stale destination keys: marker 'true' and base 'main' for feature/new
-//  5. Runs 'git flow feature rename old new'
+//  5. Runs 'git pour feature rename old new'
 //  6. Verifies the marker for feature/new is 'false' and its base is 'develop'
 //  7. Verifies both old-name keys are gone
 func TestRenameSourceReplacesStaleDestinationKeys(t *testing.T) {
@@ -364,10 +364,10 @@ func TestRenameSourceReplacesStaleDestinationKeys(t *testing.T) {
 // rather than copies: with no key under the old name, a stale key under the new
 // name is removed instead of being silently inherited by the renamed branch.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Creates feature/old with plain 'git branch', so it carries no git-flow keys
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Creates feature/old with plain 'git branch', so it carries no git-pour keys
 //  3. Plants stale destination keys: marker 'true' and base 'main' for feature/new
-//  4. Runs 'git flow feature rename old new'
+//  4. Runs 'git pour feature rename old new'
 //  5. Verifies neither key exists for feature/new
 //  6. Verifies neither key exists for feature/old
 func TestRenameAbsentSourceRemovesStaleDestinationKeys(t *testing.T) {
@@ -375,8 +375,8 @@ func TestRenameAbsentSourceRemovesStaleDestinationKeys(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGit(t, dir, "branch", "feature/old", "develop"); err != nil {
 		t.Fatalf("Failed to create feature/old by hand: %v\nOutput: %s", err, out)
@@ -409,11 +409,11 @@ func TestRenameAbsentSourceRemovesStaleDestinationKeys(t *testing.T) {
 // TestRenameLeavesOtherBranchKeysUntouched verifies the migration is keyed on the
 // renamed branch alone and never sweeps by prefix.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree' and 'git flow feature start other --worktree'
-//  3. Runs 'git flow feature rename old new'
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree' and 'git pour feature start other --worktree'
+//  3. Runs 'git pour feature rename old new'
 //  4. Verifies feature/other keeps its marker 'true' and its base 'develop'
-//  5. Runs 'git flow worktree list' and verifies the feature/other row is not
+//  5. Runs 'git pour worktree list' and verifies the feature/other row is not
 //     tagged (unmanaged)
 //  6. Verifies feature/new carries the migrated keys and feature/old carries none
 func TestRenameLeavesOtherBranchKeysUntouched(t *testing.T) {
@@ -474,9 +474,9 @@ func TestRenameLeavesOtherBranchKeysUntouched(t *testing.T) {
 // TestRenameToInvalidRefNameLeavesKeysUnderOldName verifies the migration runs only
 // after the ref rename succeeds: a name git rejects leaves both keys where they were.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Runs 'git flow feature rename old "bad name"', which git branch -m rejects
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Runs 'git pour feature rename old "bad name"', which git branch -m rejects
 //  4. Verifies the command fails with the git-error exit code
 //  5. Verifies the marker and base key are still under feature/old
 //  6. Verifies no key was written under the rejected name
@@ -515,9 +515,9 @@ func TestRenameToInvalidRefNameLeavesKeysUnderOldName(t *testing.T) {
 // TestRenameFromInsideLinkedWorktree verifies a rename invoked from the branch's
 // own linked worktree migrates the keys into the repository's local config.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Runs 'git flow feature rename old new' with the worktree as working directory
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Runs 'git pour feature rename old new' with the worktree as working directory
 //  4. Verifies the worktree's HEAD followed the branch to feature/new
 //  5. Verifies the main repository's local config carries the marker and base key
 //     under feature/new, with both old-name keys gone
@@ -558,10 +558,10 @@ func TestRenameFromInsideLinkedWorktree(t *testing.T) {
 // Git preserves a config subsection's case, so the exact-case hit paired with the
 // lowercase miss proves the case was carried rather than folded.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start A.b/Cd --worktree'
-//  3. Verifies gitflow.branch.feature/A.b/Cd.base is 'develop' at exact case
-//  4. Runs 'git flow feature rename A.b/Cd E.f/Gh'
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start A.b/Cd --worktree'
+//  3. Verifies gitpour.branch.feature/A.b/Cd.base is 'develop' at exact case
+//  4. Runs 'git pour feature rename A.b/Cd E.f/Gh'
 //  5. Verifies both keys exist under feature/E.f/Gh at exact case
 //  6. Verifies both exact-case old-name keys and both lowercased new-name keys are absent
 func TestRenamePreservesDottedMixedCaseBranchNames(t *testing.T) {
@@ -604,18 +604,18 @@ func TestRenamePreservesDottedMixedCaseBranchNames(t *testing.T) {
 // TestRenameThenDeleteClearsBaseKey verifies delete's base-key cleanup reaches the
 // migrated key, so no base key outlives the branch after a rename.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old', leaving HEAD on feature/old
-//  3. Runs 'git flow feature rename old new'
-//  4. Checks out develop and runs 'git flow feature delete new'
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old', leaving HEAD on feature/old
+//  3. Runs 'git pour feature rename old new'
+//  4. Checks out develop and runs 'git pour feature delete new'
 //  5. Verifies no base key survives under either branch name
 func TestRenameThenDeleteClearsBaseKey(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlow(t, dir, "feature", "start", "old"); err != nil {
 		t.Fatalf("Failed to start the feature branch: %v\nOutput: %s", err, out)
@@ -644,11 +644,11 @@ func TestRenameThenDeleteClearsBaseKey(t *testing.T) {
 // repository's config under the new branch name.
 // Steps:
 //  1. Isolates the global config to a temp file so the real global config is untouched
-//  2. Sets up a test repository, initializes git-flow and starts feature/old
+//  2. Sets up a test repository, initializes git-pour and starts feature/old
 //  3. Removes the local base key for feature/old
-//  4. Writes gitflow.branch.feature/old.base=main in the GLOBAL scope only
+//  4. Writes gitpour.branch.feature/old.base=main in the GLOBAL scope only
 //  5. Verifies no local base key exists for feature/old
-//  6. Runs 'git flow feature rename old new' with the isolated global config
+//  6. Runs 'git pour feature rename old new' with the isolated global config
 //  7. Verifies no local base key exists for either branch name
 func TestRenameIgnoresGlobalScopedBaseKey(t *testing.T) {
 	t.Parallel()
@@ -659,8 +659,8 @@ func TestRenameIgnoresGlobalScopedBaseKey(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlowWithEnv(t, dir, env, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 	if out, err := testutil.RunGitFlowWithEnv(t, dir, env, "feature", "start", "old"); err != nil {
 		t.Fatalf("Failed to start the feature branch: %v\nOutput: %s", err, out)
@@ -692,11 +692,11 @@ func TestRenameIgnoresGlobalScopedBaseKey(t *testing.T) {
 // is reported as a warning on stderr without failing the command or undoing the
 // rename, and that one failing key does not stop the others from migrating.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow with defaults
-//  2. Runs 'git flow feature start old --worktree'
-//  3. Adds a second value to gitflow.worktree.feature/old.managed, which the
+//  1. Sets up a test repository and initializes git-pour with defaults
+//  2. Runs 'git pour feature start old --worktree'
+//  3. Adds a second value to gitpour.worktree.feature/old.managed, which the
 //     migration refuses rather than guessing which value to move
-//  4. Runs 'git flow feature rename old new', capturing stdout and stderr separately
+//  4. Runs 'git pour feature rename old new', capturing stdout and stderr separately
 //  5. Verifies the command exits 0 and stdout reports the rename
 //  6. Verifies feature/new exists and feature/old does not
 //  7. Verifies stderr carries a warning naming both marker keys and stdout does not

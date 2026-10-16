@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // =============================================================================
@@ -122,10 +122,10 @@ func integMergeHeadExists(t *testing.T, dir string) bool {
 	return err == nil
 }
 
-// integStateExists reports whether the git-flow merge state file exists.
+// integStateExists reports whether the git-pour merge state file exists.
 func integStateExists(t *testing.T, dir string) bool {
 	t.Helper()
-	_, err := os.Stat(filepath.Join(integGitDir(t, dir), "gitflow", "state", "merge.json"))
+	_, err := os.Stat(filepath.Join(integGitDir(t, dir), "gitpour", "state", "merge.json"))
 	return err == nil
 }
 
@@ -138,7 +138,7 @@ func integStateExists(t *testing.T, dir string) bool {
 //
 // Steps:
 //  1. init --defaults; checkout develop and add commit C (develop ahead of main).
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert main fast-forwarded to C with no merge commit, no tag, develop
 //     unchanged (== main), HEAD on main, both branches still present.
 func TestIntegrateFastForwardNoTag(t *testing.T) {
@@ -146,8 +146,8 @@ func TestIntegrateFastForwardNoTag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	cCommit := integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
@@ -183,15 +183,15 @@ func TestIntegrateFastForwardNoTag(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults; add commit C to develop and leave HEAD on develop.
-//  2. Run: git flow integrate (no argument).
+//  2. Run: git pour integrate (no argument).
 //  3. Assert main fast-forwarded to C, HEAD on main.
 func TestIntegrateCurrentBranch(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	cCommit := integAddCommit(t, dir, "develop", "c.txt", "C", "Add C on develop")
@@ -217,15 +217,15 @@ func TestIntegrateCurrentBranch(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults (develop == main, nothing ahead).
-//  2. Run: git flow integrate develop.
+//  2. Run: git pour integrate develop.
 //  3. Assert exit 0, main unchanged, no tag, both branches present, HEAD on main.
 func TestIntegrateNothingToIntegrate(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	preMain := integRevParse(t, dir, "main")
@@ -254,15 +254,15 @@ func TestIntegrateNothingToIntegrate(t *testing.T) {
 //
 // Steps:
 //  1. init --defaults (develop == main).
-//  2. Run: git flow integrate develop --tag v1.0.0.
+//  2. Run: git pour integrate develop --tag v1.0.0.
 //  3. Assert exit 0 and annotated tag v1.0.0 exists on main.
 func TestIntegrateNothingToIntegrateWithTag(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic"); err != nil {
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, out)
 	}
 
 	out, err := testutil.RunGitFlow(t, dir, "integrate", "develop", "--tag", "v1.0.0")
@@ -287,7 +287,7 @@ func TestIntegrateNothingToIntegrateWithTag(t *testing.T) {
 // Steps:
 //  1. SetupTestRepoWithRemote; clone the remote and push commit R to main.
 //  2. Give the original develop commit C not on local main; leave HEAD on develop.
-//  3. Run: git flow integrate develop --fetch.
+//  3. Run: git pour integrate develop --fetch.
 //  4. Assert main contains both R (fetched) and C.
 func TestIntegrateFetchPullsRemoteChanges(t *testing.T) {
 	t.Parallel()
@@ -326,9 +326,9 @@ func TestIntegrateFetchPullsRemoteChanges(t *testing.T) {
 // integrate.fetch=true default.
 //
 // Steps:
-//  1. SetupTestRepoWithRemote; set gitflow.develop.integrate.fetch true.
+//  1. SetupTestRepoWithRemote; set gitpour.develop.integrate.fetch true.
 //  2. Push commit R to main via a second clone; give local develop commit C.
-//  3. Run: git flow integrate develop --no-fetch.
+//  3. Run: git pour integrate develop --no-fetch.
 //  4. Assert R is absent from main; main advanced only by C.
 func TestIntegrateNoFetchOverridesConfig(t *testing.T) {
 	t.Parallel()
@@ -336,7 +336,7 @@ func TestIntegrateNoFetchOverridesConfig(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.fetch", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.fetch", "true"); err != nil {
 		t.Fatalf("Failed to set integrate.fetch config: %v", err)
 	}
 
@@ -373,7 +373,7 @@ func TestIntegrateNoFetchOverridesConfig(t *testing.T) {
 // Steps:
 //  1. SetupTestRepoWithRemote; push commit R to main via a second clone.
 //  2. Give local develop commit C; check out main locally so the parent is HEAD.
-//  3. Run: git flow integrate develop --fetch.
+//  3. Run: git pour integrate develop --fetch.
 //  4. Assert exit 0, a Warning is printed, "Fetch completed" is NOT printed,
 //     C is integrated into main, and R (unfetchable) is absent from local main.
 func TestIntegrateFetchParentCheckedOutSurfacesFailure(t *testing.T) {
@@ -421,15 +421,15 @@ func TestIntegrateFetchParentCheckedOutSurfacesFailure(t *testing.T) {
 }
 
 // TestIntegrateFetchConfigYesPullsRemoteChanges verifies that
-// gitflow.<base>.integrate.fetch=yes incorporates remote parent commits before
+// gitpour.<base>.integrate.fetch=yes incorporates remote parent commits before
 // integrating, matching git-config's truthy "yes" spelling. The Layer-1 default
 // is false, so only a truthy config can pull R in.
 //
 // Steps:
-//  1. SetupTestRepoWithRemote; set gitflow.develop.integrate.fetch yes.
+//  1. SetupTestRepoWithRemote; set gitpour.develop.integrate.fetch yes.
 //  2. Clone the remote and push commit R to main.
 //  3. Give local develop commit C not on local main; leave HEAD on develop.
-//  4. Run: git flow integrate develop (no fetch flag).
+//  4. Run: git pour integrate develop (no fetch flag).
 //  5. Assert main contains both R (fetched) and C.
 func TestIntegrateFetchConfigYesPullsRemoteChanges(t *testing.T) {
 	t.Parallel()
@@ -437,7 +437,7 @@ func TestIntegrateFetchConfigYesPullsRemoteChanges(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.develop.integrate.fetch", "yes"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.develop.integrate.fetch", "yes"); err != nil {
 		t.Fatalf("Failed to set integrate.fetch config: %v", err)
 	}
 

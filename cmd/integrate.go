@@ -24,21 +24,21 @@ import (
 	"os"
 	"sort"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
 	"github.com/spf13/cobra"
 )
 
 // IntegrateCommand is the public entry point for the integrate command. It maps
-// git-flow errors to their exit codes and exits non-zero on failure.
+// git-pour errors to their exit codes and exits non-zero on failure.
 func IntegrateCommand(name string, continueOp bool, abortOp bool, tagOptions *config.TagOptions, mergeOptions *config.MergeStrategyOptions, fetch *bool) {
 	repo := mustOpenRepo()
 	if err := executeIntegrate(repo, name, continueOp, abortOp, tagOptions, mergeOptions, fetch); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -49,10 +49,10 @@ func IntegrateCommand(name string, continueOp bool, abortOp bool, tagOptions *co
 
 // executeIntegrate performs the integrate logic and returns any error.
 func executeIntegrate(repo *git.Repo, name string, continueOp bool, abortOp bool, tagOptions *config.TagOptions, mergeOptions *config.MergeStrategyOptions, fetch *bool) error {
-	// Validate that git-flow is initialized.
+	// Validate that git-pour is initialized.
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}

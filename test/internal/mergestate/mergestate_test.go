@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/mergestate"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // sampleState returns a MergeState with the critical fields populated.
@@ -27,7 +27,7 @@ func sampleState() *mergestate.MergeState {
 
 // cwdCandidateStatePath returns the merge-state path that a CWD-implicit
 // implementation would have written to: the state file under the process
-// working directory's own git dir (the git-flow-next checkout).
+// working directory's own git dir (the git-pour-now checkout).
 func cwdCandidateStatePath(t *testing.T) string {
 	t.Helper()
 	cwd, err := os.Getwd()
@@ -38,7 +38,7 @@ func cwdCandidateStatePath(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("Failed to open ambient repo: %v", err)
 	}
-	return filepath.Join(repo.GitDir(), "gitflow", "state", "merge.json")
+	return filepath.Join(repo.GitDir(), "gitpour", "state", "merge.json")
 }
 
 // snapshotFile records whether path exists and its contents.
@@ -69,10 +69,10 @@ func initRepoB(t *testing.T) *git.Repo {
 	t.Helper()
 	dir := testutil.SetupTestRepo(t)
 	t.Cleanup(func() { testutil.CleanupTestRepo(t, dir) })
-	// Mark the repo git-flow-initialized via git config directly (no binary
+	// Mark the repo git-pour-initialized via git config directly (no binary
 	// dependency): merge-state persistence only needs a resolvable git dir.
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.version", "1.0"); err != nil {
-		t.Fatalf("Failed to set gitflow.version in B: %v", err)
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.version", "1.0"); err != nil {
+		t.Fatalf("Failed to set gitpour.version in B: %v", err)
 	}
 	repo, err := git.Open(dir)
 	if err != nil {
@@ -100,7 +100,7 @@ func TestSaveMergeStateWritesUnderTargetGitDir(t *testing.T) {
 		t.Fatalf("SaveMergeState failed: %v", err)
 	}
 
-	target := filepath.Join(repo.GitDir(), "gitflow", "state", "merge.json")
+	target := filepath.Join(repo.GitDir(), "gitpour", "state", "merge.json")
 	if _, err := os.Stat(target); err != nil {
 		t.Errorf("Expected state file at B's git dir %s: %v", target, err)
 	}
@@ -157,7 +157,7 @@ func TestClearMergeStateRemovesFileOffCwd(t *testing.T) {
 	if err := mergestate.SaveMergeState(repo, sampleState()); err != nil {
 		t.Fatalf("SaveMergeState failed: %v", err)
 	}
-	target := filepath.Join(repo.GitDir(), "gitflow", "state", "merge.json")
+	target := filepath.Join(repo.GitDir(), "gitpour", "state", "merge.json")
 	if _, err := os.Stat(target); err != nil {
 		t.Fatalf("Precondition failed: state file not created: %v", err)
 	}

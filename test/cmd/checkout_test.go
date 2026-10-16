@@ -4,15 +4,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestCheckoutFeature tests the basic branch checkout functionality for feature branches.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Switches back to develop branch
-// 4. Checks out the feature branch using git-flow
+// 4. Checks out the feature branch using git-pour
 // 5. Verifies we're on the correct branch
 func TestCheckoutFeature(t *testing.T) {
 	t.Parallel()
@@ -20,10 +20,10 @@ func TestCheckoutFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -53,7 +53,7 @@ func TestCheckoutFeature(t *testing.T) {
 
 // TestCheckoutFeatureWithPrefix tests checking out a feature branch using a unique prefix.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates multiple feature branches
 // 3. Switches back to develop branch
 // 4. Checks out a feature branch using a unique prefix
@@ -65,10 +65,10 @@ func TestCheckoutFeatureWithPrefix(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branches
@@ -109,7 +109,7 @@ func TestCheckoutFeatureWithPrefix(t *testing.T) {
 
 // TestCheckoutNonExistentFeature tests the behavior when attempting to checkout a non-existent branch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to checkout a non-existent branch
 // 3. Verifies the operation fails with appropriate error
 func TestCheckoutNonExistentFeature(t *testing.T) {
@@ -118,10 +118,10 @@ func TestCheckoutNonExistentFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to checkout non-existent branch
@@ -133,7 +133,7 @@ func TestCheckoutNonExistentFeature(t *testing.T) {
 
 // TestCheckoutFeatureWithShowCommands tests checking out a feature branch with the --showcommands flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Switches back to develop branch
 // 4. Checks out the feature branch with --showcommands flag
@@ -145,10 +145,10 @@ func TestCheckoutFeatureWithShowCommands(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -183,7 +183,7 @@ func TestCheckoutFeatureWithShowCommands(t *testing.T) {
 
 // TestCheckoutWithInvalidBranchType tests the behavior when attempting to checkout with an invalid branch type.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to checkout using an invalid branch type
 // 3. Verifies the operation fails with appropriate error
 func TestCheckoutWithInvalidBranchType(t *testing.T) {
@@ -192,10 +192,10 @@ func TestCheckoutWithInvalidBranchType(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to checkout with invalid branch type
@@ -207,7 +207,7 @@ func TestCheckoutWithInvalidBranchType(t *testing.T) {
 
 // TestCheckoutFeatureNoArgs tests the behavior when running checkout without providing a branch name.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates multiple feature branches
 // 3. Runs checkout without args to list branches
 // 4. Verifies the output contains all feature branches
@@ -217,10 +217,10 @@ func TestCheckoutFeatureNoArgs(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create some feature branches

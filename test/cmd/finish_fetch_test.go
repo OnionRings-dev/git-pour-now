@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestFinishFeatureBranchWithFetchFlag tests finishing a feature branch with the --fetch flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a local bare remote repository
 // 3. Pushes branches to establish tracking
 // 4. Creates a feature branch
@@ -74,7 +74,7 @@ func TestFinishFeatureBranchWithFetchFlag(t *testing.T) {
 
 // TestFinishFeatureBranchWithNoFetchFlag tests finishing a feature branch with the --no-fetch flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a test file to the feature branch
 // 4. Commits changes to the feature branch
@@ -88,10 +88,10 @@ func TestFinishFeatureBranchWithNoFetchFlag(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch
@@ -142,7 +142,7 @@ func TestFinishFeatureBranchWithNoFetchFlag(t *testing.T) {
 
 // TestFinishFeatureBranchDefaultFetch tests the default finish behavior (fetch enabled).
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a test file to the feature branch
 // 4. Commits changes to the feature branch
@@ -207,8 +207,8 @@ func TestFinishFeatureBranchDefaultFetch(t *testing.T) {
 // Uses a remote-backed fixture so the absence of "Fetching" genuinely reflects the config
 // (fetch=false), not the no-remote guard.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Configures gitflow.feature.finish.fetch = false in git config
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Configures gitpour.feature.finish.fetch = false in git config
 // 3. Creates a feature branch
 // 4. Adds a test file to the feature branch
 // 5. Commits changes to the feature branch
@@ -224,7 +224,7 @@ func TestFinishFeatureBranchNoFetchFromConfig(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// Configure fetch to be disabled for feature finish
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.fetch", "false")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.fetch", "false")
 	if err != nil {
 		t.Fatalf("Failed to configure fetch option: %v", err)
 	}
@@ -277,8 +277,8 @@ func TestFinishFeatureBranchNoFetchFromConfig(t *testing.T) {
 
 // TestFinishFeatureBranchNoFetchFlagOverridesConfig tests that --no-fetch overrides config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Configures gitflow.feature.finish.fetch = true in git config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Configures gitpour.feature.finish.fetch = true in git config
 // 3. Creates a feature branch
 // 4. Adds a test file to the feature branch
 // 5. Commits changes to the feature branch
@@ -292,14 +292,14 @@ func TestFinishFeatureBranchNoFetchFlagOverridesConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Configure fetch to be enabled for feature finish
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.finish.fetch", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.finish.fetch", "true")
 	if err != nil {
 		t.Fatalf("Failed to configure fetch option: %v", err)
 	}
@@ -352,10 +352,10 @@ func TestFinishFeatureBranchNoFetchFlagOverridesConfig(t *testing.T) {
 
 // TestFinishFeatureBranchFetchFlagOverridesConfig tests that --fetch overrides config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a local bare remote repository
 // 3. Pushes branches to establish tracking
-// 4. Configures gitflow.feature.finish.fetch = false in git config
+// 4. Configures gitpour.feature.finish.fetch = false in git config
 // 5. Creates a feature branch
 // 6. Adds a test file to the feature branch
 // 7. Commits changes to the feature branch
@@ -371,7 +371,7 @@ func TestFinishFeatureBranchFetchFlagOverridesConfig(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// Configure fetch to be disabled for feature finish
-	_, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.fetch", "false")
+	_, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.fetch", "false")
 	if err != nil {
 		t.Fatalf("Failed to configure fetch option: %v", err)
 	}
@@ -424,7 +424,7 @@ func TestFinishFeatureBranchFetchFlagOverridesConfig(t *testing.T) {
 
 // TestFinishFeatureBranchContinueDoesNotFetch tests that continue operation doesn't fetch.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates conflicting changes in develop
 // 3. Creates a feature branch with conflicting changes
 // 4. Adds more conflicting changes to develop
@@ -441,10 +441,10 @@ func TestFinishFeatureBranchContinueDoesNotFetch(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create conflicting content in develop
@@ -554,9 +554,9 @@ func TestFinishFeatureBranchContinueDoesNotFetch(t *testing.T) {
 
 // TestFinishFeatureBranchNoRemote tests that finish skips fetch silently when no remote exists.
 // Steps:
-// 1. Sets up a test repository (no remote) and initializes git-flow with defaults
+// 1. Sets up a test repository (no remote) and initializes git-pour with defaults
 // 2. Creates a feature branch and adds a commit
-// 3. Runs 'git flow feature finish' (default fetch=true, but no remote configured)
+// 3. Runs 'git pour feature finish' (default fetch=true, but no remote configured)
 // 4. Verifies output does NOT contain "Fetching from remote" (fetch skipped silently)
 // 5. Verifies output does NOT contain "does not appear to be a git repository" (no confusing error)
 // 6. Verifies finish completes successfully (branch merged and deleted)
@@ -566,10 +566,10 @@ func TestFinishFeatureBranchNoRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch
@@ -650,7 +650,7 @@ func commitFeatureAndPush(t *testing.T, dir, file, content, commitMsg, branch st
 // no upstream. The topic fetch/sync is skipped (the missing remote ref is benign); the parent may
 // still be fetched best-effort. Finish completes and merges the topic.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch and commits (does NOT push — no tracking branch)
 // 3. Finishes the feature branch
 // 4. Verifies no sync abort and that the branch is merged into develop
@@ -698,7 +698,7 @@ func TestFinishNoUpstreamSkipsFetch(t *testing.T) {
 // remains after the remote branch was deleted remotely. The topic fetch reports ref-not-found,
 // which is benign — the sync check against the stale ref is skipped, and finish completes.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, commits B, and pushes it (tracking ref origin/... = B)
 // 3. Adds a local commit C (so local = C, stale tracking ref = B, B != C)
 // 4. Deletes the branch directly in the bare remote (tracking ref not pruned)
@@ -778,7 +778,7 @@ func TestFinishStaleRemoteRefIsBenign(t *testing.T) {
 // TestFinishUnreachableRemoteAborts tests Scenario 5: a reachable-but-failing remote makes the
 // topic fetch fail with a transport error, which is now fatal. Finish aborts and does not merge.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, commits, and pushes it (in sync)
 // 3. Points origin at a nonexistent path so fetch fails with a transport error
 // 4. Records develop's SHA before finishing
@@ -836,7 +836,7 @@ func TestFinishUnreachableRemoteAborts(t *testing.T) {
 // so an unreachable remote does not block finishing. keepremote avoids the unrelated remote-delete
 // failure on the broken URL (delete behavior is out of scope for this change).
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow; enables keepremote
+// 1. Sets up a test repository with remote and initializes git-pour; enables keepremote
 // 2. Creates a feature branch, commits, and pushes it (in sync tracking data)
 // 3. Points origin at a nonexistent path
 // 4. Finishes with --no-fetch
@@ -848,7 +848,7 @@ func TestFinishUnreachableRemoteNoFetchCompletes(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
 	// keepremote isolates the test to the fetch behavior (delete is out of scope)
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.keepremote", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.keepremote", "true"); err != nil {
 		t.Fatalf("Failed to set keepremote config: %v", err)
 	}
 
@@ -882,7 +882,7 @@ func TestFinishUnreachableRemoteNoFetchCompletes(t *testing.T) {
 // TestFinishUnreachableRemoteForceCompletes tests Scenario 7: --force ignores the fetch failure.
 // keepremote avoids the unrelated remote-delete failure on the broken URL.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow; enables keepremote
+// 1. Sets up a test repository with remote and initializes git-pour; enables keepremote
 // 2. Creates a feature branch, commits, and pushes it
 // 3. Points origin at a nonexistent path
 // 4. Finishes with --force
@@ -893,7 +893,7 @@ func TestFinishUnreachableRemoteForceCompletes(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.keepremote", "true"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.keepremote", "true"); err != nil {
 		t.Fatalf("Failed to set keepremote config: %v", err)
 	}
 
@@ -924,7 +924,7 @@ func TestFinishUnreachableRemoteForceCompletes(t *testing.T) {
 // TestFinishAheadRemoteForceCompletes tests Scenario 11b: --force bypasses the sync check when the
 // topic is ahead of the remote, so finish completes.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, commits, and pushes it
 // 3. Adds a local commit without pushing (ahead by 1)
 // 4. Finishes with --force
@@ -967,7 +967,7 @@ func TestFinishAheadRemoteForceCompletes(t *testing.T) {
 // TestFinishDivergedRemoteForceCompletes tests Scenario 11c: --force bypasses the sync check when
 // the topic has diverged from the remote, so finish completes.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, commits, and pushes it
 // 3. Creates divergence (remote-only commit via a second clone; local-only commit) and fetches
 // 4. Finishes with --force
@@ -1034,7 +1034,7 @@ func TestFinishDivergedRemoteForceCompletes(t *testing.T) {
 // remote (deleted there) while the topic is in sync. The parent fetch fails with ref-not-found,
 // which is a non-fatal note; the topic fetch+sync pass and finish completes.
 // Steps:
-// 1. Sets up a test repository with remote and initializes git-flow
+// 1. Sets up a test repository with remote and initializes git-pour
 // 2. Creates a feature branch, commits, and pushes it (in sync)
 // 3. Deletes develop directly in the bare remote
 // 4. Finishes the feature branch
@@ -1070,11 +1070,11 @@ func TestFinishParentAbsentOnRemoteIsBenign(t *testing.T) {
 	}
 }
 
-// TestFinishFeatureFetchConfigOnFetches tests that gitflow.feature.finish.fetch=on
+// TestFinishFeatureFetchConfigOnFetches tests that gitpour.feature.finish.fetch=on
 // enables the fetch, matching git-config's truthy "on" spelling.
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Configures gitflow.feature.finish.fetch = on
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Configures gitpour.feature.finish.fetch = on
 // 3. Creates a feature branch and commits a test file
 // 4. Finishes the feature branch without any fetch flag
 // 5. Verifies "Fetching from remote" appears in output
@@ -1085,7 +1085,7 @@ func TestFinishFeatureFetchConfigOnFetches(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.fetch", "on"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.fetch", "on"); err != nil {
 		t.Fatalf("Failed to configure fetch option: %v", err)
 	}
 
@@ -1120,12 +1120,12 @@ func TestFinishFeatureFetchConfigOnFetches(t *testing.T) {
 	}
 }
 
-// TestFinishFeatureFetchConfigNoSkipsFetch tests that gitflow.feature.finish.fetch=no
+// TestFinishFeatureFetchConfigNoSkipsFetch tests that gitpour.feature.finish.fetch=no
 // skips the fetch, matching git-config's falsy "no" spelling. Distinguishes a falsy
 // value from an unset key, which would fetch (the finish default is true).
 // Steps:
-// 1. Sets up a test repository with a remote and initializes git-flow
-// 2. Configures gitflow.feature.finish.fetch = no
+// 1. Sets up a test repository with a remote and initializes git-pour
+// 2. Configures gitpour.feature.finish.fetch = no
 // 3. Creates a feature branch and commits a test file
 // 4. Finishes the feature branch without any fetch flag
 // 5. Verifies "Fetching from remote" does NOT appear in output
@@ -1136,7 +1136,7 @@ func TestFinishFeatureFetchConfigNoSkipsFetch(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 	defer testutil.CleanupTestRepo(t, remoteDir)
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.finish.fetch", "no"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.finish.fetch", "no"); err != nil {
 		t.Fatalf("Failed to configure fetch option: %v", err)
 	}
 

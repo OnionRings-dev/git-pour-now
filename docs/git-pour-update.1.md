@@ -1,26 +1,31 @@
-# GIT-FLOW-UPDATE(1)
+# GIT-POUR-UPDATE(1)
+
+Examples using `develop`, release branches, or hotfix branches refer to the
+explicit `--preset=classic` compatibility workflow. The default workflow uses
+`main`, `feature/`, and temporary `prerelease/<version>` branches, with releases
+identified by SemVer tags.
 
 ## NAME
 
-git-flow-update - Update topic branches with parent changes
+git-pour-update - Update topic branches with parent changes
 
 ## SYNOPSIS
 
-**git-flow** *topic* **update** [*name*] [*options*]
+**git-pour** *topic* **update** [*name*] [*options*]
 
-**git-flow update** [*base-branch*] [*options*]
+**git-pour update** [*base-branch*] [*options*]
 
-**git-flow rebase** [*base-branch*] [**--continue**|**--abort**]
+**git-pour rebase** [*base-branch*] [**--continue**|**--abort**]
 
 ## DESCRIPTION
 
-Update a branch with the latest changes from its parent branch using the configured downstream merge strategy. On the topic surface (**git-flow** *topic* **update**) it works with any topic branch type (feature, release, hotfix, support, or custom types); on the top-level surface (**git-flow update**) it also updates the current base branch from its parent (for example, **develop** from **main**).
+Update a branch with the latest changes from its parent branch using the configured downstream merge strategy. On the topic surface (**git-pour** *topic* **update**) it works with any topic branch type (feature, release, hotfix, support, or custom types); on the top-level surface (**git-pour update**) it also updates the current base branch from its parent (for example, **develop** from **main**).
 
 The top-level **update** and **rebase** shorthands use the base-branch fallback only when the current branch is not a topic branch. Other branch-detection errors, including a cancelled ambiguous-branch prompt, stop the command without starting an update.
 
 The update operation merges or rebases changes from the parent branch into the target branch, keeping it current with the latest development.
 
-If a conflict occurs, the update saves a persistent state file and can be resumed with **--continue** or rolled back with **--abort** after resolving the conflict — the same resume/abort model as **git-flow finish** and **git-flow integrate**. The **--continue**/**--abort** flags act only on an in-progress update; an in-progress finish or integrate is never affected.
+If a conflict occurs, the update saves a persistent state file and can be resumed with **--continue** or rolled back with **--abort** after resolving the conflict — the same resume/abort model as **git-pour finish** and **git-pour integrate**. The **--continue**/**--abort** flags act only on an in-progress update; an in-progress finish or integrate is never affected.
 
 ## ARGUMENTS
 
@@ -28,10 +33,10 @@ If a conflict occurs, the update saves a persistent state file and can be resume
 : The topic branch type (feature, release, hotfix, support, or any configured custom type)
 
 *name*
-: Name of the topic branch to update on the **git-flow** *topic* **update** surface. If omitted, the current topic branch is used.
+: Name of the topic branch to update on the **git-pour** *topic* **update** surface. If omitted, the current topic branch is used.
 
 *base-branch*
-: Base branch to update on the top-level **git-flow update** or **git-flow rebase** surface. If omitted, the current base branch is used.
+: Base branch to update on the top-level **git-pour update** or **git-pour rebase** surface. If omitted, the current base branch is used.
 
 ## OPTIONS
 
@@ -55,8 +60,8 @@ The merge strategy used when updating is determined by configuration:
 : Rebase topic branch commits on top of parent branch for linear history
 
 The strategy is configured via:
-1. **Branch defaults**: `gitflow.branch.<type>.downstreamStrategy`  
-2. **Command overrides**: `gitflow.<type>.downstreamStrategy`
+1. **Branch defaults**: `gitpour.branch.<type>.downstreamStrategy`
+2. **Command overrides**: `gitpour.<type>.downstreamStrategy`
 3. **Flag override**: `--rebase` always forces rebase strategy
 
 ## EXAMPLES
@@ -65,47 +70,47 @@ The strategy is configured via:
 
 Update current topic branch (shorthand):
 ```bash
-git flow update
+git pour update
 ```
 
 Update specific feature branch:
 ```bash
-git flow feature update user-authentication
+git pour feature update user-authentication
 ```
 
 Update release branch with latest hotfixes:
 ```bash
-git flow release update 1.2.0
+git pour release update 1.2.0
 ```
 
 ### Force Rebase Strategy
 
 Update using rebase regardless of configuration:
 ```bash
-git flow feature update my-feature --rebase
+git pour feature update my-feature --rebase
 ```
 
 Update current branch with rebase:
 ```bash
-git flow update --rebase
+git pour update --rebase
 ```
 
 ### Resume or Abort After a Conflict
 
 Continue an update after resolving conflicts:
 ```bash
-git flow feature update --continue my-feature
+git pour feature update --continue my-feature
 ```
 
 Abort an in-progress update and restore the pre-update state:
 ```bash
-git flow feature update --abort my-feature
+git pour feature update --abort my-feature
 ```
 
 Resume or abort a base-branch update (top-level surface):
 ```bash
-git flow update --continue
-git flow update --abort
+git pour update --continue
+git pour update --abort
 ```
 
 ### Typical Workflows
@@ -113,29 +118,29 @@ git flow update --abort
 Before finishing a long-running feature:
 ```bash
 # Make sure feature is current before finishing
-git flow feature update long-feature
-git flow feature finish long-feature
+git pour feature update long-feature
+git pour feature finish long-feature
 ```
 
 Update release with production hotfixes:
 ```bash
 # Hotfix was applied to main, update release
-git flow release update 1.2.0
+git pour release update 1.2.0
 ```
 
 Keep hotfix current during development:
 ```bash
 # Update hotfix with any other main changes
-git flow hotfix update critical-fix
+git pour hotfix update critical-fix
 ```
 
 ## CONFLICT RESOLUTION
 
-When a conflict occurs, the update saves its state and stops so you can resolve it. Resume or roll back with git-flow's own **--continue**/**--abort** rather than raw Git commands, so the merge state is cleared correctly:
+When a conflict occurs, the update saves its state and stops so you can resolve it. Resume or roll back with git-pour's own **--continue**/**--abort** rather than raw Git commands, so the merge state is cleared correctly:
 
 ```bash
 # Start update
-git flow feature update my-feature
+git pour feature update my-feature
 
 # Conflicts occur - Git shows conflict markers.
 # Edit files to resolve, then stage them:
@@ -143,20 +148,20 @@ vim conflicted-file.js
 git add conflicted-file.js
 
 # Complete the update (merge or rebase, whichever the strategy uses):
-git flow feature update --continue my-feature
+git pour feature update --continue my-feature
 ```
 
 To discard the in-progress update and return to the pre-update state:
 
 ```bash
-git flow feature update --abort my-feature
+git pour feature update --abort my-feature
 ```
 
 For a base branch on the top-level surface, use the same flags without a topic type:
 
 ```bash
-git flow update --continue
-git flow update --abort
+git pour update --continue
+git pour update --abort
 ```
 
 A rebase-strategy update that conflicts again on a later commit stays resumable: resolve, stage, and run **--continue** again. **--abort** with nothing in progress is a forgiving no-op (exit 0).
@@ -169,18 +174,18 @@ Update behavior is controlled by these configuration keys:
 
 ### Branch-Level Defaults
 ```bash
-git config gitflow.branch.feature.downstreamStrategy rebase
-git config gitflow.branch.release.downstreamStrategy merge
-git config gitflow.branch.hotfix.downstreamStrategy merge
+git config gitpour.branch.feature.downstreamStrategy rebase
+git config gitpour.branch.release.downstreamStrategy merge
+git config gitpour.branch.hotfix.downstreamStrategy merge
 ```
 
 ### Command-Level Overrides
 ```bash
 # Always use rebase for feature updates
-git config gitflow.branch.feature.downstreamStrategy rebase
+git config gitpour.branch.feature.downstreamStrategy rebase
 
 # Always use merge for release updates
-git config gitflow.branch.release.downstreamStrategy merge
+git config gitpour.branch.release.downstreamStrategy merge
 ```
 
 ## STRATEGY RECOMMENDATIONS
@@ -188,7 +193,7 @@ git config gitflow.branch.release.downstreamStrategy merge
 ### Feature Branches
 **Rebase** (recommended) - Creates clean, linear history without unnecessary merge commits
 
-### Release Branches  
+### Release Branches
 **Merge** (recommended) - Preserves the integration history of hotfixes and changes
 
 ### Hotfix Branches
@@ -199,7 +204,7 @@ git config gitflow.branch.release.downstreamStrategy merge
 Each topic branch type updates from its configured parent:
 
 - **feature** → updates from **develop**
-- **release** → updates from **main** (to get hotfixes)  
+- **release** → updates from **main** (to get hotfixes)
 - **hotfix** → updates from **main** (rare, but possible)
 - **support** → updates from **main**
 
@@ -209,7 +214,7 @@ Each topic branch type updates from its configured parent:
 : Successful update, or **--abort** with nothing in progress (forgiving no-op)
 
 **1**
-: git-flow is not initialized, or shorthand branch detection failed or was cancelled
+: git-pour is not initialized, or shorthand branch detection failed or was cancelled
 
 **2**
 : Invalid input (e.g. unknown branch type)
@@ -225,13 +230,13 @@ Each topic branch type updates from its configured parent:
 
 ## SEE ALSO
 
-**git-flow**(1), **git-flow-start**(1), **git-flow-finish**(1), **git-flow-config**(1), **git-rebase**(1), **git-merge**(1), **gitflow-config**(5)
+**git-pour**(1), **git-pour-start**(1), **git-pour-finish**(1), **git-pour-config**(1), **git-rebase**(1), **git-merge**(1), **gitpour-config**(5)
 
 ## NOTES
 
 - The **--rebase** flag always overrides configured strategy
 - Update operations preserve your local commits while integrating parent changes
-- Use **git flow update** shorthand when on a topic branch
-- On conflict, resume with **git flow ... update --continue** or roll back with **--abort** rather than raw Git, so the saved state is cleared correctly
+- Use **git pour update** shorthand when on a topic branch
+- On conflict, resume with **git pour ... update --continue** or roll back with **--abort** rather than raw Git, so the saved state is cleared correctly
 - Regular updates keep topic branches easier to merge when finishing
 - Update from parent before finishing long-running branches

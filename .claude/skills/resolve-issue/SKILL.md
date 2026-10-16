@@ -47,7 +47,7 @@ Spawn a subagent:
 
 - **subagent_type**: `general-purpose`
 - **description**: `Analyze spec issue`
-- **prompt**: `Read the skill definition at .claude/skills/analyze-issue/SKILL.md and execute it fully. The issue number is $ARGUMENTS. The repository is gittower/git-flow-next. The issue is a spec issue — the analysis should map its Expected Behavior and Test Scenarios onto the codebase: affected components, current behavior, root cause location for bugs.`
+- **prompt**: `Read the skill definition at .claude/skills/analyze-issue/SKILL.md and execute it fully. The issue number is $ARGUMENTS. The repository is OnionRings-dev/git-pour-now. The issue is a spec issue — the analysis should map its Expected Behavior and Test Scenarios onto the codebase: affected components, current behavior, root cause location for bugs.`
 
 **Verify**: Use Glob to confirm `.ai/issue-$ARGUMENTS-*/analysis.md` was created.
 
@@ -65,8 +65,8 @@ Run directly (no subagent needed):
 3. Create the feature branch in its own worktree, using the sibling-root
    convention (see [DEV_WORKFLOW.md](../../../DEV_WORKFLOW.md) §3):
    ```bash
-   git worktree add -b feature/<number>-<slug> ../git-flow-next.worktrees/<number>-<slug> main
-   cd ../git-flow-next.worktrees/<number>-<slug>
+   git worktree add -b feature/<number>-<slug> ../git-pour-now.worktrees/<number>-<slug> main
+   cd ../git-pour-now.worktrees/<number>-<slug>
    ```
 4. Claim the issue by assigning it to yourself — the `gh`-authenticated user
    — so it reflects who is working on it:
@@ -79,7 +79,7 @@ branch is the feature branch.
 
 Save the worktree path and slug in variables for subsequent steps. The `.ai/`
 folder stays in the main clone — reference it as
-`../git-flow-next/.ai/issue-<number>-<slug>/` from inside the worktree.
+`../git-pour-now/.ai/issue-<number>-<slug>/` from inside the worktree.
 
 ---
 

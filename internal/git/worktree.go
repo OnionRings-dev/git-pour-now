@@ -38,7 +38,7 @@ type WorktreeEntry struct {
 // lines are `worktree <abs-path>`, `HEAD <sha>`, and then either
 // `branch refs/heads/<name>` or `detached`, plus `bare` for a bare main
 // repository. Any other line is ignored on purpose — git adds annotations over
-// time (`locked`, `prunable`, …) and depending on them would tie git-flow to a
+// time (`locked`, `prunable`, …) and depending on them would tie git-pour to a
 // git newer than the documented 2.17+ floor. Stale entries are therefore
 // reported like any other until `git worktree prune` runs.
 func (r *Repo) ListWorktrees() ([]WorktreeEntry, error) {

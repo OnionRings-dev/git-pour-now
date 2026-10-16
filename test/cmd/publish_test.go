@@ -4,15 +4,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestPublishFeatureBranch tests publishing a feature branch to remote.
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a feature branch
-// 3. Runs 'git flow feature publish my-feature'
+// 3. Runs 'git pour feature publish my-feature'
 // 4. Verifies branch exists on remote and tracking is set up
 func TestPublishFeatureBranch(t *testing.T) {
 	t.Parallel()
@@ -53,7 +53,7 @@ func TestPublishFeatureBranch(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates and checks out a feature branch
-// 3. Runs 'git flow feature publish' without a name
+// 3. Runs 'git pour feature publish' without a name
 // 4. Verifies current branch is published
 func TestPublishCurrentBranch(t *testing.T) {
 	t.Parallel()
@@ -186,10 +186,10 @@ func TestPublishWithCustomRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Add a custom remote
@@ -210,7 +210,7 @@ func TestPublishWithCustomRemote(t *testing.T) {
 	}
 
 	// Set custom remote name in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.origin", "upstream")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.origin", "upstream")
 	if err != nil {
 		t.Fatalf("Failed to set custom remote: %v", err)
 	}
@@ -247,7 +247,7 @@ func TestPublishWithCustomRemote(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a release branch
-// 3. Runs 'git flow release publish' for the branch
+// 3. Runs 'git pour release publish' for the branch
 // 4. Verifies branch exists on remote with correct prefix
 func TestPublishReleaseBranch(t *testing.T) {
 	t.Parallel()
@@ -288,7 +288,7 @@ func TestPublishReleaseBranch(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository with a remote
 // 2. Creates a hotfix branch
-// 3. Runs 'git flow hotfix publish' for the branch
+// 3. Runs 'git pour hotfix publish' for the branch
 // 4. Verifies branch exists on remote with correct prefix
 func TestPublishHotfixBranch(t *testing.T) {
 	t.Parallel()
@@ -372,21 +372,21 @@ func TestPublishWithFullBranchName(t *testing.T) {
 	}
 }
 
-// TestPublishWithoutInitialization tests the publish command without git-flow initialization.
+// TestPublishWithoutInitialization tests the publish command without git-pour initialization.
 // Steps:
-// 1. Sets up a test repository without initializing git-flow
+// 1. Sets up a test repository without initializing git-pour
 // 2. Attempts to publish a branch
 // 3. Verifies appropriate error is returned
 func TestPublishWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup test repo without git-flow init
+	// Setup test repo without git-pour init
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Try to publish without git-flow initialization
+	// Try to publish without git-pour initialization
 	output, err := testutil.RunGitFlow(t, dir, "feature", "publish", "some-feature")
 	if err == nil {
-		t.Fatal("Expected error when publishing without git-flow initialization, but succeeded")
+		t.Fatal("Expected error when publishing without git-pour initialization, but succeeded")
 	}
 
 	// Check exit code
@@ -399,7 +399,7 @@ func TestPublishWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	if !strings.Contains(output, "git flow is not initialized") {
+	if !strings.Contains(output, "git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error message, got: %s", output)
 	}
 }
@@ -442,9 +442,9 @@ func TestPublishCurrentBranchWrongType(t *testing.T) {
 
 // TestPublishFeatureBranchNoRemoteError tests that publish returns a clear error when no remote is configured.
 // Steps:
-// 1. Sets up a test repository (no remote) and initializes git-flow with defaults
-// 2. Creates a feature branch with 'git flow feature start test-feature'
-// 3. Runs 'git flow feature publish test-feature'
+// 1. Sets up a test repository (no remote) and initializes git-pour with defaults
+// 2. Creates a feature branch with 'git pour feature start test-feature'
+// 3. Runs 'git pour feature publish test-feature'
 // 4. Verifies the command fails with an error
 // 5. Verifies the error message mentions the missing remote (contains "No remote")
 // 6. Verifies the feature branch still exists locally (not affected by the error)
@@ -454,10 +454,10 @@ func TestPublishFeatureBranchNoRemoteError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch

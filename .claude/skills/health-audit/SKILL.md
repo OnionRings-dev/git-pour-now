@@ -62,7 +62,7 @@ Launch one `Task`/subagent **per selected area, in parallel** (all in one
 message when running several). Each subagent gets the matching prompt below,
 **prefixed** with this shared preamble:
 
-> You are auditing the git-flow-next repo (Go CLI implementing the git-flow
+> You are auditing the git-pour-now repo (Go CLI implementing the git-pour
 > branching model) at the repository root. This is an AI-maintained repo; the
 > risk you are hunting is **drift**, not catastrophic breakage. Respect the
 > project's stated pragmatic, anti-over-engineering philosophy (CLAUDE.md): do
@@ -84,16 +84,16 @@ Then the per-area body:
 
 **`docs`** — Check manpages in `docs/*.md` against the code:
 1. Every command in `cmd/*.go`: do its flags (long AND short) match
-   `docs/git-flow-<cmd>.1.md`? Find flags in code missing from docs, and
+   `docs/git-pour-<cmd>.1.md`? Find flags in code missing from docs, and
    documented flags that no longer exist.
-2. Config keys: every `gitflow.*` key read/written in `internal/config` and
-   `cmd/` — documented in `docs/gitflow-config.5.md` (or a per-command
+2. Config keys: every `gitpour.*` key read/written in `internal/config` and
+   `cmd/` — documented in `docs/gitpour-config.5.md` (or a per-command
    manpage)? Any documented key the code no longer uses?
 3. Commands with no manpage at all, or manpages for removed commands, and
-   broken `git-flow-*(1)` cross-references.
+   broken `git-pour-*(1)` cross-references.
 4. Recently-added commands (publish, rename, track, checkout) — verify doc
    coverage (CLAUDE.md makes doc updates MANDATORY for command changes).
-5. `version/version.go` vs `cmd/version.go` — do the version constants match?
+5. `version/version.go` and build scripts — are release versions derived from tags?
    Skip stylistic/wording nitpicks.
 6. ROOT TECHNICAL DOCS — `ARCHITECTURE.md` and `CODE_REFERENCE.md` describe the
    codebase structure and drift silently as code moves. Cross-check them
@@ -161,7 +161,7 @@ first; check compliance with the project's stated MUST/ALWAYS/NEVER rules:
    `exec.Command("git", ...)` calls that bypass the wrapper (note if in `cmd/`
    vs read-only `internal/` — the former is worse); graceful conflict handling;
    **uncommitted-changes check before mutating operations**.
-3. COMMAND IMPLEMENTATION: consistent Cobra structure; the "validate git-flow
+3. COMMAND IMPLEMENTATION: consistent Cobra structure; the "validate git-pour
    is initialized" preamble on every command except `init`; long AND short
    flags; input validation; examples/usage present.
 4. CONFIG PRECEDENCE: three-layer resolution (branch-type def → command config
@@ -194,7 +194,7 @@ Audit `cmd/` and `internal/`:
    failing package + short error. State what you ran.
 2. COVERAGE: each `cmd/*.go` command has a `test/cmd/*_test.go`? List missing
    or obviously thin ones (trivial commands like `version` are acceptable).
-3. CONVENTIONS: init repos with `git flow init --defaults`; use `testutil`
+3. CONVENTIONS: init repos with `git pour init --defaults`; use `testutil`
    helpers (`SetupTestRepo`, `RunGitFlow`) rather than rolling their own;
    "one test case per function" for integration scenarios (table-driven is
    allowed only for pure functions); error-checked `os.Chdir` restore.

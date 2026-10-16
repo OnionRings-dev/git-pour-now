@@ -1,6 +1,6 @@
 # Contributors
 
-This file lists the contributors to git-flow-next.
+This file lists the contributors to git-pour-now.
 
 ## Project Maintainers
 
@@ -30,12 +30,12 @@ This list is regenerated from git history at release time — see
 - [Sebastian Walter](https://github.com/evilbaschdi)
 - [sjh9714](https://github.com/sjh9714)
 
-## Original git-flow Authors
+## Original git-pour Authors
 
-We would like to acknowledge the original authors of git-flow, whose work this project builds upon:
+We would like to acknowledge the original authors of git-pour, whose work this project builds upon:
 
-- Vincent Driessen ([@nvie](https://github.com/nvie)) - Original git-flow creator
-- Peter van der Does ([@petervanderdoes](https://github.com/petervanderdoes)) - git-flow (AVH Edition) maintainer
+- Vincent Driessen ([@nvie](https://github.com/nvie)) - Original git-pour creator
+- Peter van der Does ([@petervanderdoes](https://github.com/petervanderdoes)) - git-pour (AVH Edition) maintainer
 
 ## How to Get Listed
 
@@ -66,4 +66,4 @@ We recognize various types of contributions:
 
 ## Special Thanks
 
-Special thanks to everyone who has contributed to the project through bug reports, feature requests, and discussions. 
+Special thanks to everyone who has contributed to the project through bug reports, feature requests, and discussions.

@@ -5,22 +5,22 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/hooks"
-	"github.com/gittower/git-flow-next/internal/mergestate"
-	"github.com/gittower/git-flow-next/internal/update"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/hooks"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/internal/update"
 )
 
 // Note: The update command is registered in two places:
-// 1. As a shorthand command in shorthand.go for "git flow update"
-// 2. As subcommands of topic branches in topicbranch.go for "git flow <topic> update"
+// 1. As a shorthand command in shorthand.go for "git pour update"
+// 2. As subcommands of topic branches in topicbranch.go for "git pour <topic> update"
 // This file only contains the shared executeUpdate function used by both.
 
 // UpdateCommand is the public entry point for the update command on both
-// surfaces (topic "git flow <type> update" and top-level "git flow update"). It
-// maps git-flow errors to their exit codes and exits non-zero on failure. Routing
+// surfaces (topic "git pour <type> update" and top-level "git pour update"). It
+// maps git-pour errors to their exit codes and exits non-zero on failure. Routing
 // through this wrapper (instead of returning the error via RunE to main.go, which
 // forces exit 1) is what makes the top-level surface exit 3 for merge-in-progress,
 // no-merge, and unresolved-conflict conditions, consistent with finish/integrate.
@@ -28,8 +28,8 @@ func UpdateCommand(branchType string, name string, useRebase, continueOp, abortO
 	repo := mustOpenRepo()
 	if err := executeUpdate(repo, branchType, name, useRebase, continueOp, abortOp); err != nil {
 		var exitCode errors.ExitCode
-		if flowErr, ok := err.(errors.Error); ok {
-			exitCode = flowErr.ExitCode()
+		if pourErr, ok := err.(errors.Error); ok {
+			exitCode = pourErr.ExitCode()
 		} else {
 			exitCode = errors.ExitCodeGitError
 		}
@@ -42,10 +42,10 @@ func UpdateCommand(branchType string, name string, useRebase, continueOp, abortO
 // resumable dispatch for update: a foreign-operation guard, its own
 // --continue/--abort handling, and the initial update attempt.
 func executeUpdate(repo *git.Repo, branchType string, name string, useRebase, continueOp, abortOp bool) error {
-	// Validate that git-flow is initialized
+	// Validate that git-pour is initialized
 	initialized, err := config.IsInitialized(repo)
 	if err != nil {
-		return &errors.GitError{Operation: "check if git-flow is initialized", Err: err}
+		return &errors.GitError{Operation: "check if git-pour is initialized", Err: err}
 	}
 	if !initialized {
 		return &errors.NotInitializedError{}

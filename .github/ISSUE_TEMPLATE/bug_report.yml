@@ -40,8 +40,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: git-flow-next version
-      placeholder: "e.g. 1.2.0 (run: git flow version)"
+      label: git-pour-now version
+      placeholder: "e.g. 1.2.0 (run: git pour version)"
     validations:
       required: true
 

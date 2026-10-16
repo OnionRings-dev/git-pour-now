@@ -95,14 +95,14 @@ Create the branch in its own worktree, using the sibling-root convention (see
 [DEV_WORKFLOW.md](../../../DEV_WORKFLOW.md) §3):
 
 ```bash
-git worktree add -b feature/quick-<slug> ../git-flow-next.worktrees/quick-<slug> main
-cd ../git-flow-next.worktrees/quick-<slug>
+git worktree add -b feature/quick-<slug> ../git-pour-now.worktrees/quick-<slug> main
+cd ../git-pour-now.worktrees/quick-<slug>
 ```
 
 **Verify**: current directory is the new worktree and the current branch is
 `feature/quick-<slug>`. Never commit directly on main. The
 `.ai/quick-<slug>/` task note stays in the main clone — reference it as
-`../git-flow-next/.ai/quick-<slug>/` from inside the worktree.
+`../git-pour-now/.ai/quick-<slug>/` from inside the worktree.
 
 ## Step 3: Implement (Test-First)
 
@@ -191,7 +191,7 @@ alternative).
 On confirmation (run from the main clone, since `main` lives there):
 
 1. Remove the worktree first so the branch is no longer checked out:
-   `cd ../git-flow-next && git worktree remove ../git-flow-next.worktrees/quick-<slug>`
+   `cd ../git-pour-now && git worktree remove ../git-pour-now.worktrees/quick-<slug>`
 2. `go run main.go feature finish quick-<slug>` — merges into main and
    deletes the branch. Fall back to
    `git checkout main && git merge --no-ff feature/quick-<slug> && git branch -d feature/quick-<slug>` if needed

@@ -4,346 +4,50 @@ on:
   push:
     tags:
       - 'v*'
-  # Dry run: build, sign and verify without publishing, so the Azure signing
-  # setup can be exercised without cutting a release. The release job below is
-  # gated on the push event.
-  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    name: Build binaries
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0  # Fetch all history for version info
-
-      - name: Set up Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-
-      - name: Make scripts executable
-        run: chmod +x scripts/build.sh scripts/package.sh
-
-      # A workflow_dispatch run has no tag, and stripping refs/tags/ off a
-      # branch ref would leave slashes in every artifact name.
-      - name: Resolve version
-        id: version
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=dryrun-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build binaries
-        run: SKIP_PACKAGE=1 ./scripts/build.sh "${{ steps.version.outputs.version }}"
-
-      - name: Upload unsigned build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: unsigned-dist
-          path: dist
-          if-no-files-found: error
-          retention-days: 1
-
-  sign-windows:
-    name: Sign Windows binaries
-    runs-on: windows-2022
-    needs: build
-    environment: release-signing
-    permissions:
-      id-token: write
-
-    steps:
-      - name: Download unsigned build artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: unsigned-dist
-          path: dist
-
-      - name: Azure login
-        uses: azure/login@v3
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Separates "OIDC federation failed" from "authenticated but not
-      # authorized to sign" when the signing step below fails.
-      - name: Verify Azure authentication
-        run: az account show
-
-      - name: Sign Windows binaries with Azure Artifact Signing
-        uses: azure/artifact-signing-action@v2
-        with:
-          endpoint: ${{ vars.AZURE_CODESIGN_ENDPOINT }}
-          signing-account-name: ${{ vars.AZURE_CODESIGN_ACCOUNT_NAME }}
-          certificate-profile-name: ${{ vars.AZURE_CODESIGN_CERTIFICATE_PROFILE }}
-          # Listed explicitly rather than filtered from a folder: a filter that
-          # matches nothing signs nothing and fails silently here.
-          files: |
-            ${{ github.workspace }}\dist\windows-amd64\git-flow.exe
-            ${{ github.workspace }}\dist\windows-386\git-flow.exe
-            ${{ github.workspace }}\dist\windows-arm64\git-flow.exe
-          file-digest: SHA256
-          # Must stay http: the service rejects https with
-          # "SignTool Error: Invalid Timestamp URL".
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
-      - name: Verify Windows signatures
-        shell: pwsh
-        run: |
-          $platforms = @('windows-amd64', 'windows-386', 'windows-arm64')
-
-          foreach ($platform in $platforms) {
-            $path = "$env:GITHUB_WORKSPACE\dist\$platform\git-flow.exe"
-            if (-not (Test-Path $path)) {
-              throw "Expected executable not found: $path"
-            }
-
-            $signature = Get-AuthenticodeSignature -FilePath $path
-            if ($signature.Status -ne "Valid") {
-              throw "Invalid signature for ${platform}: $($signature.Status) $($signature.StatusMessage)"
-            }
-            Write-Host "Verified signature for $platform"
-          }
-
-      - name: Upload signed build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: signed-dist
-          path: dist
-          if-no-files-found: error
-          retention-days: 1
-
   release:
-    name: Package and release
     runs-on: ubuntu-latest
-    needs: [build, sign-windows]
-    if: github.event_name == 'push'
     permissions:
       contents: write
-    outputs:
-      is_preview: ${{ steps.check_preview.outputs.is_preview }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Download signed build artifacts
-        uses: actions/download-artifact@v8
+      - uses: actions/checkout@v7
         with:
-          name: signed-dist
-          path: dist
-
-      - name: Make packaging script executable
-        run: chmod +x scripts/package.sh
-
-      # Artifact upload does not preserve the executable bit.
-      - name: Restore executable permissions
-        run: find dist -type f -exec chmod +x {} +
-
-      - name: Package signed artifacts
-        run: ./scripts/package.sh "${{ needs.build.outputs.version }}"
-
-      - name: Check if preview release
-        id: check_preview
-        run: |
-          if [[ "${GITHUB_REF_NAME}" =~ ^v.*-(alpha|beta|rc)\. ]]; then
-            echo "is_preview=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_preview=false" >> $GITHUB_OUTPUT
-          fi
-
-      # Assembled into a file rather than $GITHUB_OUTPUT. The multi-line output
-      # form needs a delimiter, and a changelog entry containing a line that
-      # happens to read EOF would truncate the body and corrupt the output.
-      - name: Build release notes
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Validate release tag and branch ancestry
         env:
-          IS_PREVIEW: ${{ steps.check_preview.outputs.is_preview }}
-          NOTES_FILE: ${{ runner.temp }}/release-notes.md
+          TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "Extracting release notes for version $VERSION"
-
-          : > "$NOTES_FILE"
-
-          if [ "$IS_PREVIEW" = "true" ]; then
-            printf '⚠️ This is a preview release and may not be stable.\n\n' >> "$NOTES_FILE"
+          version=$(go run ./scripts/release-version "$TAG")
+          [[ "$TAG" == "v$version" ]]
+          core=${version%%+*}
+          if [[ "$core" == *-* ]]; then
+            core=${core%%-*}
+            git merge-base --is-ancestor "$GITHUB_SHA" "origin/prerelease/$core"
+          else
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main
           fi
-
-          # Content between this version's header and the next version header.
-          awk -v ver="$VERSION" '
-            /^## \[/ {
-              if (found) exit
-              if ($0 ~ "\\[" ver "\\]") found=1
-              next
-            }
-            found { print }
-          ' CHANGELOG.md >> "$NOTES_FILE"
-
-          cat >> "$NOTES_FILE" <<'NOTES'
-
-          ## Installation
-          See the [installation instructions](https://github.com/gittower/git-flow-next#installation) in the README.
-
-          ## Checksums
-          SHA-256 checksums for the release artifacts are available in the checksums.txt file.
-          NOTES
-
-      # gh rather than a third-party action: the CLI is preinstalled on the
-      # runner and this job already holds contents: write, so publishing needs
-      # nothing from outside GitHub. See #241 for the per-action decision.
+      - name: Build and package
+        env:
+          TAG: ${{ github.ref_name }}
+        run: bash ./scripts/build.sh "$TAG"
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_PREVIEW: ${{ steps.check_preview.outputs.is_preview }}
-          NOTES_FILE: ${{ runner.temp }}/release-notes.md
           TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          # A pattern matching nothing means a whole class of artifact is
-          # missing -- fail rather than publish without it. This is a
-          # pattern-level check only: one absent archive among several the
-          # same pattern still matches gets through.
           shopt -s failglob
-          assets=(dist/*.tar.gz dist/*.zip dist/*-checksums.txt)
-
-          # Re-running the workflow on an already-published tag is the
-          # documented recovery path (RELEASING.md), and `gh release create`
-          # refuses an existing release. Update it in place instead, which is
-          # what the action this replaced did.
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" \
-              --notes-file "$NOTES_FILE" \
-              --prerelease="$IS_PREVIEW"
-            gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber "${assets[@]}"
-          else
-            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
-              --title "$TAG" \
-              --notes-file "$NOTES_FILE" \
-              --prerelease="$IS_PREVIEW" \
-              "${assets[@]}"
+          args=(--verify-tag --title "$TAG" --generate-notes)
+          if [[ "${TAG%%+*}" == *-* ]]; then
+            args+=(--prerelease)
           fi
-
-  winget:
-    name: Submit WinGet manifest
-    runs-on: ubuntu-latest
-    needs: release
-    # A workflow_dispatch dry run skips `release`, which skips this job too, so
-    # the preview check is the only gate that needs stating.
-    if: needs.release.outputs.is_preview == 'false'
-    # A failed submission marks this job failed without failing the run: the
-    # release is already published and must not be reported as broken.
-    continue-on-error: true
-    # continue-on-error does not bound a hang, only a failure. The job downloads
-    # komac and calls the GitHub API, and the run stays in progress until it
-    # returns — which `gh run watch` in the release process waits on. Without
-    # this, a stall would block a release for GitHub's six-hour default instead
-    # of failing visibly like every other submission error.
-    timeout-minutes: 15
-    permissions:
-      contents: read
-
-    # Bumping komac is a two-line edit: version and digest change together. The
-    # digest is of komac-<version>-x86_64-unknown-linux-gnu.tar.gz and is
-    # recorded here by us — reading the release's own SHA256SUMS at run time
-    # would verify the tarball against whoever could have replaced it.
-    env:
-      KOMAC_VERSION: '2.16.0'
-      KOMAC_SHA256: '7d2707fa6210f2789a3702de49fbd150b736dbf426ee0b9bc8e098736f9fd82d'
-      PACKAGE_IDENTIFIER: GitTower.GitFlowNext
-      INSTALLERS_REGEX: 'windows-(386|amd64|arm64)\.zip$'
-
-    steps:
-      # Seeding a package into winget-pkgs is a one-off manual PR (RELEASING.md).
-      # komac can only update a package that already exists, so check first and
-      # say why, rather than letting komac fail obscurely later.
-      - name: Check package exists in winget-pkgs
-        run: |
-          set -euo pipefail
-          url="https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/GitTower/GitFlowNext"
-          if ! curl -fsS -I --max-time 30 "$url" > /dev/null; then
-            echo "::error::Package ${PACKAGE_IDENTIFIER} is not present in winget-pkgs. It has to be seeded once by hand before the automation can update it — see RELEASING.md."
-            exit 1
-          fi
-
-      - name: Download komac
-        run: |
-          set -euo pipefail
-          mkdir -p "${RUNNER_TEMP}/komac"
-          curl -fsSL --max-time 120 \
-            -o "${RUNNER_TEMP}/komac/komac.tar.gz" \
-            "https://github.com/russellbanks/Komac/releases/download/v${KOMAC_VERSION}/komac-${KOMAC_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
-
-      # Runs before extraction, so a tampered archive is never unpacked. --strict
-      # so a malformed digest line fails instead of being skipped.
-      - name: Verify komac checksum
-        run: |
-          set -euo pipefail
-          echo "${KOMAC_SHA256}  ${RUNNER_TEMP}/komac/komac.tar.gz" | sha256sum --check --strict -
-
-      # The archive is flat: komac and LICENSE.md at the root, no version dir.
-      # $GITHUB_PATH only takes effect in later steps, so the version check runs
-      # by absolute path here — deliberately before any step carrying the token.
-      - name: Extract komac
-        run: |
-          set -euo pipefail
-          tar -xzf "${RUNNER_TEMP}/komac/komac.tar.gz" -C "${RUNNER_TEMP}/komac"
-          chmod +x "${RUNNER_TEMP}/komac/komac"
-          "${RUNNER_TEMP}/komac/komac" --version | grep -q "${KOMAC_VERSION}"
-          echo "${RUNNER_TEMP}/komac" >> "$GITHUB_PATH"
-
-      # The job checks nothing out, so gh has no remote to infer a repository
-      # from and must be told which one to look at. The regex reaches jq through
-      # env rather than interpolation: it contains \. , which would otherwise
-      # need escaping twice.
-      - name: Resolve version and installer URLs
-        id: release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-          urls=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets \
-            --jq '[.assets[] | select(.name | test(env.INSTALLERS_REGEX)) | .url] | join(" ")')
-          # gh exits 0 with an empty result, so set -e does not catch this.
-          if [ -z "$urls" ]; then
-            echo "::error::No asset on ${TAG} matches ${INSTALLERS_REGEX}; there is nothing to submit. Check that the release carries the three Windows .zip archives."
-            exit 1
-          fi
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-          echo "urls=${urls}" >> "$GITHUB_OUTPUT"
-
-      - name: Submit manifest to winget-pkgs
-        env:
-          KOMAC_FORK_OWNER: gittower
-          KOMAC_CREATED_WITH: git-flow-next
-          KOMAC_CREATED_WITH_URL: https://github.com/gittower/git-flow-next
-          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
-          VERSION: ${{ steps.release.outputs.version }}
-          URLS: ${{ steps.release.outputs.urls }}
-        run: |
-          set -euo pipefail
-          # Unquoted on purpose: --urls takes one argument per URL.
-          # shellcheck disable=SC2086
-          komac update "$PACKAGE_IDENTIFIER" --version "$VERSION" --submit --urls $URLS
-
-      # Deletes fork branches whose PRs have already merged.
-      - name: Clean up merged fork branches
-        env:
-          KOMAC_FORK_OWNER: gittower
-          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        run: |
-          set -euo pipefail
-          komac cleanup --only-merged
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
+            "${args[@]}" dist/*.tar.gz dist/*.zip dist/*-checksums.txt

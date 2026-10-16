@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func TestBasicCommandDetection(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Init with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Test for each type
@@ -46,7 +46,7 @@ func TestBranchNameParsing(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 
 	// Standard
 	testutil.RunGitFlow(t, dir, "feature", "start", "standard")
@@ -69,7 +69,7 @@ func TestCommandOptionsPassthrough(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-options")
 	testutil.RunGit(t, dir, "checkout", "feature/test-options") // Ensure on branch
@@ -84,7 +84,7 @@ func TestNonTopicBranchErrorHandling(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 
 	nonTopics := []string{"main", "develop", "custom/branch"}
 	for _, branch := range nonTopics {
@@ -105,7 +105,7 @@ func TestAmbiguousBranchDetection(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults", "--feature", "feat/", "--hotfix", "feat/") // Force overlap
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--feature", "feat/", "--hotfix", "feat/") // Force overlap
 
 	testutil.RunGit(t, dir, "checkout", "-b", "feat/ambiguous")
 	output, err := testutil.RunGitFlowWithInput(t, dir, "n\n", "finish") // Simulate 'n'
@@ -118,7 +118,7 @@ func TestShorthandUpdateStopsOnAmbiguousBranch(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults", "--feature", "feat/", "--hotfix", "feat/")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--feature", "feat/", "--hotfix", "feat/")
 
 	testutil.RunGit(t, dir, "checkout", "-b", "feat/ambiguous")
 	output, err := testutil.RunGitFlowWithInput(t, dir, "n\n", "update")
@@ -131,7 +131,7 @@ func TestShorthandRebaseStopsOnAmbiguousBranch(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults", "--feature", "feat/", "--hotfix", "feat/")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--feature", "feat/", "--hotfix", "feat/")
 
 	testutil.RunGit(t, dir, "checkout", "-b", "feat/ambiguous")
 	output, err := testutil.RunGitFlowWithInput(t, dir, "n\n", "rebase")
@@ -145,7 +145,7 @@ func TestDeleteAlias(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-delete")
 	testutil.RunGit(t, dir, "checkout", "develop")                              // Switch off
 	output, err := testutil.RunGitFlow(t, dir, "delete", "feature/test-delete") // Use full prefixed name
@@ -158,7 +158,7 @@ func TestUpdateAlias(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-update")
 
 	// Make parent changes
@@ -180,7 +180,7 @@ func TestRenameAlias(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-rename")
 	testutil.RunGit(t, dir, "checkout", "feature/test-rename")
 	output, err := testutil.RunGitFlow(t, dir, "rename", "renamed-feature")
@@ -193,7 +193,7 @@ func TestFinishAlias(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-finish")
 	testutil.WriteFile(t, dir, "finish.txt", "test")
 	testutil.RunGit(t, dir, "add", "finish.txt")
@@ -213,7 +213,7 @@ func TestIntegrationWithExistingConfig(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults", "--feature", "feat/")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--feature", "feat/")
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-config")
 	testutil.RunGit(t, dir, "checkout", "feat/test-config")
 	output, err := testutil.RunGitFlow(t, dir, "finish", "--notag", "--no-keep")
@@ -226,7 +226,7 @@ func TestExitCodePropagation(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-	testutil.RunGitFlow(t, dir, "init", "--defaults")
+	testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	testutil.RunGitFlow(t, dir, "feature", "start", "test-fail")
 
 	// Force conflict
@@ -250,15 +250,15 @@ func TestExitCodePropagation(t *testing.T) {
 	}
 }
 
-// TestRebaseAlias tests the git flow rebase shorthand command
-// which should redirect to git flow <type> update --rebase
+// TestRebaseAlias tests the git pour rebase shorthand command
+// which should redirect to git pour <type> update --rebase
 func TestRebaseAlias(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Test for each branch type
@@ -314,7 +314,7 @@ func TestRebaseOptionPassthrough(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Create feature branch
@@ -335,7 +335,7 @@ func TestRebaseNonTopicBranchErrorHandling(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Test base branches - should work since executeUpdate handles them
@@ -373,7 +373,7 @@ func TestRebaseConflictHandling(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Create feature branch
@@ -410,7 +410,7 @@ func TestRebaseWithCustomBranchTypes(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Initialize with custom branch types
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--hotfix", "fix/")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--hotfix", "fix/")
 	assert.NoError(t, err)
 
 	// Create hotfix branch with custom prefix
@@ -434,13 +434,13 @@ func TestRebaseWithCustomBranchTypes(t *testing.T) {
 }
 
 // TestShorthandFinishWithoutInitialization verifies that the shorthand
-// 'git flow finish' reports "not initialized" in an uninitialized repository,
+// 'git pour finish' reports "not initialized" in an uninitialized repository,
 // even when the current branch matches a default topic prefix. This guards the
 // shorthand entry point (which reaches finish via FinishCommand, bypassing the
 // topic-branch command handler) against the misleading branch-resolution error.
 func TestShorthandFinishWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
@@ -456,22 +456,22 @@ func TestShorthandFinishWithoutInitialization(t *testing.T) {
 	} else {
 		t.Error("Expected ExitError")
 	}
-	assert.Contains(t, output, "Error: git flow is not initialized")
+	assert.Contains(t, output, "Error: git pour is not initialized")
 	assert.NotContains(t, output, "does not exist")
 }
 
-// TestShorthandFinishWithMergeMessage tests that the shorthand 'git flow finish' honors --merge-message for the upstream merge, matching the per-type surface ('git flow feature finish <name> --merge-message').
+// TestShorthandFinishWithMergeMessage tests that the shorthand 'git pour finish' honors --merge-message for the upstream merge, matching the per-type surface ('git pour feature finish <name> --merge-message').
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates feature branch 'shorthand-merge-msg' and adds a commit
-// 3. Checks out the feature branch and runs the shorthand 'git flow finish --no-ff --merge-message "feat: custom shorthand merge"'
+// 3. Checks out the feature branch and runs the shorthand 'git pour finish --no-ff --merge-message "feat: custom shorthand merge"'
 // 4. Verifies the merge commit subject on develop equals the custom message
 func TestShorthandFinishWithMergeMessage(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Create a feature branch with a commit
@@ -494,11 +494,11 @@ func TestShorthandFinishWithMergeMessage(t *testing.T) {
 	assert.Equal(t, customMessage, strings.TrimSpace(commitMsg))
 }
 
-// TestShorthandFinishWithUpdateMessage tests that the shorthand 'git flow finish' honors --update-message for the downstream auto-update of child base branches, matching the per-type surface.
+// TestShorthandFinishWithUpdateMessage tests that the shorthand 'git pour finish' honors --update-message for the downstream auto-update of child base branches, matching the per-type surface.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates release branch '1.0.0' and adds a commit
-// 3. Checks out the release branch and runs the shorthand 'git flow finish --update-message "chore: custom shorthand update"'
+// 3. Checks out the release branch and runs the shorthand 'git pour finish --update-message "chore: custom shorthand update"'
 // 4. Verifies the release file reached develop via the auto-update from main
 // 5. Verifies the auto-update commit subject on develop equals the custom message
 func TestShorthandFinishWithUpdateMessage(t *testing.T) {
@@ -506,7 +506,7 @@ func TestShorthandFinishWithUpdateMessage(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	assert.NoError(t, err)
 
 	// Create a release branch with a commit

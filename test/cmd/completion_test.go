@@ -4,11 +4,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestCompletionBash verifies that "completion bash" generates valid output
-// including Cobra's standard completion and the _git_flow bridge function.
+// including Cobra's standard completion and the _git_pour bridge function.
 func TestCompletionBash(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
@@ -19,21 +19,21 @@ func TestCompletionBash(t *testing.T) {
 	}
 
 	// Cobra's standard completion function
-	if !strings.Contains(output, "__start_git-flow") {
-		t.Error("expected bash completion to contain __start_git-flow")
+	if !strings.Contains(output, "__start_git-pour") {
+		t.Error("expected bash completion to contain __start_git-pour")
 	}
-	// Standard registration for "git-flow" direct invocation
-	if !strings.Contains(output, "complete -o default -F __start_git-flow git-flow") {
-		t.Error("expected bash completion to register complete for git-flow")
+	// Standard registration for "git-pour" direct invocation
+	if !strings.Contains(output, "complete -o default -F __start_git-pour git-pour") {
+		t.Error("expected bash completion to register complete for git-pour")
 	}
-	// Bridge function for "git flow" subcommand
-	if !strings.Contains(output, "_git_flow()") {
-		t.Error("expected bash completion to contain _git_flow bridge function")
+	// Bridge function for "git pour" subcommand
+	if !strings.Contains(output, "_git_pour()") {
+		t.Error("expected bash completion to contain _git_pour bridge function")
 	}
 }
 
 // TestCompletionZsh verifies that "completion zsh" generates valid output
-// with the _git-flow function that zsh's _git auto-discovers.
+// with the _git-pour function that zsh's _git auto-discovers.
 func TestCompletionZsh(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
@@ -43,11 +43,11 @@ func TestCompletionZsh(t *testing.T) {
 		t.Fatalf("completion zsh failed: %v\nOutput: %s", err, output)
 	}
 
-	if !strings.Contains(output, "_git-flow()") {
-		t.Error("expected zsh completion to contain _git-flow function")
+	if !strings.Contains(output, "_git-pour()") {
+		t.Error("expected zsh completion to contain _git-pour function")
 	}
 	// Bridge: rewrite words[1] so Cobra invokes the correct binary
-	if !strings.Contains(output, "words[1]=git-flow") {
+	if !strings.Contains(output, "words[1]=git-pour") {
 		t.Error("expected zsh completion to contain git-subcommand bridge rewrite")
 	}
 
@@ -70,15 +70,15 @@ func TestCompletionFish(t *testing.T) {
 	}
 
 	// Cobra's standard fish completion
-	if !strings.Contains(output, "complete -c git-flow") {
-		t.Error("expected fish completion to contain registrations for git-flow")
+	if !strings.Contains(output, "complete -c git-pour") {
+		t.Error("expected fish completion to contain registrations for git-pour")
 	}
-	// Bridge: register "flow" as a git subcommand
-	if !strings.Contains(output, "__fish_git_flow_complete") {
-		t.Error("expected fish completion to contain __fish_git_flow_complete bridge")
+	// Bridge: register "pour" as a git subcommand
+	if !strings.Contains(output, "__fish_git_pour_complete") {
+		t.Error("expected fish completion to contain __fish_git_pour_complete bridge")
 	}
-	if !strings.Contains(output, `complete -c git -f -n '__fish_use_subcommand' -a flow`) {
-		t.Error("expected fish completion to register 'flow' as a git subcommand")
+	if !strings.Contains(output, `complete -c git -f -n '__fish_use_subcommand' -a pour`) {
+		t.Error("expected fish completion to register 'pour' as a git subcommand")
 	}
 }
 
@@ -92,8 +92,8 @@ func TestCompletionPowerShell(t *testing.T) {
 		t.Fatalf("completion powershell failed: %v\nOutput: %s", err, output)
 	}
 
-	if !strings.Contains(output, "git-flow") {
-		t.Error("expected powershell completion to reference git-flow")
+	if !strings.Contains(output, "git-pour") {
+		t.Error("expected powershell completion to reference git-pour")
 	}
 }
 

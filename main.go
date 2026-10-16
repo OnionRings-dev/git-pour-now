@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gittower/git-flow-next/cmd"
+	"github.com/OnionRings-dev/git-pour-now/cmd"
 )
 
 func main() {

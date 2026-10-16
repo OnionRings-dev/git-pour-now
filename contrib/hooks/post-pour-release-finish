@@ -1,5 +1,5 @@
 #!/bin/sh
-# post-flow-release-finish
+# post-pour-release-finish
 #
 # This hook runs after a release is finished.
 # It can be used for:
@@ -8,8 +8,8 @@
 #   3. Triggering deployment pipelines
 #
 # Usage: Copy to .git/hooks/ and make executable:
-#   cp contrib/hooks/post-flow-release-finish .git/hooks/
-#   chmod +x .git/hooks/post-flow-release-finish
+#   cp contrib/hooks/post-pour-release-finish .git/hooks/
+#   chmod +x .git/hooks/post-pour-release-finish
 #
 # Environment variables:
 #   BRANCH_TYPE  - The branch type (release)

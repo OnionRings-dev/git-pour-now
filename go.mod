@@ -1,4 +1,4 @@
-module github.com/gittower/git-flow-next
+module github.com/OnionRings-dev/git-pour-now
 
 go 1.23.6
 

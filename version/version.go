@@ -1,18 +1,12 @@
+// Package version holds build information injected from a Git release tag.
 package version
 
-// Version information
-const (
-	// Version is the current version of git-flow-next
-	Version = "2.1.0"
-
-	// BuildTime will be injected during build
+var (
+	Version   = "dev"
 	BuildTime = ""
-
-	// GitCommit will be injected during build
 	GitCommit = ""
 )
 
-// GetVersionInfo returns a formatted version string
 func GetVersionInfo() string {
 	if BuildTime != "" && GitCommit != "" {
 		return Version + " (built " + BuildTime + " from " + GitCommit + ")"

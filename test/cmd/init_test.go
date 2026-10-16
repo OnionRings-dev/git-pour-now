@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // setupGitFlowAVH sets up git-flow-avh configuration in the test repository
@@ -20,39 +20,39 @@ func setupGitFlowAVH(t *testing.T, dir string) {
 	cmd := exec.Command("git", "config", "gitflow.branch.master", "main")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow.branch.master: %v", err)
+		t.Fatalf("Failed to set gitpour.branch.master: %v", err)
 	}
 
 	cmd = exec.Command("git", "config", "gitflow.branch.develop", "dev")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow.branch.develop: %v", err)
+		t.Fatalf("Failed to set gitpour.branch.develop: %v", err)
 	}
 
 	cmd = exec.Command("git", "config", "gitflow.prefix.feature", "feat/")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.feature: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.feature: %v", err)
 	}
 
 	cmd = exec.Command("git", "config", "gitflow.prefix.release", "rel/")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.release: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.release: %v", err)
 	}
 
 	cmd = exec.Command("git", "config", "gitflow.prefix.hotfix", "fix/")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.hotfix: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.hotfix: %v", err)
 	}
 }
 
-// runGitFlow runs the git-flow command with the given arguments
+// runGitFlow runs the git-pour command with the given arguments
 func runGitFlow(t *testing.T, dir string, args ...string) (string, error) {
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run the git-flow command
+	// Run the git-pour command
 	cmd := exec.Command(gitFlowPath, args...)
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
@@ -64,11 +64,11 @@ func runGitFlow(t *testing.T, dir string, args ...string) (string, error) {
 	return stdout.String() + stderr.String(), err
 }
 
-// runGitFlowWithInput runs the git-flow command with the given arguments and input
+// runGitFlowWithInput runs the git-pour command with the given arguments and input
 func runGitFlowWithInput(t *testing.T, dir string, input string, args ...string) (string, error) {
 	gitFlowPath := testutil.GitFlowPath()
 
-	// Run the git-flow command
+	// Run the git-pour command
 	cmd := exec.Command(gitFlowPath, args...)
 	cmd.Dir = dir
 
@@ -138,7 +138,7 @@ func getGitConfigFromFile(t *testing.T, filePath string, key string) string {
 	return strings.TrimSpace(stdout.String())
 }
 
-// runGitFlowWithEnv runs git-flow with custom environment variables.
+// runGitFlowWithEnv runs git-pour with custom environment variables.
 func runGitFlowWithEnv(t *testing.T, dir string, env []string, args ...string) (string, error) {
 	gitFlowPath := testutil.GitFlowPath()
 	cmd := exec.Command(gitFlowPath, args...)
@@ -166,58 +166,58 @@ func TestInitWithDefaults(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init --defaults
-	output, err := runGitFlow(t, dir, "init", "--defaults")
+	// Run git-pour init --defaults
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
-	if !strings.Contains(output, "Initializing git-flow with default settings") {
-		t.Errorf("Expected output to contain 'Initializing git-flow with default settings', got: %s", output)
+	if !strings.Contains(output, "Initializing git-pour with classic preset") {
+		t.Errorf("Expected output to contain 'Initializing git-pour with classic preset', got: %s", output)
 	}
 
 	// Check if the configuration was saved correctly
-	version := getGitConfig(t, dir, "gitflow.version")
+	version := getGitConfig(t, dir, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", version)
 	}
 
 	// Check if the branch configurations were saved correctly
-	mainType := getGitConfig(t, dir, "gitflow.branch.main.type")
+	mainType := getGitConfig(t, dir, "gitpour.branch.main.type")
 	if mainType != "base" {
-		t.Errorf("Expected gitflow.branch.main.type to be 'base', got: %s", mainType)
+		t.Errorf("Expected gitpour.branch.main.type to be 'base', got: %s", mainType)
 	}
 
-	developParent := getGitConfig(t, dir, "gitflow.branch.develop.parent")
+	developParent := getGitConfig(t, dir, "gitpour.branch.develop.parent")
 	if developParent != "main" {
-		t.Errorf("Expected gitflow.branch.develop.parent to be 'main', got: %s", developParent)
+		t.Errorf("Expected gitpour.branch.develop.parent to be 'main', got: %s", developParent)
 	}
 
-	featurePrefix := getGitConfig(t, dir, "gitflow.branch.feature.prefix")
+	featurePrefix := getGitConfig(t, dir, "gitpour.branch.feature.prefix")
 	if featurePrefix != "feature/" {
-		t.Errorf("Expected gitflow.branch.feature.prefix to be 'feature/', got: %s", featurePrefix)
+		t.Errorf("Expected gitpour.branch.feature.prefix to be 'feature/', got: %s", featurePrefix)
 	}
 
 	// Check if tag configuration was set correctly for release and hotfix branches
-	releaseTag := getGitConfig(t, dir, "gitflow.branch.release.tag")
+	releaseTag := getGitConfig(t, dir, "gitpour.branch.release.tag")
 	if releaseTag != "true" {
-		t.Errorf("Expected gitflow.branch.release.tag to be 'true', got: %s", releaseTag)
+		t.Errorf("Expected gitpour.branch.release.tag to be 'true', got: %s", releaseTag)
 	}
 
-	releaseTagPrefix := getGitConfig(t, dir, "gitflow.branch.release.tagprefix")
+	releaseTagPrefix := getGitConfig(t, dir, "gitpour.branch.release.tagprefix")
 	if releaseTagPrefix != "" {
-		t.Errorf("Expected gitflow.branch.release.tagprefix to be empty, got: %s", releaseTagPrefix)
+		t.Errorf("Expected gitpour.branch.release.tagprefix to be empty, got: %s", releaseTagPrefix)
 	}
 
-	hotfixTag := getGitConfig(t, dir, "gitflow.branch.hotfix.tag")
+	hotfixTag := getGitConfig(t, dir, "gitpour.branch.hotfix.tag")
 	if hotfixTag != "true" {
-		t.Errorf("Expected gitflow.branch.hotfix.tag to be 'true', got: %s", hotfixTag)
+		t.Errorf("Expected gitpour.branch.hotfix.tag to be 'true', got: %s", hotfixTag)
 	}
 
-	hotfixTagPrefix := getGitConfig(t, dir, "gitflow.branch.hotfix.tagprefix")
+	hotfixTagPrefix := getGitConfig(t, dir, "gitpour.branch.hotfix.tagprefix")
 	if hotfixTagPrefix != "" {
-		t.Errorf("Expected gitflow.branch.hotfix.tagprefix to be empty, got: %s", hotfixTagPrefix)
+		t.Errorf("Expected gitpour.branch.hotfix.tagprefix to be empty, got: %s", hotfixTagPrefix)
 	}
 }
 
@@ -235,13 +235,13 @@ func TestInitWithAVHConfig(t *testing.T) {
 	cmd := exec.Command("git", "config", "gitflow.prefix.versiontag", "ver-")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("Failed to set gitflow.prefix.versiontag: %v", err)
+		t.Fatalf("Failed to set gitpour.prefix.versiontag: %v", err)
 	}
 
-	// Run git-flow init
+	// Run git-pour init
 	output, err := runGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
@@ -250,48 +250,48 @@ func TestInitWithAVHConfig(t *testing.T) {
 	}
 
 	// Check if the configuration was saved correctly
-	version := getGitConfig(t, dir, "gitflow.version")
+	version := getGitConfig(t, dir, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", version)
 	}
 
 	// Check if the branch configurations were imported correctly
-	mainType := getGitConfig(t, dir, "gitflow.branch.main.type")
+	mainType := getGitConfig(t, dir, "gitpour.branch.main.type")
 	if mainType != "base" {
-		t.Errorf("Expected gitflow.branch.main.type to be 'base', got: %s", mainType)
+		t.Errorf("Expected gitpour.branch.main.type to be 'base', got: %s", mainType)
 	}
 
 	// Check if the old configuration is still there
 	masterBranch := getGitConfig(t, dir, "gitflow.branch.master")
 	if masterBranch != "main" {
-		t.Errorf("Expected gitflow.branch.master to be 'main', got: %s", masterBranch)
+		t.Errorf("Expected gitpour.branch.master to be 'main', got: %s", masterBranch)
 	}
 
 	// Check if the prefixes were imported correctly
-	featurePrefix := getGitConfig(t, dir, "gitflow.branch.feature.prefix")
+	featurePrefix := getGitConfig(t, dir, "gitpour.branch.feature.prefix")
 	if featurePrefix != "feat/" {
-		t.Errorf("Expected gitflow.branch.feature.prefix to be 'feat/', got: %s", featurePrefix)
+		t.Errorf("Expected gitpour.branch.feature.prefix to be 'feat/', got: %s", featurePrefix)
 	}
 
 	// Check if the tag configuration was imported correctly
-	releaseTag := getGitConfig(t, dir, "gitflow.branch.release.tag")
+	releaseTag := getGitConfig(t, dir, "gitpour.branch.release.tag")
 	if releaseTag != "true" {
-		t.Errorf("Expected gitflow.branch.release.tag to be 'true', got: %s", releaseTag)
+		t.Errorf("Expected gitpour.branch.release.tag to be 'true', got: %s", releaseTag)
 	}
 
-	releaseTagPrefix := getGitConfig(t, dir, "gitflow.branch.release.tagprefix")
+	releaseTagPrefix := getGitConfig(t, dir, "gitpour.branch.release.tagprefix")
 	if releaseTagPrefix != "ver-" {
-		t.Errorf("Expected gitflow.branch.release.tagprefix to be 'ver-', got: %s", releaseTagPrefix)
+		t.Errorf("Expected gitpour.branch.release.tagprefix to be 'ver-', got: %s", releaseTagPrefix)
 	}
 
-	hotfixTag := getGitConfig(t, dir, "gitflow.branch.hotfix.tag")
+	hotfixTag := getGitConfig(t, dir, "gitpour.branch.hotfix.tag")
 	if hotfixTag != "true" {
-		t.Errorf("Expected gitflow.branch.hotfix.tag to be 'true', got: %s", hotfixTag)
+		t.Errorf("Expected gitpour.branch.hotfix.tag to be 'true', got: %s", hotfixTag)
 	}
 
-	hotfixTagPrefix := getGitConfig(t, dir, "gitflow.branch.hotfix.tagprefix")
+	hotfixTagPrefix := getGitConfig(t, dir, "gitpour.branch.hotfix.tagprefix")
 	if hotfixTagPrefix != "ver-" {
-		t.Errorf("Expected gitflow.branch.hotfix.tagprefix to be 'ver-', got: %s", hotfixTagPrefix)
+		t.Errorf("Expected gitpour.branch.hotfix.tagprefix to be 'ver-', got: %s", hotfixTagPrefix)
 	}
 }
 
@@ -302,38 +302,38 @@ func TestInitInteractive(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init with input
-	input := "custom-main\ncustom-dev\nf/\nb/\nr/\nh/\ns/\n\n"
+	// Run git-pour init with input
+	input := "custom-main\nf/\n"
 	output, err := runGitFlowWithInput(t, dir, input, "init")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected prompts
-	if !strings.Contains(output, "Branch name for production releases") {
+	if !strings.Contains(output, "Main branch") {
 		t.Errorf("Expected output to contain 'Branch name for production releases', got: %s", output)
 	}
 
 	// Check if the configuration was saved correctly
-	version := getGitConfig(t, dir, "gitflow.version")
+	version := getGitConfig(t, dir, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", version)
 	}
 
 	// Check if the branch configurations were saved correctly
-	mainName := getGitConfig(t, dir, "gitflow.branch.custom-main.type")
+	mainName := getGitConfig(t, dir, "gitpour.branch.custom-main.type")
 	if mainName != "base" {
-		t.Errorf("Expected gitflow.branch.custom-main.type to be 'base', got: %s", mainName)
+		t.Errorf("Expected gitpour.branch.custom-main.type to be 'base', got: %s", mainName)
 	}
 
-	developName := getGitConfig(t, dir, "gitflow.branch.custom-dev.parent")
+	developName := getGitConfig(t, dir, "gitpour.branch.feature.parent")
 	if developName != "custom-main" {
-		t.Errorf("Expected gitflow.branch.custom-dev.parent to be 'custom-main', got: %s", developName)
+		t.Errorf("Expected gitpour.branch.feature.parent to be 'custom-main', got: %s", developName)
 	}
 
-	featurePrefix := getGitConfig(t, dir, "gitflow.branch.feature.prefix")
+	featurePrefix := getGitConfig(t, dir, "gitpour.branch.feature.prefix")
 	if featurePrefix != "f/" {
-		t.Errorf("Expected gitflow.branch.feature.prefix to be 'f/', got: %s", featurePrefix)
+		t.Errorf("Expected gitpour.branch.feature.prefix to be 'f/', got: %s", featurePrefix)
 	}
 }
 
@@ -344,15 +344,15 @@ func TestInitWithBranchCreation(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init --defaults
-	output, err := runGitFlow(t, dir, "init", "--defaults")
+	// Run git-pour init --defaults
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
-	if !strings.Contains(output, "Initializing git-flow with default settings") {
-		t.Errorf("Expected output to contain 'Initializing git-flow with default settings', got: %s", output)
+	if !strings.Contains(output, "Initializing git-pour with classic preset") {
+		t.Errorf("Expected output to contain 'Initializing git-pour with classic preset', got: %s", output)
 	}
 
 	// Check if branches were created
@@ -374,12 +374,12 @@ func TestInitInteractiveWithBranchCreation(t *testing.T) {
 
 	// Interactive input for init prompts:
 	// main branch, develop branch, feature prefix, bugfix prefix, release prefix, hotfix prefix, support prefix, tag prefix
-	input := "custom-main\ncustom-dev\nfeature/\nbugfix/\nrelease/\nhotfix/\nsupport/\n\n"
+	input := "custom-main\nfeature/\n"
 
-	// Run git-flow init with interactive input
+	// Run git-pour init with interactive input
 	output, err := runGitFlowWithInput(t, dir, input, "init")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the branches were actually created
@@ -387,8 +387,8 @@ func TestInitInteractiveWithBranchCreation(t *testing.T) {
 		t.Errorf("Expected 'custom-main' branch to exist")
 	}
 
-	if !branchExists(t, dir, "custom-dev") {
-		t.Errorf("Expected 'custom-dev' branch to exist")
+	if branchExists(t, dir, "develop") {
+		t.Error("develop must not be created")
 	}
 }
 
@@ -396,9 +396,9 @@ func TestInitInteractiveWithBranchCreation(t *testing.T) {
 // in interactive mode results in an empty tag prefix (matching git-flow-avh behavior).
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init' with interactive input, pressing Enter for all prompts
-// 3. Verifies gitflow.branch.release.tagprefix is empty (not written to config)
-// 4. Verifies gitflow.branch.hotfix.tagprefix is empty (not written to config)
+// 2. Runs 'git pour init' with interactive input, pressing Enter for all prompts
+// 3. Verifies gitpour.branch.release.tagprefix is empty (not written to config)
+// 4. Verifies gitpour.branch.hotfix.tagprefix is empty (not written to config)
 func TestInitInteractiveDefaultTagPrefixIsEmpty(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -409,53 +409,36 @@ func TestInitInteractiveDefaultTagPrefixIsEmpty(t *testing.T) {
 
 	output, err := runGitFlowWithInput(t, dir, input, "init")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Verify tag prefix is empty for release
-	releaseTagPrefix := getGitConfig(t, dir, "gitflow.branch.release.tagprefix")
+	releaseTagPrefix := getGitConfig(t, dir, "gitpour.branch.release.tagprefix")
 	if releaseTagPrefix != "" {
-		t.Errorf("Expected gitflow.branch.release.tagprefix to be empty, got: %s", releaseTagPrefix)
+		t.Errorf("Expected gitpour.branch.release.tagprefix to be empty, got: %s", releaseTagPrefix)
 	}
 
 	// Verify tag prefix is empty for hotfix
-	hotfixTagPrefix := getGitConfig(t, dir, "gitflow.branch.hotfix.tagprefix")
+	hotfixTagPrefix := getGitConfig(t, dir, "gitpour.branch.hotfix.tagprefix")
 	if hotfixTagPrefix != "" {
-		t.Errorf("Expected gitflow.branch.hotfix.tagprefix to be empty, got: %s", hotfixTagPrefix)
+		t.Errorf("Expected gitpour.branch.hotfix.tagprefix to be empty, got: %s", hotfixTagPrefix)
 	}
 }
 
-// TestInitInteractiveExplicitTagPrefix tests that typing an explicit tag prefix
-// in interactive mode sets it correctly.
-// Steps:
-//  1. Sets up a test repository
-//  2. Runs 'git flow init' with interactive input, accepting defaults for all fields
-//     except tag prefix which is set to 'v'
-//  3. Verifies gitflow.branch.release.tagprefix is 'v'
-//  4. Verifies gitflow.branch.hotfix.tagprefix is 'v'
-func TestInitInteractiveExplicitTagPrefix(t *testing.T) {
+// TestInitInteractiveDoesNotPromptForDevelop verifies the new default questions.
+func TestInitInteractiveDoesNotPromptForDevelop(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-
-	// 7 empty lines for defaults, then 'v' for tag prefix
-	input := "\n\n\n\n\n\n\nv\n"
-
-	output, err := runGitFlowWithInput(t, dir, input, "init")
+	output, err := runGitFlowWithInput(t, dir, "\n\n", "init")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("init: %s: %v", output, err)
 	}
-
-	// Verify tag prefix is 'v' for release
-	releaseTagPrefix := getGitConfig(t, dir, "gitflow.branch.release.tagprefix")
-	if releaseTagPrefix != "v" {
-		t.Errorf("Expected gitflow.branch.release.tagprefix to be 'v', got: %s", releaseTagPrefix)
+	if strings.Contains(output, "[develop]") {
+		t.Fatalf("unexpected develop prompt: %s", output)
 	}
-
-	// Verify tag prefix is 'v' for hotfix
-	hotfixTagPrefix := getGitConfig(t, dir, "gitflow.branch.hotfix.tagprefix")
-	if hotfixTagPrefix != "v" {
-		t.Errorf("Expected gitflow.branch.hotfix.tagprefix to be 'v', got: %s", hotfixTagPrefix)
+	if getGitConfig(t, dir, "gitpour.branch.feature.parent") != "main" {
+		t.Fatal("feature must use main")
 	}
 }
 
@@ -466,8 +449,8 @@ func TestInitWithFlags(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init with custom prefixes and base branch names
-	output, err := runGitFlow(t, dir, "init",
+	// Run git-pour init with custom prefixes and base branch names
+	output, err := runGitFlow(t, dir, "init", "--preset=classic",
 		"--main", "custom-main",
 		"--develop", "custom-dev",
 		"--feature", "feat/",
@@ -477,66 +460,66 @@ func TestInitWithFlags(t *testing.T) {
 		"--support", "sup/",
 		"--tag", "v")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init with flags: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init with flags: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
-	if !strings.Contains(output, "Initializing git-flow") {
-		t.Errorf("Expected output to contain 'Initializing git-flow', got: %s", output)
+	if !strings.Contains(output, "Initializing git-pour") {
+		t.Errorf("Expected output to contain 'Initializing git-pour', got: %s", output)
 	}
 
 	// Check if the configuration was saved correctly
-	version := getGitConfig(t, dir, "gitflow.version")
+	version := getGitConfig(t, dir, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", version)
 	}
 
 	// Check if the base branch configurations were saved correctly
-	mainType := getGitConfig(t, dir, "gitflow.branch.custom-main.type")
+	mainType := getGitConfig(t, dir, "gitpour.branch.custom-main.type")
 	if mainType != "base" {
-		t.Errorf("Expected gitflow.branch.custom-main.type to be 'base', got: %s", mainType)
+		t.Errorf("Expected gitpour.branch.custom-main.type to be 'base', got: %s", mainType)
 	}
 
-	developParent := getGitConfig(t, dir, "gitflow.branch.custom-dev.parent")
+	developParent := getGitConfig(t, dir, "gitpour.branch.custom-dev.parent")
 	if developParent != "custom-main" {
-		t.Errorf("Expected gitflow.branch.custom-dev.parent to be 'custom-main', got: %s", developParent)
+		t.Errorf("Expected gitpour.branch.feature.parent to be 'custom-main', got: %s", developParent)
 	}
 
 	// Check if the branch configurations were saved correctly
-	featurePrefix := getGitConfig(t, dir, "gitflow.branch.feature.prefix")
+	featurePrefix := getGitConfig(t, dir, "gitpour.branch.feature.prefix")
 	if featurePrefix != "feat/" {
-		t.Errorf("Expected gitflow.branch.feature.prefix to be 'feat/', got: %s", featurePrefix)
+		t.Errorf("Expected gitpour.branch.feature.prefix to be 'feat/', got: %s", featurePrefix)
 	}
 
-	bugfixPrefix := getGitConfig(t, dir, "gitflow.branch.bugfix.prefix")
+	bugfixPrefix := getGitConfig(t, dir, "gitpour.branch.bugfix.prefix")
 	if bugfixPrefix != "bug/" {
-		t.Errorf("Expected gitflow.branch.bugfix.prefix to be 'bug/', got: %s", bugfixPrefix)
+		t.Errorf("Expected gitpour.branch.bugfix.prefix to be 'bug/', got: %s", bugfixPrefix)
 	}
 
-	releasePrefix := getGitConfig(t, dir, "gitflow.branch.release.prefix")
+	releasePrefix := getGitConfig(t, dir, "gitpour.branch.release.prefix")
 	if releasePrefix != "rel/" {
-		t.Errorf("Expected gitflow.branch.release.prefix to be 'rel/', got: %s", releasePrefix)
+		t.Errorf("Expected gitpour.branch.release.prefix to be 'rel/', got: %s", releasePrefix)
 	}
 
-	hotfixPrefix := getGitConfig(t, dir, "gitflow.branch.hotfix.prefix")
+	hotfixPrefix := getGitConfig(t, dir, "gitpour.branch.hotfix.prefix")
 	if hotfixPrefix != "fix/" {
-		t.Errorf("Expected gitflow.branch.hotfix.prefix to be 'fix/', got: %s", hotfixPrefix)
+		t.Errorf("Expected gitpour.branch.hotfix.prefix to be 'fix/', got: %s", hotfixPrefix)
 	}
 
-	supportPrefix := getGitConfig(t, dir, "gitflow.branch.support.prefix")
+	supportPrefix := getGitConfig(t, dir, "gitpour.branch.support.prefix")
 	if supportPrefix != "sup/" {
-		t.Errorf("Expected gitflow.branch.support.prefix to be 'sup/', got: %s", supportPrefix)
+		t.Errorf("Expected gitpour.branch.support.prefix to be 'sup/', got: %s", supportPrefix)
 	}
 
 	// Check if tag configuration was set correctly
-	releaseTagPrefix := getGitConfig(t, dir, "gitflow.branch.release.tagprefix")
+	releaseTagPrefix := getGitConfig(t, dir, "gitpour.branch.release.tagprefix")
 	if releaseTagPrefix != "v" {
-		t.Errorf("Expected gitflow.branch.release.tagprefix to be 'v', got: %s", releaseTagPrefix)
+		t.Errorf("Expected gitpour.branch.release.tagprefix to be 'v', got: %s", releaseTagPrefix)
 	}
 
-	hotfixTagPrefix := getGitConfig(t, dir, "gitflow.branch.hotfix.tagprefix")
+	hotfixTagPrefix := getGitConfig(t, dir, "gitpour.branch.hotfix.tagprefix")
 	if hotfixTagPrefix != "v" {
-		t.Errorf("Expected gitflow.branch.hotfix.tagprefix to be 'v', got: %s", hotfixTagPrefix)
+		t.Errorf("Expected gitpour.branch.hotfix.tagprefix to be 'v', got: %s", hotfixTagPrefix)
 	}
 }
 
@@ -547,8 +530,8 @@ func TestInitWithFlagsAndBranches(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init with custom prefixes and branch creation
-	output, err := runGitFlow(t, dir, "init",
+	// Run git-pour init with custom prefixes and branch creation
+	output, err := runGitFlow(t, dir, "init", "--preset=classic",
 		"--feature", "feat/",
 		"--bugfix", "bug/",
 		"--release", "rel/",
@@ -557,12 +540,12 @@ func TestInitWithFlagsAndBranches(t *testing.T) {
 		"--tag", "v",
 	)
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init with flags and branch creation: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init with flags and branch creation: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected messages
-	if !strings.Contains(output, "Initializing git-flow") {
-		t.Errorf("Expected output to contain 'Initializing git-flow', got: %s", output)
+	if !strings.Contains(output, "Initializing git-pour") {
+		t.Errorf("Expected output to contain 'Initializing git-pour', got: %s", output)
 	}
 
 	// Check if the branches were created
@@ -574,9 +557,9 @@ func TestInitWithFlagsAndBranches(t *testing.T) {
 	}
 
 	// Check if the configuration was saved correctly
-	featurePrefix := getGitConfig(t, dir, "gitflow.branch.feature.prefix")
+	featurePrefix := getGitConfig(t, dir, "gitpour.branch.feature.prefix")
 	if featurePrefix != "feat/" {
-		t.Errorf("Expected gitflow.branch.feature.prefix to be 'feat/', got: %s", featurePrefix)
+		t.Errorf("Expected gitpour.branch.feature.prefix to be 'feat/', got: %s", featurePrefix)
 	}
 }
 
@@ -587,8 +570,8 @@ func TestInitWithDefaultsAndOverrides(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults but override specific configs
-	output, err := runGitFlow(t, dir, "init", "--defaults",
+	// Initialize git-pour with defaults but override specific configs
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic",
 		"--main", "custom-main",
 		"--develop", "custom-dev",
 		"--feature", "f/",
@@ -597,15 +580,15 @@ func TestInitWithDefaultsAndOverrides(t *testing.T) {
 		"--support", "s/",
 		"--tag", "v")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Verify branches were created
 	if !branchExists(t, dir, "custom-main") {
 		t.Error("Expected 'custom-main' branch to exist")
 	}
-	if !branchExists(t, dir, "custom-dev") {
-		t.Error("Expected 'custom-dev' branch to exist")
+	if branchExists(t, dir, "develop") {
+		t.Error("develop must not be created")
 	}
 
 	// Verify configuration through a handle for the test repo (no os.Chdir).
@@ -669,37 +652,37 @@ func TestInitWithDefaultsAndOverrides(t *testing.T) {
 // TestInitWithLocalScope tests that --local flag stores config in the repository's .git/config.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults --local'
-// 3. Verifies gitflow.version is stored in local config (.git/config)
-// 4. Verifies gitflow.branch.main.type is stored in local config
+// 2. Runs 'git pour init --defaults --local'
+// 3. Verifies gitpour.version is stored in local config (.git/config)
+// 4. Verifies gitpour.branch.main.type is stored in local config
 func TestInitWithLocalScope(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--local")
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--local")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --local: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --local: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config is in local scope
-	version := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	version := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in local scope to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in local scope to be '1.0', got: %s", version)
 	}
 
-	mainType := getGitConfigWithScope(t, dir, "gitflow.branch.main.type", "local")
+	mainType := getGitConfigWithScope(t, dir, "gitpour.branch.main.type", "local")
 	if mainType != "base" {
-		t.Errorf("Expected gitflow.branch.main.type in local scope to be 'base', got: %s", mainType)
+		t.Errorf("Expected gitpour.branch.main.type in local scope to be 'base', got: %s", mainType)
 	}
 }
 
 // TestInitWithGlobalScope tests that --global flag stores config in the global git config.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_GLOBAL
-// 2. Runs 'git flow init --defaults --global' with isolated global config
-// 3. Verifies gitflow.version is stored in global config
-// 4. Verifies gitflow.version is NOT stored in local config
+// 2. Runs 'git pour init --defaults --global' with isolated global config
+// 3. Verifies gitpour.version is stored in global config
+// 4. Verifies gitpour.version is NOT stored in local config
 func TestInitWithGlobalScope(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -709,21 +692,21 @@ func TestInitWithGlobalScope(t *testing.T) {
 	globalConfigFile := filepath.Join(t.TempDir(), "gitconfig-global")
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile}
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--global")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--global")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --global: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --global: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config is in global scope (read from the isolated file)
-	version := getGitConfigFromFile(t, globalConfigFile, "gitflow.version")
+	version := getGitConfigFromFile(t, globalConfigFile, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in global config to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in global config to be '1.0', got: %s", version)
 	}
 
 	// Verify config is NOT in local scope
-	localVersion := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "" {
-		t.Errorf("Expected gitflow.version to NOT be in local config, got: %s", localVersion)
+		t.Errorf("Expected gitpour.version to NOT be in local config, got: %s", localVersion)
 	}
 }
 
@@ -731,38 +714,38 @@ func TestInitWithGlobalScope(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates a temp file path for config output
-// 3. Runs 'git flow init --defaults --file <path>'
-// 4. Verifies gitflow.version is stored in the specified file
-// 5. Verifies gitflow.version is NOT stored in local config
+// 3. Runs 'git pour init --defaults --file <path>'
+// 4. Verifies gitpour.version is stored in the specified file
+// 5. Verifies gitpour.version is NOT stored in local config
 func TestInitWithFileScope(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	configFile := filepath.Join(t.TempDir(), "custom-gitflow-config")
+	configFile := filepath.Join(t.TempDir(), "custom-gitpour-config")
 
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--file", configFile)
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--file", configFile)
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --file: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --file: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config is in specified file
-	version := getGitConfigFromFile(t, configFile, "gitflow.version")
+	version := getGitConfigFromFile(t, configFile, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in file to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in file to be '1.0', got: %s", version)
 	}
 
 	// Verify config is NOT in local scope
-	localVersion := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "" {
-		t.Errorf("Expected gitflow.version to NOT be in local config, got: %s", localVersion)
+		t.Errorf("Expected gitpour.version to NOT be in local config, got: %s", localVersion)
 	}
 }
 
 // TestInitWithMutuallyExclusiveScopeFlags tests that using multiple scope flags produces an error.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults --local --global'
+// 2. Runs 'git pour init --defaults --local --global'
 // 3. Verifies the command fails
 // 4. Verifies the error message mentions mutual exclusivity
 func TestInitWithMutuallyExclusiveScopeFlags(t *testing.T) {
@@ -770,7 +753,7 @@ func TestInitWithMutuallyExclusiveScopeFlags(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--local", "--global")
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--local", "--global")
 	if err == nil {
 		t.Fatalf("Expected error when using --local and --global together, but succeeded\nOutput: %s", output)
 	}
@@ -783,14 +766,14 @@ func TestInitWithMutuallyExclusiveScopeFlags(t *testing.T) {
 // TestInitWithFileNonExistentDirectory tests that --file with non-existent parent directory fails.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults --file /nonexistent/dir/config'
+// 2. Runs 'git pour init --defaults --file /nonexistent/dir/config'
 // 3. Verifies the command fails with "config file directory does not exist" error
 func TestInitWithFileNonExistentDirectory(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--file", "/nonexistent/dir/config")
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--file", "/nonexistent/dir/config")
 	if err == nil {
 		t.Fatalf("Expected error for non-existent directory, but succeeded\nOutput: %s", output)
 	}
@@ -806,30 +789,30 @@ func TestInitWithFileNonExistentDirectory(t *testing.T) {
 // TestInitDefaultMergedConfigCheck and TestInitDefaultShowsGlobalSourceMessage.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults' without any scope flag
-// 3. Verifies gitflow.version is stored in local config (.git/config)
+// 2. Runs 'git pour init --defaults' without any scope flag
+// 3. Verifies gitpour.version is stored in local config (.git/config)
 func TestInitDefaultScopeIsLocal(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := runGitFlow(t, dir, "init", "--defaults")
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config is in local scope
-	version := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	version := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in local scope to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in local scope to be '1.0', got: %s", version)
 	}
 }
 
 // TestInitForceWithGlobalScope tests that --force works with --global scope flag.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_GLOBAL
-// 2. Runs 'git flow init --defaults --global' to initialize
-// 3. Runs 'git flow init --defaults --force --global' to reinitialize
+// 2. Runs 'git pour init --defaults --global' to initialize
+// 3. Runs 'git pour init --defaults --force --global' to reinitialize
 // 4. Verifies the reconfiguration succeeds and config is in global scope
 func TestInitForceWithGlobalScope(t *testing.T) {
 	t.Parallel()
@@ -840,30 +823,30 @@ func TestInitForceWithGlobalScope(t *testing.T) {
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile}
 
 	// First initialization
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--global")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--global")
 	if err != nil {
-		t.Fatalf("Failed initial git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed initial git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Second initialization with --force
-	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--force", "--global")
+	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--force", "--global")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --force --global: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --force --global: %v\nOutput: %s", err, output)
 	}
 
 	// Verify global config is updated
-	version := getGitConfigFromFile(t, globalConfigFile, "gitflow.version")
+	version := getGitConfigFromFile(t, globalConfigFile, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in global config to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in global config to be '1.0', got: %s", version)
 	}
 }
 
 // TestInitWithSystemScope tests that --system flag stores config in the system git config.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_SYSTEM
-// 2. Runs 'git flow init --defaults --system' with isolated system config
-// 3. Verifies gitflow.version is stored in system config
-// 4. Verifies gitflow.version is NOT stored in local config
+// 2. Runs 'git pour init --defaults --system' with isolated system config
+// 3. Verifies gitpour.version is stored in system config
+// 4. Verifies gitpour.version is NOT stored in local config
 func TestInitWithSystemScope(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -873,21 +856,21 @@ func TestInitWithSystemScope(t *testing.T) {
 	systemConfigFile := filepath.Join(t.TempDir(), "gitconfig-system")
 	env := []string{"GIT_CONFIG_SYSTEM=" + systemConfigFile}
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--system")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--system")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --system: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --system: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config is in system scope (read from the isolated file)
-	version := getGitConfigFromFile(t, systemConfigFile, "gitflow.version")
+	version := getGitConfigFromFile(t, systemConfigFile, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in system config to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in system config to be '1.0', got: %s", version)
 	}
 
 	// Verify config is NOT in local scope
-	localVersion := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "" {
-		t.Errorf("Expected gitflow.version to NOT be in local config, got: %s", localVersion)
+		t.Errorf("Expected gitpour.version to NOT be in local config, got: %s", localVersion)
 	}
 }
 
@@ -895,32 +878,32 @@ func TestInitWithSystemScope(t *testing.T) {
 // Steps:
 // 1. Sets up a test repository
 // 2. Creates a temp file path for config output
-// 3. Runs 'git flow init --defaults --file <path>' to initialize
-// 4. Runs 'git flow init --defaults --force --file <path>' to reinitialize
+// 3. Runs 'git pour init --defaults --file <path>' to initialize
+// 4. Runs 'git pour init --defaults --force --file <path>' to reinitialize
 // 5. Verifies the reconfiguration succeeds and config is in the specified file
 func TestInitForceWithFileScope(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	configFile := filepath.Join(t.TempDir(), "custom-gitflow-config")
+	configFile := filepath.Join(t.TempDir(), "custom-gitpour-config")
 
 	// First initialization
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--file", configFile)
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--file", configFile)
 	if err != nil {
-		t.Fatalf("Failed initial git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed initial git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Second initialization with --force
-	output, err = runGitFlow(t, dir, "init", "--defaults", "--force", "--file", configFile)
+	output, err = runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--force", "--file", configFile)
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --force --file: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --force --file: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config is in specified file
-	version := getGitConfigFromFile(t, configFile, "gitflow.version")
+	version := getGitConfigFromFile(t, configFile, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in file to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in file to be '1.0', got: %s", version)
 	}
 }
 
@@ -928,8 +911,8 @@ func TestInitForceWithFileScope(t *testing.T) {
 // This is the CORE FIX for issue #8 - explicit scope should check only that scope.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_GLOBAL
-// 2. Initializes git-flow with --global to create global config
-// 3. Runs 'git flow init --defaults --local' in the same repo
+// 2. Initializes git-pour with --global to create global config
+// 3. Runs 'git pour init --defaults --local' in the same repo
 // 4. Verifies the command succeeds (not "already initialized")
 // 5. Verifies config is now in BOTH local and global scopes
 func TestInitLocalScopeIgnoresGlobalConfig(t *testing.T) {
@@ -942,33 +925,33 @@ func TestInitLocalScopeIgnoresGlobalConfig(t *testing.T) {
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile}
 
 	// First: initialize with --global
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--global")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--global")
 	if err != nil {
 		t.Fatalf("Failed to init with --global: %v\nOutput: %s", err, output)
 	}
 
 	// Verify global config exists
-	globalVersion := getGitConfigFromFile(t, globalConfigFile, "gitflow.version")
+	globalVersion := getGitConfigFromFile(t, globalConfigFile, "gitpour.version")
 	if globalVersion != "1.0" {
-		t.Fatalf("Expected global config to have gitflow.version='1.0', got: %s", globalVersion)
+		t.Fatalf("Expected global config to have gitpour.version='1.0', got: %s", globalVersion)
 	}
 
 	// Verify local config does NOT exist yet
-	localVersion := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "" {
 		t.Fatalf("Expected NO local config before --local init, got: %s", localVersion)
 	}
 
 	// Now: initialize with --local (should succeed, not report "already initialized")
-	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--local")
+	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--local")
 	if err != nil {
 		t.Fatalf("Expected --local init to succeed even with global config present: %v\nOutput: %s", err, output)
 	}
 
 	// Verify local config now exists
-	localVersion = getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion = getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "1.0" {
-		t.Errorf("Expected gitflow.version in local config to be '1.0', got: %s", localVersion)
+		t.Errorf("Expected gitpour.version in local config to be '1.0', got: %s", localVersion)
 	}
 }
 
@@ -976,8 +959,8 @@ func TestInitLocalScopeIgnoresGlobalConfig(t *testing.T) {
 // the message indicates the source and suggests --local.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_GLOBAL
-// 2. Initializes git-flow with --global to create global config
-// 3. Runs 'git flow init --defaults' (no scope flag) in the same repo
+// 2. Initializes git-pour with --global to create global config
+// 3. Runs 'git pour init --defaults' (no scope flag) in the same repo
 // 4. Verifies the output mentions "global config" and "--local"
 func TestInitDefaultShowsGlobalSourceMessage(t *testing.T) {
 	t.Parallel()
@@ -989,13 +972,13 @@ func TestInitDefaultShowsGlobalSourceMessage(t *testing.T) {
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile}
 
 	// First: initialize with --global
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--global")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--global")
 	if err != nil {
 		t.Fatalf("Failed to init with --global: %v\nOutput: %s", err, output)
 	}
 
 	// Now: run init with --defaults (no scope flag) - should report already initialized via global
-	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if err == nil {
 		t.Fatalf("Expected init to fail/report already initialized, but succeeded\nOutput: %s", output)
 	}
@@ -1014,8 +997,8 @@ func TestInitDefaultShowsGlobalSourceMessage(t *testing.T) {
 // TestInitDefaultMergedConfigCheck tests that default (no scope flag) checks merged config.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_GLOBAL
-// 2. Initializes git-flow with --global to create global config
-// 3. Runs 'git flow init --defaults' (no scope flag)
+// 2. Initializes git-pour with --global to create global config
+// 3. Runs 'git pour init --defaults' (no scope flag)
 // 4. Verifies it reports already initialized (because merged config finds global)
 func TestInitDefaultMergedConfigCheck(t *testing.T) {
 	t.Parallel()
@@ -1027,13 +1010,13 @@ func TestInitDefaultMergedConfigCheck(t *testing.T) {
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile}
 
 	// First: initialize with --global
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--global")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--global")
 	if err != nil {
 		t.Fatalf("Failed to init with --global: %v\nOutput: %s", err, output)
 	}
 
 	// Now: run init --defaults (should see global config via merged read)
-	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 
 	// Should fail because already initialized (found via merged config)
 	if err == nil {
@@ -1050,8 +1033,8 @@ func TestInitDefaultMergedConfigCheck(t *testing.T) {
 // This is the symmetric test to TestInitLocalScopeIgnoresGlobalConfig, verifying scope isolation works both ways.
 // Steps:
 // 1. Sets up a test repository with isolated GIT_CONFIG_GLOBAL
-// 2. Initializes git-flow with --local to create local config
-// 3. Runs 'git flow init --defaults --global' in the same repo
+// 2. Initializes git-pour with --local to create local config
+// 3. Runs 'git pour init --defaults --global' in the same repo
 // 4. Verifies the command succeeds (not "already initialized")
 // 5. Verifies config is now in BOTH local and global scopes
 func TestInitGlobalScopeIgnoresLocalConfig(t *testing.T) {
@@ -1064,47 +1047,47 @@ func TestInitGlobalScopeIgnoresLocalConfig(t *testing.T) {
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile}
 
 	// First: initialize with --local
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--local")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--local")
 	if err != nil {
 		t.Fatalf("Failed to init with --local: %v\nOutput: %s", err, output)
 	}
 
 	// Verify local config exists
-	localVersion := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "1.0" {
-		t.Fatalf("Expected local config to have gitflow.version='1.0', got: %s", localVersion)
+		t.Fatalf("Expected local config to have gitpour.version='1.0', got: %s", localVersion)
 	}
 
 	// Verify global config does NOT exist yet
-	globalVersion := getGitConfigFromFile(t, globalConfigFile, "gitflow.version")
+	globalVersion := getGitConfigFromFile(t, globalConfigFile, "gitpour.version")
 	if globalVersion != "" {
 		t.Fatalf("Expected NO global config before --global init, got: %s", globalVersion)
 	}
 
 	// Now: initialize with --global (should succeed, not report "already initialized")
-	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--global")
+	output, err = runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--global")
 	if err != nil {
 		t.Fatalf("Expected --global init to succeed even with local config present: %v\nOutput: %s", err, output)
 	}
 
 	// Verify global config now exists
-	globalVersion = getGitConfigFromFile(t, globalConfigFile, "gitflow.version")
+	globalVersion = getGitConfigFromFile(t, globalConfigFile, "gitpour.version")
 	if globalVersion != "1.0" {
-		t.Errorf("Expected gitflow.version in global config to be '1.0', got: %s", globalVersion)
+		t.Errorf("Expected gitpour.version in global config to be '1.0', got: %s", globalVersion)
 	}
 
 	// Verify local config still exists (not overwritten)
-	localVersion = getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion = getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "1.0" {
-		t.Errorf("Expected gitflow.version in local config to still be '1.0', got: %s", localVersion)
+		t.Errorf("Expected gitpour.version in local config to still be '1.0', got: %s", localVersion)
 	}
 }
 
 // TestInitWithFileRelativePath tests that --file works with relative paths.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults --file ./custom-config' with a relative path
-// 3. Verifies gitflow.version is stored in the file at the relative path
+// 2. Runs 'git pour init --defaults --file ./custom-config' with a relative path
+// 3. Verifies gitpour.version is stored in the file at the relative path
 // 4. Verifies the file is created in the expected location (repo directory)
 func TestInitWithFileRelativePath(t *testing.T) {
 	t.Parallel()
@@ -1112,12 +1095,12 @@ func TestInitWithFileRelativePath(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Use a relative path
-	relativeConfigPath := "./custom-gitflow-config"
-	expectedAbsPath := filepath.Join(dir, "custom-gitflow-config")
+	relativeConfigPath := "./custom-gitpour-config"
+	expectedAbsPath := filepath.Join(dir, "custom-gitpour-config")
 
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--file", relativeConfigPath)
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--file", relativeConfigPath)
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --file with relative path: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --file with relative path: %v\nOutput: %s", err, output)
 	}
 
 	// Verify the file was created at the expected absolute path
@@ -1126,23 +1109,23 @@ func TestInitWithFileRelativePath(t *testing.T) {
 	}
 
 	// Verify config is in specified file
-	version := getGitConfigFromFile(t, expectedAbsPath, "gitflow.version")
+	version := getGitConfigFromFile(t, expectedAbsPath, "gitpour.version")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in file to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in file to be '1.0', got: %s", version)
 	}
 
 	// Verify config is NOT in local scope
-	localVersion := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	localVersion := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if localVersion != "" {
-		t.Errorf("Expected gitflow.version to NOT be in local config, got: %s", localVersion)
+		t.Errorf("Expected gitpour.version to NOT be in local config, got: %s", localVersion)
 	}
 }
 
 // TestInitForceWithLocalScope tests that --force works with --local scope flag.
 // Steps:
 // 1. Sets up a test repository
-// 2. Runs 'git flow init --defaults --local' to initialize
-// 3. Runs 'git flow init --defaults --force --local' to reinitialize
+// 2. Runs 'git pour init --defaults --local' to initialize
+// 3. Runs 'git pour init --defaults --force --local' to reinitialize
 // 4. Verifies the reconfiguration succeeds and config is in local scope
 func TestInitForceWithLocalScope(t *testing.T) {
 	t.Parallel()
@@ -1150,35 +1133,35 @@ func TestInitForceWithLocalScope(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// First initialization
-	output, err := runGitFlow(t, dir, "init", "--defaults", "--local")
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--local")
 	if err != nil {
-		t.Fatalf("Failed initial git-flow init: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed initial git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Verify config exists
-	version := getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	version := getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if version != "1.0" {
-		t.Fatalf("Expected gitflow.version in local config to be '1.0', got: %s", version)
+		t.Fatalf("Expected gitpour.version in local config to be '1.0', got: %s", version)
 	}
 
 	// Second initialization with --force
-	output, err = runGitFlow(t, dir, "init", "--defaults", "--force", "--local")
+	output, err = runGitFlow(t, dir, "init", "--defaults", "--preset=classic", "--force", "--local")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults --force --local: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults --force --local: %v\nOutput: %s", err, output)
 	}
 
 	// Verify local config is still present (reconfigured)
-	version = getGitConfigWithScope(t, dir, "gitflow.version", "local")
+	version = getGitConfigWithScope(t, dir, "gitpour.version", "local")
 	if version != "1.0" {
-		t.Errorf("Expected gitflow.version in local config to be '1.0', got: %s", version)
+		t.Errorf("Expected gitpour.version in local config to be '1.0', got: %s", version)
 	}
 }
 
-// TestInitEmptyRepoCreatesEmptyCommit tests that git flow init in an empty
+// TestInitEmptyRepoCreatesEmptyCommit tests that git pour init in an empty
 // repo creates an empty initial commit with no files in the working tree.
 // Steps:
 // 1. Sets up an empty test repository (no commits)
-// 2. Runs 'git flow init --defaults'
+// 2. Runs 'git pour init --defaults'
 // 3. Verifies exactly one commit exists on main via 'git rev-list --count main'
 // 4. Verifies the commit has no file changes via 'git diff-tree --no-commit-id -r HEAD'
 func TestInitEmptyRepoCreatesEmptyCommit(t *testing.T) {
@@ -1186,10 +1169,10 @@ func TestInitEmptyRepoCreatesEmptyCommit(t *testing.T) {
 	dir := testutil.SetupEmptyTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init --defaults
-	output, err := runGitFlow(t, dir, "init", "--defaults")
+	// Run git-pour init --defaults
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults: %v\nOutput: %s", err, output)
 	}
 
 	// Verify exactly one commit exists on main
@@ -1211,11 +1194,11 @@ func TestInitEmptyRepoCreatesEmptyCommit(t *testing.T) {
 	}
 }
 
-// TestInitEmptyRepoCreatesBranches tests that git flow init in an empty
+// TestInitEmptyRepoCreatesBranches tests that git pour init in an empty
 // repo creates the expected main and develop branches.
 // Steps:
 // 1. Sets up an empty test repository (no commits)
-// 2. Runs 'git flow init --defaults'
+// 2. Runs 'git pour init --defaults'
 // 3. Verifies 'main' branch exists via branchExists helper
 // 4. Verifies 'develop' branch exists via branchExists helper
 func TestInitEmptyRepoCreatesBranches(t *testing.T) {
@@ -1223,10 +1206,10 @@ func TestInitEmptyRepoCreatesBranches(t *testing.T) {
 	dir := testutil.SetupEmptyTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init --defaults
-	output, err := runGitFlow(t, dir, "init", "--defaults")
+	// Run git-pour init --defaults
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults: %v\nOutput: %s", err, output)
 	}
 
 	// Verify main branch exists
@@ -1240,21 +1223,21 @@ func TestInitEmptyRepoCreatesBranches(t *testing.T) {
 	}
 }
 
-// TestInitEmptyRepoDoesNotCreateReadme tests that git flow init in an empty
+// TestInitEmptyRepoDoesNotCreateReadme tests that git pour init in an empty
 // repo does not create a README.md file in the working directory.
 // Steps:
 // 1. Sets up an empty test repository (no commits)
-// 2. Runs 'git flow init --defaults'
+// 2. Runs 'git pour init --defaults'
 // 3. Verifies no README.md file exists in the working directory via os.Stat
 func TestInitEmptyRepoDoesNotCreateReadme(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupEmptyTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Run git-flow init --defaults
-	output, err := runGitFlow(t, dir, "init", "--defaults")
+	// Run git-pour init --defaults
+	output, err := runGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to run git-flow init --defaults: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to run git-pour init --defaults: %v\nOutput: %s", err, output)
 	}
 
 	// Verify no README.md file exists in the working directory
@@ -1298,23 +1281,23 @@ func exitCodeOf(t *testing.T, err error) int {
 	return 0
 }
 
-// gitflowConfigKeysLocal returns the local gitflow.* config keys/values as a
-// raw string. An empty result means no gitflow.* config exists. The regex is
+// gitpourConfigKeysLocal returns the local gitpour.* config keys/values as a
+// raw string. An empty result means no gitpour.* config exists. The regex is
 // passed as a bare argv argument (no shell quoting) since RunGit uses
 // exec.Command directly.
-func gitflowConfigKeysLocal(t *testing.T, dir string) string {
+func gitpourConfigKeysLocal(t *testing.T, dir string) string {
 	t.Helper()
 	// A no-match exit (status 1) yields a non-nil error and empty output.
-	out, _ := testutil.RunGit(t, dir, "config", "--local", "--get-regexp", `^gitflow\.`)
+	out, _ := testutil.RunGit(t, dir, "config", "--local", "--get-regexp", `^gitpour\.`)
 	return strings.TrimSpace(out)
 }
 
-// TestInitFailsWithoutIdentityShowsActionableError tests that git flow init on
+// TestInitFailsWithoutIdentityShowsActionableError tests that git pour init on
 // a fresh repository with no configured identity fails fast with an actionable
 // error and exit code 6 instead of an opaque git failure.
 // Steps:
 // 1. Creates a plain repo with no commits and no identity (setupPlainRepo)
-// 2. Runs 'git flow init --preset gitlab' with isolated global/system config
+// 2. Runs 'git pour init --preset gitlab' with isolated global/system config
 // 3. Verifies the command fails with exit code 6
 // 4. Verifies the output names both user.name and user.email
 // 5. Verifies the output shows both 'git config --global' suggested commands
@@ -1350,15 +1333,15 @@ func TestInitFailsWithoutIdentityShowsActionableError(t *testing.T) {
 }
 
 // TestInitWithoutIdentityLeavesNoState tests that a failed init (missing
-// identity) writes no git-flow config or branches, so a second run behaves
+// identity) writes no git-pour config or branches, so a second run behaves
 // identically instead of wrongly reporting 'already configured'.
 // Steps:
 //  1. Creates a plain repo with no commits and no identity (setupPlainRepo)
-//  2. Runs 'git flow init --preset gitlab' with isolated config (first run)
+//  2. Runs 'git pour init --preset gitlab' with isolated config (first run)
 //  3. Verifies the first run fails with exit code 6 for the identity reason
-//  4. Verifies no gitflow.* local config exists after the failed run
+//  4. Verifies no gitpour.* local config exists after the failed run
 //  5. Verifies no base branches (main, develop, production, staging) exist
-//  6. Runs 'git flow init --preset gitlab' again (second run)
+//  6. Runs 'git pour init --preset gitlab' again (second run)
 //  7. Verifies the second run also fails with exit code 6 and the same message,
 //     and never reports 'already initialized'/'already configured'
 func TestInitWithoutIdentityLeavesNoState(t *testing.T) {
@@ -1374,11 +1357,11 @@ func TestInitWithoutIdentityLeavesNoState(t *testing.T) {
 		t.Fatalf("Expected first run to fail for the identity reason, got: %s", output1)
 	}
 
-	// No gitflow.* config should have been written.
-	if keys := gitflowConfigKeysLocal(t, dir); keys != "" {
-		t.Errorf("Expected no gitflow.* local config after failed run, got: %s", keys)
+	// No gitpour.* config should have been written.
+	if keys := gitpourConfigKeysLocal(t, dir); keys != "" {
+		t.Errorf("Expected no gitpour.* local config after failed run, got: %s", keys)
 	}
-	for _, key := range []string{"gitflow.version", "gitflow.initialized"} {
+	for _, key := range []string{"gitpour.version", "gitpour.initialized"} {
 		if v := getGitConfigWithScope(t, dir, key, "local"); v != "" {
 			t.Errorf("Expected %s to be absent after failed run, got: %s", key, v)
 		}
@@ -1410,7 +1393,7 @@ func TestInitWithoutIdentityLeavesNoState(t *testing.T) {
 // Steps:
 // 1. Creates a plain repo with no commits (setupPlainRepo)
 // 2. Sets only local user.name (email left unset)
-// 3. Runs 'git flow init --defaults' with isolated global/system config
+// 3. Runs 'git pour init --defaults' with isolated global/system config
 // 4. Verifies the command fails with exit code 6
 // 5. Verifies the output mentions the missing user.email and the identity error
 func TestInitFailsWithOnlyUserNameSet(t *testing.T) {
@@ -1421,7 +1404,7 @@ func TestInitFailsWithOnlyUserNameSet(t *testing.T) {
 	}
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if code := exitCodeOf(t, err); code != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nOutput: %s", code, output)
 	}
@@ -1438,7 +1421,7 @@ func TestInitFailsWithOnlyUserNameSet(t *testing.T) {
 // Steps:
 // 1. Creates a plain repo with no commits (setupPlainRepo)
 // 2. Sets only local user.email (name left unset)
-// 3. Runs 'git flow init --defaults' with isolated global/system config
+// 3. Runs 'git pour init --defaults' with isolated global/system config
 // 4. Verifies the command fails with exit code 6
 // 5. Verifies the output mentions the missing user.name and the identity error
 func TestInitFailsWithOnlyUserEmailSet(t *testing.T) {
@@ -1449,7 +1432,7 @@ func TestInitFailsWithOnlyUserEmailSet(t *testing.T) {
 	}
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if code := exitCodeOf(t, err); code != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nOutput: %s", code, output)
 	}
@@ -1467,10 +1450,10 @@ func TestInitFailsWithOnlyUserEmailSet(t *testing.T) {
 // Steps:
 // 1. Creates a plain repo with no commits and no local identity (setupPlainRepo)
 // 2. Seeds a writable temp global config file with user.name and user.email
-// 3. Runs 'git flow init --defaults' with that global config and isolated system
+// 3. Runs 'git pour init --defaults' with that global config and isolated system
 // 4. Verifies the command succeeds
 // 5. Verifies main and develop base branches were created
-// 6. Verifies the repo is marked initialized (gitflow.initialized/version)
+// 6. Verifies the repo is marked initialized (gitpour.initialized/version)
 func TestInitSucceedsWithIdentityOnFreshRepo(t *testing.T) {
 	t.Parallel()
 	dir := setupPlainRepo(t)
@@ -1484,7 +1467,7 @@ func TestInitSucceedsWithIdentityOnFreshRepo(t *testing.T) {
 	}
 	env := []string{"GIT_CONFIG_GLOBAL=" + globalConfigFile, "GIT_CONFIG_SYSTEM=" + os.DevNull}
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
@@ -1494,11 +1477,11 @@ func TestInitSucceedsWithIdentityOnFreshRepo(t *testing.T) {
 	if !branchExists(t, dir, "develop") {
 		t.Error("Expected 'develop' branch to exist")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.initialized", "local"); v != "true" {
-		t.Errorf("Expected gitflow.initialized to be 'true', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.initialized", "local"); v != "true" {
+		t.Errorf("Expected gitpour.initialized to be 'true', got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
 }
 
@@ -1508,7 +1491,7 @@ func TestInitSucceedsWithIdentityOnFreshRepo(t *testing.T) {
 // Steps:
 // 1. Creates a plain repo (setupPlainRepo)
 // 2. Sets a temporary local identity, creates a commit, then unsets the identity
-// 3. Runs 'git flow init --defaults' with isolated global/system config
+// 3. Runs 'git pour init --defaults' with isolated global/system config
 // 4. Verifies the command succeeds (identity check is skipped when HasCommits)
 // 5. Verifies base branches exist and the repo is marked initialized
 func TestInitSucceedsWithExistingCommitsWithoutIdentity(t *testing.T) {
@@ -1537,7 +1520,7 @@ func TestInitSucceedsWithExistingCommitsWithoutIdentity(t *testing.T) {
 	}
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if err != nil {
 		t.Fatalf("Expected success with existing commits, got error: %v\nOutput: %s", err, output)
 	}
@@ -1547,8 +1530,8 @@ func TestInitSucceedsWithExistingCommitsWithoutIdentity(t *testing.T) {
 	if !branchExists(t, dir, "develop") {
 		t.Error("Expected 'develop' branch to exist")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.initialized", "local"); v != "true" {
-		t.Errorf("Expected gitflow.initialized to be 'true', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.initialized", "local"); v != "true" {
+		t.Errorf("Expected gitpour.initialized to be 'true', got: %s", v)
 	}
 }
 
@@ -1557,7 +1540,7 @@ func TestInitSucceedsWithExistingCommitsWithoutIdentity(t *testing.T) {
 // Steps:
 // 1. Creates a plain repo with no commits (setupPlainRepo)
 // 2. Sets local user.name and user.email
-// 3. Runs 'git flow init --defaults' with isolated global/system config
+// 3. Runs 'git pour init --defaults' with isolated global/system config
 // 4. Verifies the command succeeds (merged-scope identity read sees the local)
 // 5. Verifies base branches exist and the repo is marked initialized
 func TestInitSucceedsWithLocalIdentityOnly(t *testing.T) {
@@ -1571,7 +1554,7 @@ func TestInitSucceedsWithLocalIdentityOnly(t *testing.T) {
 	}
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if err != nil {
 		t.Fatalf("Expected success with local identity, got error: %v\nOutput: %s", err, output)
 	}
@@ -1581,8 +1564,8 @@ func TestInitSucceedsWithLocalIdentityOnly(t *testing.T) {
 	if !branchExists(t, dir, "develop") {
 		t.Error("Expected 'develop' branch to exist")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.initialized", "local"); v != "true" {
-		t.Errorf("Expected gitflow.initialized to be 'true', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.initialized", "local"); v != "true" {
+		t.Errorf("Expected gitpour.initialized to be 'true', got: %s", v)
 	}
 }
 
@@ -1590,16 +1573,16 @@ func TestInitSucceedsWithLocalIdentityOnly(t *testing.T) {
 // skips the identity precondition, since no initial commit is created.
 // Steps:
 // 1. Creates a plain repo with no commits and no identity (setupPlainRepo)
-// 2. Runs 'git flow init --defaults --no-create-branches' with isolated config
+// 2. Runs 'git pour init --defaults --no-create-branches' with isolated config
 // 3. Verifies the command succeeds despite the missing identity
 // 4. Verifies no base branches (main, develop) were created
-// 5. Verifies configuration was still written (gitflow.version == '1.0')
+// 5. Verifies configuration was still written (gitpour.version == '1.0')
 func TestInitNoCreateBranchesSkipsIdentityCheck(t *testing.T) {
 	t.Parallel()
 	dir := setupPlainRepo(t)
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--no-create-branches")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--no-create-branches")
 	if err != nil {
 		t.Fatalf("Expected success with --no-create-branches, got error: %v\nOutput: %s", err, output)
 	}
@@ -1609,8 +1592,8 @@ func TestInitNoCreateBranchesSkipsIdentityCheck(t *testing.T) {
 	if branchExists(t, dir, "develop") {
 		t.Error("Expected 'develop' branch to NOT exist")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
 }
 
@@ -1623,7 +1606,7 @@ func TestInitNoCreateBranchesSkipsIdentityCheck(t *testing.T) {
 //  1. Creates a plain repo with no commits and no identity (setupPlainRepo)
 //  2. Sets local user.name to a whitespace-only value and user.email to a
 //     valid address, so failure is attributable to the empty name
-//  3. Runs 'git flow init --defaults' with isolated global/system config
+//  3. Runs 'git pour init --defaults' with isolated global/system config
 //  4. Verifies the command fails with exit code 6
 //  5. Verifies the output mentions user.name and the identity error
 func TestInitWithEmptyIdentityValue(t *testing.T) {
@@ -1637,7 +1620,7 @@ func TestInitWithEmptyIdentityValue(t *testing.T) {
 	}
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if code := exitCodeOf(t, err); code != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nOutput: %s", code, output)
 	}
@@ -1651,7 +1634,7 @@ func TestInitWithEmptyIdentityValue(t *testing.T) {
 
 // TestInitFileRelativePathResolvesAgainstInvocationDir verifies that a relative
 // --file argument is resolved against the invocation directory (the process CWD
-// where git-flow was run), not the work-tree root. The parent-dir existence
+// where git-pour was run), not the work-tree root. The parent-dir existence
 // check must run after that normalization: with a nested relative path
 // (cfgdir/myconfig), cfgdir/ exists under the invocation dir B/sub but not under
 // the work-tree root B/, so only invocation-dir resolution succeeds.
@@ -1672,7 +1655,7 @@ func TestInitFileRelativePathResolvesAgainstInvocationDir(t *testing.T) {
 	}
 
 	// Invoke from B/sub with a nested relative --file path.
-	output, err := runGitFlow(t, subDir, "init", "--file", "cfgdir/myconfig", "--defaults")
+	output, err := runGitFlow(t, subDir, "init", "--file", "cfgdir/myconfig", "--defaults", "--preset=classic")
 	if err != nil {
 		t.Fatalf("init --file failed: %v\nOutput: %s", err, output)
 	}
@@ -1684,7 +1667,7 @@ func TestInitFileRelativePathResolvesAgainstInvocationDir(t *testing.T) {
 		t.Fatalf("Expected config at %s: %v", written, err)
 	}
 	if !strings.Contains(string(content), "version") {
-		t.Errorf("Expected gitflow config content in %s, got:\n%s", written, content)
+		t.Errorf("Expected gitpour config content in %s, got:\n%s", written, content)
 	}
 
 	// The work-tree-root cfgdir must never have been created.
@@ -1693,9 +1676,9 @@ func TestInitFileRelativePathResolvesAgainstInvocationDir(t *testing.T) {
 	}
 }
 
-// runGitFlowWithInputAndEnv runs git-flow with both piped stdin and custom
+// runGitFlowWithInputAndEnv runs git-pour with both piped stdin and custom
 // environment variables. The repository-creation prompt is gated on interactive
-// stdin (GIT_FLOW_ASSUME_INTERACTIVE=1, since the subprocess harness cannot
+// stdin (GIT_POUR_ASSUME_INTERACTIVE=1, since the subprocess harness cannot
 // allocate a PTY) and also consumes stdin, so neither runGitFlowWithInput nor
 // runGitFlowWithEnv is sufficient on its own.
 func runGitFlowWithInputAndEnv(t *testing.T, dir string, input string, env []string, args ...string) (string, error) {
@@ -1721,7 +1704,7 @@ func runGitFlowWithInputAndEnv(t *testing.T, dir string, input string, env []str
 }
 
 // setupNonRepoDir returns a temporary directory that is deliberately NOT a git
-// repository, for the "git flow init outside a repository" scenarios.
+// repository, for the "git pour init outside a repository" scenarios.
 func setupNonRepoDir(t *testing.T) string {
 	t.Helper()
 	return t.TempDir()
@@ -1759,23 +1742,23 @@ func identityConfigEnv(t *testing.T, extra map[string]string) ([]string, string)
 }
 
 // TestInitCreatesRepositoryWithInitFlag tests that --init creates a git
-// repository in an empty directory and then initializes git-flow in it.
+// repository in an empty directory and then initializes git-pour in it.
 // Steps:
 //  1. Creates a temporary directory that is not a git repository
 //  2. Seeds a temporary global git config with a user identity
-//  3. Runs 'git flow init --defaults --init' in that directory
+//  3. Runs 'git pour init --defaults --init' in that directory
 //  4. Verifies the command succeeds
 //  5. Verifies a .git directory exists and the directory is inside a work tree
-//  6. Verifies gitflow.version is 1.0 in local config
+//  6. Verifies gitpour.version is 1.0 in local config
 //  7. Verifies the main and develop base branches were created
-//  8. Verifies the output reports both git-flow initialization and git's own
+//  8. Verifies the output reports both git-pour initialization and git's own
 //     'Initialized empty Git repository' line (presence only, never ordering)
 func TestInitCreatesRepositoryWithInitFlag(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	env, _ := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
@@ -1789,8 +1772,8 @@ func TestInitCreatesRepositoryWithInitFlag(t *testing.T) {
 	if strings.TrimSpace(insideWorkTree) != "true" {
 		t.Errorf("Expected 'true' from rev-parse --is-inside-work-tree, got: %s", insideWorkTree)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
 	if !branchExists(t, dir, "main") {
 		t.Error("Expected 'main' branch to exist")
@@ -1798,11 +1781,11 @@ func TestInitCreatesRepositoryWithInitFlag(t *testing.T) {
 	if !branchExists(t, dir, "develop") {
 		t.Error("Expected 'develop' branch to exist")
 	}
-	if !strings.Contains(output, "Initializing git-flow with default settings") {
-		t.Errorf("Expected output to contain 'Initializing git-flow with default settings', got: %s", output)
+	if !strings.Contains(output, "Initializing git-pour with classic preset") {
+		t.Errorf("Expected output to contain 'Initializing git-pour with classic preset', got: %s", output)
 	}
-	if !strings.Contains(output, "Git flow has been initialized") {
-		t.Errorf("Expected output to contain 'Git flow has been initialized', got: %s", output)
+	if !strings.Contains(output, "Git pour has been initialized") {
+		t.Errorf("Expected output to contain 'Git pour has been initialized', got: %s", output)
 	}
 	if !strings.Contains(output, "Initialized empty Git repository") {
 		t.Errorf("Expected output to surface git's own 'Initialized empty Git repository' line, got: %s", output)
@@ -1810,23 +1793,23 @@ func TestInitCreatesRepositoryWithInitFlag(t *testing.T) {
 }
 
 // TestInitWithInitFlagUsesTrunkAsInitialBranch tests that the repository created
-// by --init uses the resolved git-flow trunk as its initial branch, overriding
+// by --init uses the resolved git-pour trunk as its initial branch, overriding
 // an ambient init.defaultBranch.
 // Steps:
 //  1. Creates a temporary directory that is not a git repository
 //  2. Seeds a global git config with an identity and init.defaultBranch=legacy
-//  3. Runs 'git flow init --defaults --init --no-create-branches' so HEAD stays
+//  3. Runs 'git pour init --defaults --init --no-create-branches' so HEAD stays
 //     unborn and the initial branch remains observable
 //  4. Verifies the command succeeds
 //  5. Verifies HEAD points at 'main', not 'legacy'
 //  6. Verifies no 'legacy' branch exists
-//  7. Verifies gitflow.version is 1.0 in local config
+//  7. Verifies gitpour.version is 1.0 in local config
 func TestInitWithInitFlagUsesTrunkAsInitialBranch(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	env, _ := identityConfigEnv(t, map[string]string{"init.defaultBranch": "legacy"})
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init", "--no-create-branches")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init", "--no-create-branches")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
@@ -1840,8 +1823,8 @@ func TestInitWithInitFlagUsesTrunkAsInitialBranch(t *testing.T) {
 	if branchExists(t, dir, "legacy") {
 		t.Error("Expected no 'legacy' branch; init.defaultBranch must not win over the trunk")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
 }
 
@@ -1850,10 +1833,10 @@ func TestInitWithInitFlagUsesTrunkAsInitialBranch(t *testing.T) {
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
 // 2. Seeds a global git config with an identity and init.defaultBranch=legacy
-// 3. Runs 'git flow init --init --main trunk --no-create-branches'
+// 3. Runs 'git pour init --init --main trunk --no-create-branches'
 // 4. Verifies the command succeeds
 // 5. Verifies HEAD points at 'trunk'
-// 6. Verifies gitflow.branch.trunk.type is 'base' in local config
+// 6. Verifies gitpour.branch.trunk.type is 'base' in local config
 func TestInitWithInitFlagUsesCustomMainAsInitialBranch(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
@@ -1870,8 +1853,8 @@ func TestInitWithInitFlagUsesCustomMainAsInitialBranch(t *testing.T) {
 	if strings.TrimSpace(head) != "trunk" {
 		t.Errorf("Expected initial branch 'trunk', got: %s", strings.TrimSpace(head))
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.branch.trunk.type", "local"); v != "base" {
-		t.Errorf("Expected gitflow.branch.trunk.type to be 'base', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.branch.trunk.type", "local"); v != "base" {
+		t.Errorf("Expected gitpour.branch.trunk.type to be 'base', got: %s", v)
 	}
 }
 
@@ -1880,8 +1863,8 @@ func TestInitWithInitFlagUsesCustomMainAsInitialBranch(t *testing.T) {
 // Steps:
 //  1. Creates a temporary directory that is not a git repository
 //  2. Seeds a global git config with an identity so the failure is unambiguously
-//     the missing repository (stdin is a pipe and GIT_FLOW_ASSUME_INTERACTIVE is unset)
-//  3. Runs 'git flow init --defaults' without --init
+//     the missing repository (stdin is a pipe and GIT_POUR_ASSUME_INTERACTIVE is unset)
+//  3. Runs 'git pour init --defaults' without --init
 //  4. Verifies the command fails with exit code 3
 //  5. Verifies the output still names 'git init' as the remedy
 //  6. Verifies no .git directory was created
@@ -1891,7 +1874,7 @@ func TestInitWithoutInitFlagOutsideRepositoryFails(t *testing.T) {
 	dir := setupNonRepoDir(t)
 	env, _ := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if code := exitCodeOf(t, err); code != 3 {
 		t.Fatalf("Expected exit code 3, got %d\nOutput: %s", code, output)
 	}
@@ -1911,15 +1894,15 @@ func TestInitWithoutInitFlagOutsideRepositoryFails(t *testing.T) {
 }
 
 // TestInitFlagIsNoOpInExistingRepository tests that --init is a no-op inside an
-// existing git repository: no new repository, no re-init, ordinary git-flow setup.
+// existing git repository: no new repository, no re-init, ordinary git-pour setup.
 // Steps:
 // 1. Creates a test repository with a commit and an identity
 // 2. Records its work-tree root and HEAD commit
-// 3. Runs 'git flow init --defaults --init' with LC_ALL=C pinned
+// 3. Runs 'git pour init --defaults --init' with LC_ALL=C pinned
 // 4. Verifies the command succeeds
 // 5. Verifies the work-tree root is unchanged (no nested repository)
 // 6. Verifies the commit reachable from main is unchanged
-// 7. Verifies git-flow really initialized (develop branch, gitflow.version)
+// 7. Verifies git-pour really initialized (develop branch, gitpour.version)
 // 8. Verifies git never reported creating or reinitializing a repository
 func TestInitFlagIsNoOpInExistingRepository(t *testing.T) {
 	t.Parallel()
@@ -1935,7 +1918,7 @@ func TestInitFlagIsNoOpInExistingRepository(t *testing.T) {
 		t.Fatalf("Failed to read HEAD: %v", err)
 	}
 
-	output, err := runGitFlowWithEnv(t, dir, []string{"LC_ALL=C"}, "init", "--defaults", "--init")
+	output, err := runGitFlowWithEnv(t, dir, []string{"LC_ALL=C"}, "init", "--defaults", "--preset=classic", "--init")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
@@ -1957,8 +1940,8 @@ func TestInitFlagIsNoOpInExistingRepository(t *testing.T) {
 	if !branchExists(t, dir, "develop") {
 		t.Error("Expected 'develop' branch to exist")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
 	if strings.Contains(output, "Initialized empty Git repository") {
 		t.Errorf("Expected no repository creation inside an existing repository, got: %s", output)
@@ -1974,19 +1957,19 @@ func TestInitFlagIsNoOpInExistingRepository(t *testing.T) {
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
 // 2. Isolates global and system config so no identity is visible
-// 3. Runs 'git flow init --defaults --init'
+// 3. Runs 'git pour init --defaults --init'
 // 4. Verifies the command fails with exit code 6 and the identity message
 // 5. Verifies the output does not leak an opaque 'exit status 128'
 // 6. Verifies the .git directory is still present (no rollback is required)
 // 7. Verifies config queries against the directory work (positive control)
-// 8. Verifies no gitflow configuration was written
+// 8. Verifies no gitpour configuration was written
 // 9. Verifies neither main nor develop was created
 func TestInitWithInitFlagFailsWithoutIdentity(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	env := isolatedConfigEnv()
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init")
 	if code := exitCodeOf(t, err); code != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nOutput: %s", code, output)
 	}
@@ -2002,11 +1985,11 @@ func TestInitWithInitFlagFailsWithoutIdentity(t *testing.T) {
 	if _, err := testutil.RunGit(t, dir, "rev-parse", "--git-dir"); err != nil {
 		t.Fatalf("Positive control failed: config queries against %s do not work: %v", dir, err)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "" {
-		t.Errorf("Expected no gitflow.version to be written, got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "" {
+		t.Errorf("Expected no gitpour.version to be written, got: %s", v)
 	}
-	if keys := gitflowConfigKeysLocal(t, dir); keys != "" {
-		t.Errorf("Expected no local gitflow.* config, got: %s", keys)
+	if keys := gitpourConfigKeysLocal(t, dir); keys != "" {
+		t.Errorf("Expected no local gitpour.* config, got: %s", keys)
 	}
 	if branchExists(t, dir, "main") {
 		t.Error("Expected no 'main' branch")
@@ -2020,8 +2003,8 @@ func TestInitWithInitFlagFailsWithoutIdentity(t *testing.T) {
 // the repository-creation prompt aborts without creating anything.
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
-// 2. Seeds an identity and forces interactive stdin (GIT_FLOW_ASSUME_INTERACTIVE=1)
-// 3. Runs 'git flow init' answering 'n'
+// 2. Seeds an identity and forces interactive stdin (GIT_POUR_ASSUME_INTERACTIVE=1)
+// 3. Runs 'git pour init' answering 'n'
 // 4. Verifies the command fails with exit code 3
 // 5. Verifies the prompt text was shown
 // 6. Verifies the decline message names both 'git init' and '--init', and that it does not read as an internal check failure
@@ -2031,7 +2014,7 @@ func TestInitInteractiveDeclineDoesNotCreateRepository(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	baseEnv, _ := identityConfigEnv(t, nil)
-	env := append(baseEnv, "GIT_FLOW_ASSUME_INTERACTIVE=1")
+	env := append(baseEnv, "GIT_POUR_ASSUME_INTERACTIVE=1")
 
 	output, err := runGitFlowWithInputAndEnv(t, dir, "n\n", env, "init")
 	if code := exitCodeOf(t, err); code != 3 {
@@ -2056,7 +2039,7 @@ func TestInitInteractiveDeclineDoesNotCreateRepository(t *testing.T) {
 	if len(entries) != 0 {
 		t.Errorf("Expected the directory to stay empty, got %d entries", len(entries))
 	}
-	if strings.Contains(output, "Branch name for production releases") {
+	if strings.Contains(output, "Main branch") {
 		t.Errorf("Expected no configuration prompting after a decline, got: %s", output)
 	}
 }
@@ -2065,8 +2048,8 @@ func TestInitInteractiveDeclineDoesNotCreateRepository(t *testing.T) {
 // at the repository-creation prompt takes the [y/N] default and declines.
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
-// 2. Seeds an identity and forces interactive stdin (GIT_FLOW_ASSUME_INTERACTIVE=1)
-// 3. Runs 'git flow init' answering with an empty line
+// 2. Seeds an identity and forces interactive stdin (GIT_POUR_ASSUME_INTERACTIVE=1)
+// 3. Runs 'git pour init' answering with an empty line
 // 4. Verifies the command fails with exit code 3
 // 5. Verifies the prompt text was shown
 // 6. Verifies the decline message names both 'git init' and '--init', and that it does not read as an internal check failure
@@ -2076,7 +2059,7 @@ func TestInitInteractiveEmptyAnswerDoesNotCreateRepository(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	baseEnv, _ := identityConfigEnv(t, nil)
-	env := append(baseEnv, "GIT_FLOW_ASSUME_INTERACTIVE=1")
+	env := append(baseEnv, "GIT_POUR_ASSUME_INTERACTIVE=1")
 
 	output, err := runGitFlowWithInputAndEnv(t, dir, "\n", env, "init")
 	if code := exitCodeOf(t, err); code != 3 {
@@ -2101,7 +2084,7 @@ func TestInitInteractiveEmptyAnswerDoesNotCreateRepository(t *testing.T) {
 	if len(entries) != 0 {
 		t.Errorf("Expected the directory to stay empty, got %d entries", len(entries))
 	}
-	if strings.Contains(output, "Branch name for production releases") {
+	if strings.Contains(output, "Main branch") {
 		t.Errorf("Expected no configuration prompting after a decline, got: %s", output)
 	}
 }
@@ -2111,8 +2094,8 @@ func TestInitInteractiveEmptyAnswerDoesNotCreateRepository(t *testing.T) {
 // interactive configuration, whose answers must not be swallowed by the prompt.
 // Steps:
 //  1. Creates a temporary directory that is not a git repository
-//  2. Seeds an identity and forces interactive stdin (GIT_FLOW_ASSUME_INTERACTIVE=1)
-//  3. Runs 'git flow init' answering 'y' followed by the legacy interactive
+//  2. Seeds an identity and forces interactive stdin (GIT_POUR_ASSUME_INTERACTIVE=1)
+//  3. Runs 'git pour init' answering 'y' followed by the legacy interactive
 //     configuration answers (custom-main, custom-dev, the four prefixes, tag prefix)
 //  4. Verifies the command succeeds
 //  5. Verifies both the creation prompt and the configuration prompts were shown
@@ -2120,17 +2103,17 @@ func TestInitInteractiveEmptyAnswerDoesNotCreateRepository(t *testing.T) {
 //  7. Verifies the custom-main and custom-dev branches were created
 //  8. Verifies no stray 'main' branch exists, proving the repository was created
 //     after the trunk was resolved rather than before
-//  9. Verifies gitflow.version and gitflow.branch.custom-main.type were written,
+//  9. Verifies gitpour.version and gitpour.branch.custom-main.type were written,
 //     proving the answers after the prompt were read
 func TestInitInteractiveAcceptCreatesRepository(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	baseEnv, _ := identityConfigEnv(t, nil)
-	env := append(baseEnv, "GIT_FLOW_ASSUME_INTERACTIVE=1")
+	env := append(baseEnv, "GIT_POUR_ASSUME_INTERACTIVE=1")
 
 	// y to create the repo, then the legacy interactive-config answers:
 	// main, develop, feature, bugfix, release, hotfix, support, tag prefix.
-	input := "y\ncustom-main\ncustom-dev\nfeature/\nbugfix/\nrelease/\nhotfix/\nsupport/\n\n"
+	input := "y\ncustom-main\nfeature/\n"
 	output, err := runGitFlowWithInputAndEnv(t, dir, input, env, "init")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
@@ -2138,7 +2121,7 @@ func TestInitInteractiveAcceptCreatesRepository(t *testing.T) {
 	if !strings.Contains(output, "Create one? [y/N]") {
 		t.Errorf("Expected the creation prompt in output, got: %s", output)
 	}
-	if !strings.Contains(output, "Branch name for production releases") {
+	if !strings.Contains(output, "Main branch") {
 		t.Errorf("Expected the interactive configuration prompts in output, got: %s", output)
 	}
 	if !hasGitDir(t, dir) {
@@ -2154,8 +2137,8 @@ func TestInitInteractiveAcceptCreatesRepository(t *testing.T) {
 	if !branchExists(t, dir, "custom-main") {
 		t.Error("Expected 'custom-main' branch to exist")
 	}
-	if !branchExists(t, dir, "custom-dev") {
-		t.Error("Expected 'custom-dev' branch to exist")
+	if branchExists(t, dir, "develop") {
+		t.Error("develop must not be created")
 	}
 	// The trunk is only known once interactive configuration has run, so the
 	// repository must be created after it. Creating it earlier would fall back to
@@ -2163,40 +2146,40 @@ func TestInitInteractiveAcceptCreatesRepository(t *testing.T) {
 	if branchExists(t, dir, "main") {
 		t.Error("Expected no stray 'main' branch: the repository must be created after the trunk is resolved")
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.branch.custom-main.type", "local"); v != "base" {
-		t.Errorf("Expected gitflow.branch.custom-main.type to be 'base', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.branch.custom-main.type", "local"); v != "base" {
+		t.Errorf("Expected gitpour.branch.custom-main.type to be 'base', got: %s", v)
 	}
 }
 
 // TestInitWithInitFlagWritesLocalScopeConfig tests that --init writes the
-// git-flow configuration into the created repository's local scope by default.
+// git-pour configuration into the created repository's local scope by default.
 // Steps:
 //  1. Creates a temporary directory that is not a git repository
 //  2. Seeds a global git config with a user identity
-//  3. Runs 'git flow init --defaults --init' with no scope flag
+//  3. Runs 'git pour init --defaults --init' with no scope flag
 //  4. Verifies the command succeeds
-//  5. Verifies gitflow.version, gitflow.initialized and
-//     gitflow.branch.develop.parent are all present in local config
+//  5. Verifies gitpour.version, gitpour.initialized and
+//     gitpour.branch.develop.parent are all present in local config
 func TestInitWithInitFlagWritesLocalScopeConfig(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	env, _ := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version to be '1.0', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version to be '1.0', got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.initialized", "local"); v != "true" {
-		t.Errorf("Expected gitflow.initialized to be 'true', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.initialized", "local"); v != "true" {
+		t.Errorf("Expected gitpour.initialized to be 'true', got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.branch.develop.parent", "local"); v != "main" {
-		t.Errorf("Expected gitflow.branch.develop.parent to be 'main', got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.branch.develop.parent", "local"); v != "main" {
+		t.Errorf("Expected gitpour.branch.develop.parent to be 'main', got: %s", v)
 	}
 }
 
@@ -2205,11 +2188,11 @@ func TestInitWithInitFlagWritesLocalScopeConfig(t *testing.T) {
 // of creating a nested one.
 // Steps:
 // 1. Creates a test repository and a 'nested' subdirectory inside it
-// 2. Runs 'git flow init --defaults --init' from the subdirectory
+// 2. Runs 'git pour init --defaults --init' from the subdirectory
 // 3. Verifies the command succeeds
 // 4. Verifies no .git directory was created in the subdirectory
 // 5. Verifies the subdirectory still resolves to the outer work-tree root
-// 6. Verifies the outer repository was configured (gitflow.version)
+// 6. Verifies the outer repository was configured (gitpour.version)
 func TestInitFlagInSubdirectoryDoesNotCreateNestedRepository(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
@@ -2220,7 +2203,7 @@ func TestInitFlagInSubdirectoryDoesNotCreateNestedRepository(t *testing.T) {
 		t.Fatalf("Failed to create nested directory: %v", err)
 	}
 
-	output, err := runGitFlow(t, sub, "init", "--defaults", "--init")
+	output, err := runGitFlow(t, sub, "init", "--defaults", "--preset=classic", "--init")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
@@ -2238,8 +2221,8 @@ func TestInitFlagInSubdirectoryDoesNotCreateNestedRepository(t *testing.T) {
 	if strings.TrimSpace(subTop) != strings.TrimSpace(outerTop) {
 		t.Errorf("Expected work-tree root %q from the subdirectory, got %q", strings.TrimSpace(outerTop), strings.TrimSpace(subTop))
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected the outer repository to be configured, got gitflow.version: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected the outer repository to be configured, got gitpour.version: %s", v)
 	}
 }
 
@@ -2248,7 +2231,7 @@ func TestInitFlagInSubdirectoryDoesNotCreateNestedRepository(t *testing.T) {
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
 // 2. Seeds a global git config with a user identity
-// 3. Runs 'git flow init --init --main "bad name" --no-create-branches'
+// 3. Runs 'git pour init --init --main "bad name" --no-create-branches'
 // 4. Verifies the command fails with exit code 2 and names the invalid branch
 // 5. Verifies the output does not leak an opaque 'exit status 128'
 // 6. Verifies no .git directory exists and the directory is still empty
@@ -2285,9 +2268,9 @@ func TestInitWithInitFlagRejectsInvalidTrunkName(t *testing.T) {
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
 // 2. Seeds a writable temporary global git config with a user identity
-// 3. Runs 'git flow init --defaults --init --global --no-create-branches'
+// 3. Runs 'git pour init --defaults --init --global --no-create-branches'
 // 4. Verifies the command succeeds and a .git directory exists
-// 5. Verifies gitflow.version landed in the global config file
+// 5. Verifies gitpour.version landed in the global config file
 // 6. Verifies config queries against the directory work (positive control)
 // 7. Verifies nothing was written to the repository's local scope
 func TestInitWithInitFlagAndGlobalScopeCreatesRepository(t *testing.T) {
@@ -2295,21 +2278,21 @@ func TestInitWithInitFlagAndGlobalScopeCreatesRepository(t *testing.T) {
 	dir := setupNonRepoDir(t)
 	env, globalConfigFile := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init", "--global", "--no-create-branches")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init", "--global", "--no-create-branches")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
 	if !hasGitDir(t, dir) {
 		t.Error("Expected a .git directory to be created")
 	}
-	if v := getGitConfigFromFile(t, globalConfigFile, "gitflow.version"); v != "1.0" {
-		t.Errorf("Expected gitflow.version '1.0' in the global config file, got: %s", v)
+	if v := getGitConfigFromFile(t, globalConfigFile, "gitpour.version"); v != "1.0" {
+		t.Errorf("Expected gitpour.version '1.0' in the global config file, got: %s", v)
 	}
 	if _, err := testutil.RunGit(t, dir, "rev-parse", "--git-dir"); err != nil {
 		t.Fatalf("Positive control failed: config queries against %s do not work: %v", dir, err)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "" {
-		t.Errorf("Expected no local gitflow.version with --global, got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "" {
+		t.Errorf("Expected no local gitpour.version with --global, got: %s", v)
 	}
 }
 
@@ -2318,21 +2301,21 @@ func TestInitWithInitFlagAndGlobalScopeCreatesRepository(t *testing.T) {
 // created, so no stray .git is left behind.
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
-// 2. Seeds a global git config with an identity and gitflow.version=1.0
-// 3. Runs 'git flow init --defaults --init'
+// 2. Seeds a global git config with an identity and gitpour.version=1.0
+// 3. Runs 'git pour init --defaults --init'
 // 4. Verifies the command fails with exit code 6
 // 5. Verifies the output reports the global configuration
 // 6. Verifies no .git directory was created and the directory is still empty
 func TestInitWithInitFlagAbortsWhenAlreadyInitializedGlobally(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
-	env, _ := identityConfigEnv(t, map[string]string{"gitflow.version": "1.0"})
+	env, _ := identityConfigEnv(t, map[string]string{"gitpour.version": "1.0"})
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init")
 	if code := exitCodeOf(t, err); code != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nOutput: %s", code, output)
 	}
-	if !strings.Contains(output, "Git-flow is configured via global config") {
+	if !strings.Contains(output, "Git-pour is configured via global config") {
 		t.Errorf("Expected output to report the global configuration, got: %s", output)
 	}
 	if hasGitDir(t, dir) {
@@ -2348,37 +2331,37 @@ func TestInitWithInitFlagAbortsWhenAlreadyInitializedGlobally(t *testing.T) {
 }
 
 // TestInitWithInitFlagAndSharedScopeWritesSharedConfig tests that --shared --init
-// authors the .gitflow file at the created repository's work-tree root and copies
+// authors the .gitpour file at the created repository's work-tree root and copies
 // it into local config, proving the re-resolved repository handle is correct.
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
 // 2. Seeds a global git config with a user identity
-// 3. Runs 'git flow init --defaults --init --shared'
+// 3. Runs 'git pour init --defaults --init --shared'
 // 4. Verifies the command succeeds and a .git directory exists
-// 5. Verifies a .gitflow file exists at the directory root with gitflow.version
-// 6. Verifies gitflow.version was also copied into local config
+// 5. Verifies a .gitpour file exists at the directory root with gitpour.version
+// 6. Verifies gitpour.version was also copied into local config
 // 7. Verifies the main and develop base branches were created
 func TestInitWithInitFlagAndSharedScopeWritesSharedConfig(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	env, _ := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init", "--shared")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init", "--shared")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
 	if !hasGitDir(t, dir) {
 		t.Error("Expected a .git directory to be created")
 	}
-	sharedPath := filepath.Join(dir, ".gitflow")
+	sharedPath := filepath.Join(dir, ".gitpour")
 	if _, err := os.Stat(sharedPath); err != nil {
-		t.Fatalf("Expected a .gitflow file at %s: %v", sharedPath, err)
+		t.Fatalf("Expected a .gitpour file at %s: %v", sharedPath, err)
 	}
-	if v := getGitConfigFromFile(t, sharedPath, "gitflow.version"); v != "1.0" {
-		t.Errorf("Expected gitflow.version '1.0' in .gitflow, got: %s", v)
+	if v := getGitConfigFromFile(t, sharedPath, "gitpour.version"); v != "1.0" {
+		t.Errorf("Expected gitpour.version '1.0' in .gitpour, got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version '1.0' copied into local config, got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version '1.0' copied into local config, got: %s", v)
 	}
 	if !branchExists(t, dir, "main") {
 		t.Error("Expected 'main' branch to exist")
@@ -2388,81 +2371,81 @@ func TestInitWithInitFlagAndSharedScopeWritesSharedConfig(t *testing.T) {
 	}
 }
 
-// seedSharedConfigFile writes a .gitflow file into dir carrying a key that
+// seedSharedConfigFile writes a .gitpour file into dir carrying a key that
 // DefaultConfig() never produces, and returns its path plus the exact bytes
 // written. The marker key makes a merge (rather than a clean rewrite) visible.
 func seedSharedConfigFile(t *testing.T, dir string) (string, []byte) {
 	t.Helper()
-	content := []byte("[gitflow]\n\tversion = 1.0\n\tprecious = keepme\n")
-	path := filepath.Join(dir, ".gitflow")
+	content := []byte("[gitpour]\n\tversion = 1.0\n\tprecious = keepme\n")
+	path := filepath.Join(dir, ".gitpour")
 	if err := os.WriteFile(path, content, 0644); err != nil {
-		t.Fatalf("Failed to seed .gitflow: %v", err)
+		t.Fatalf("Failed to seed .gitpour: %v", err)
 	}
 	return path, content
 }
 
 // TestInitWithInitFlagAndSharedScopeRefusesExistingSharedConfig tests that
-// --shared --init honors the same pre-existing .gitflow guard as the in-repo
-// path: a directory that carries a .gitflow but no .git (a source tarball, say)
+// --shared --init honors the same pre-existing .gitpour guard as the in-repo
+// path: a directory that carries a .gitpour but no .git (a source tarball, say)
 // is refused without --force, and no repository is created for it.
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
-// 2. Seeds a .gitflow there carrying a key the defaults never write
+// 2. Seeds a .gitpour there carrying a key the defaults never write
 // 3. Seeds a global git config with a user identity
-// 4. Runs 'git flow init --defaults --init --shared' without --force
+// 4. Runs 'git pour init --defaults --init --shared' without --force
 // 5. Verifies the command fails with exit code 6 and names --force
-// 6. Verifies the .gitflow file is byte-identical to the seeded one
+// 6. Verifies the .gitpour file is byte-identical to the seeded one
 // 7. Verifies no .git directory was created
-// 8. Verifies .gitflow is still the only entry in the directory
+// 8. Verifies .gitpour is still the only entry in the directory
 func TestInitWithInitFlagAndSharedScopeRefusesExistingSharedConfig(t *testing.T) {
 	t.Parallel()
 	dir := setupNonRepoDir(t)
 	sharedPath, seeded := seedSharedConfigFile(t, dir)
 	env, _ := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init", "--shared")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init", "--shared")
 	if code := exitCodeOf(t, err); code != 6 {
 		t.Fatalf("Expected exit code 6, got %d\nOutput: %s", code, output)
 	}
-	if !strings.Contains(output, "already configured via the shared .gitflow file") {
-		t.Errorf("Expected output to report the existing .gitflow, got: %s", output)
+	if !strings.Contains(output, "already configured via the shared .gitpour file") {
+		t.Errorf("Expected output to report the existing .gitpour, got: %s", output)
 	}
 	if !strings.Contains(output, "--force") {
 		t.Errorf("Expected output to name --force, got: %s", output)
 	}
 	after, readErr := os.ReadFile(sharedPath)
 	if readErr != nil {
-		t.Fatalf("Failed to read .gitflow: %v", readErr)
+		t.Fatalf("Failed to read .gitpour: %v", readErr)
 	}
 	if string(after) != string(seeded) {
-		t.Errorf("Expected .gitflow to be left untouched, got:\n%s", after)
+		t.Errorf("Expected .gitpour to be left untouched, got:\n%s", after)
 	}
-	if v := getGitConfigFromFile(t, sharedPath, "gitflow.precious"); v != "keepme" {
-		t.Errorf("Expected the pre-existing gitflow.precious to survive, got: %s", v)
+	if v := getGitConfigFromFile(t, sharedPath, "gitpour.precious"); v != "keepme" {
+		t.Errorf("Expected the pre-existing gitpour.precious to survive, got: %s", v)
 	}
 	if hasGitDir(t, dir) {
-		t.Error("Expected no .git directory: the .gitflow guard must run before creation")
+		t.Error("Expected no .git directory: the .gitpour guard must run before creation")
 	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
 	}
 	if len(entries) != 1 {
-		t.Errorf("Expected .gitflow to stay the only entry, got %d entries", len(entries))
+		t.Errorf("Expected .gitpour to stay the only entry, got %d entries", len(entries))
 	}
 }
 
 // TestInitWithInitFlagAndSharedScopeForceReplacesExistingSharedConfig tests that
-// --shared --init --force rewrites a pre-existing .gitflow cleanly instead of
+// --shared --init --force rewrites a pre-existing .gitpour cleanly instead of
 // merging into it, and still creates the repository.
 // Steps:
 // 1. Creates a temporary directory that is not a git repository
-// 2. Seeds a .gitflow there carrying a key the defaults never write
+// 2. Seeds a .gitpour there carrying a key the defaults never write
 // 3. Seeds a global git config with a user identity
-// 4. Runs 'git flow init --defaults --init --shared --force'
+// 4. Runs 'git pour init --defaults --init --shared --force'
 // 5. Verifies the command succeeds and a .git directory exists
-// 6. Verifies the stale key is gone from .gitflow and from local config
-// 7. Verifies the git-flow keys were written to .gitflow and copied to local
+// 6. Verifies the stale key is gone from .gitpour and from local config
+// 7. Verifies the git-pour keys were written to .gitpour and copied to local
 // 8. Verifies the main and develop base branches were created
 func TestInitWithInitFlagAndSharedScopeForceReplacesExistingSharedConfig(t *testing.T) {
 	t.Parallel()
@@ -2470,27 +2453,27 @@ func TestInitWithInitFlagAndSharedScopeForceReplacesExistingSharedConfig(t *test
 	sharedPath, _ := seedSharedConfigFile(t, dir)
 	env, _ := identityConfigEnv(t, nil)
 
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--init", "--shared", "--force")
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic", "--init", "--shared", "--force")
 	if err != nil {
 		t.Fatalf("Expected success, got error: %v\nOutput: %s", err, output)
 	}
 	if !hasGitDir(t, dir) {
 		t.Error("Expected a .git directory to be created")
 	}
-	if v := getGitConfigFromFile(t, sharedPath, "gitflow.precious"); v != "" {
-		t.Errorf("Expected the stale gitflow.precious to be gone from .gitflow, got: %s", v)
+	if v := getGitConfigFromFile(t, sharedPath, "gitpour.precious"); v != "" {
+		t.Errorf("Expected the stale gitpour.precious to be gone from .gitpour, got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.precious", "local"); v != "" {
-		t.Errorf("Expected no stale gitflow.precious in local config, got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.precious", "local"); v != "" {
+		t.Errorf("Expected no stale gitpour.precious in local config, got: %s", v)
 	}
-	if v := getGitConfigFromFile(t, sharedPath, "gitflow.version"); v != "1.0" {
-		t.Errorf("Expected gitflow.version '1.0' in .gitflow, got: %s", v)
+	if v := getGitConfigFromFile(t, sharedPath, "gitpour.version"); v != "1.0" {
+		t.Errorf("Expected gitpour.version '1.0' in .gitpour, got: %s", v)
 	}
-	if v := getGitConfigFromFile(t, sharedPath, "gitflow.branch.develop.parent"); v != "main" {
-		t.Errorf("Expected gitflow.branch.develop.parent 'main' in .gitflow, got: %s", v)
+	if v := getGitConfigFromFile(t, sharedPath, "gitpour.branch.develop.parent"); v != "main" {
+		t.Errorf("Expected gitpour.branch.develop.parent 'main' in .gitpour, got: %s", v)
 	}
-	if v := getGitConfigWithScope(t, dir, "gitflow.version", "local"); v != "1.0" {
-		t.Errorf("Expected gitflow.version '1.0' copied into local config, got: %s", v)
+	if v := getGitConfigWithScope(t, dir, "gitpour.version", "local"); v != "1.0" {
+		t.Errorf("Expected gitpour.version '1.0' copied into local config, got: %s", v)
 	}
 	if !branchExists(t, dir, "main") {
 		t.Error("Expected 'main' branch to exist")

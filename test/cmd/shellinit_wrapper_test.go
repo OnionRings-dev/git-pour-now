@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // The wrapper behaviours below are each written once and run against all three
@@ -84,7 +84,7 @@ func assertWrapperNavigatesToWorktree(t *testing.T, shell string) {
 	res := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  shell,
 		Dir:    dir,
-		Script: installWrapper(shell) + "; git-flow feature checkout x; pwd -P",
+		Script: installWrapper(shell) + "; git-pour feature checkout x; pwd -P",
 	})
 
 	if res.ExitCode != 0 {
@@ -99,7 +99,7 @@ func assertWrapperNavigatesToWorktree(t *testing.T, shell string) {
 // TestShellInitBashWrapperNavigatesToWorktree covers scenario 15 for bash.
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
-// 2. Installs the emitted bash wrapper and runs 'git-flow feature checkout x'
+// 2. Installs the emitted bash wrapper and runs 'git-pour feature checkout x'
 // 3. Verifies the shell's own working directory is now the worktree
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitBashWrapperNavigatesToWorktree(t *testing.T) {
@@ -110,7 +110,7 @@ func TestShellInitBashWrapperNavigatesToWorktree(t *testing.T) {
 // TestShellInitZshWrapperNavigatesToWorktree covers scenario 15 for zsh.
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
-// 2. Installs the emitted zsh wrapper and runs 'git-flow feature checkout x'
+// 2. Installs the emitted zsh wrapper and runs 'git-pour feature checkout x'
 // 3. Verifies the shell's own working directory is now the worktree
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitZshWrapperNavigatesToWorktree(t *testing.T) {
@@ -121,7 +121,7 @@ func TestShellInitZshWrapperNavigatesToWorktree(t *testing.T) {
 // TestShellInitFishWrapperNavigatesToWorktree covers scenario 15 for fish.
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
-// 2. Installs the emitted fish wrapper and runs 'git-flow feature checkout x'
+// 2. Installs the emitted fish wrapper and runs 'git-pour feature checkout x'
 // 3. Verifies the shell's own working directory is now the worktree
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitFishWrapperNavigatesToWorktree(t *testing.T) {
@@ -133,7 +133,7 @@ func TestShellInitFishWrapperNavigatesToWorktree(t *testing.T) {
 // W2 — the message survives the navigation
 // ---------------------------------------------------------------------------
 
-// assertWrapperKeepsMessageAndNavigates verifies git-flow's own output reaches
+// assertWrapperKeepsMessageAndNavigates verifies git-pour's own output reaches
 // the terminal in its own order and the shell still moves.
 func assertWrapperKeepsMessageAndNavigates(t *testing.T, shell string) {
 	t.Helper()
@@ -146,7 +146,7 @@ func assertWrapperKeepsMessageAndNavigates(t *testing.T, shell string) {
 	res := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  shell,
 		Dir:    dir,
-		Script: installWrapper(shell) + "; git-flow feature checkout x; " + echoPWD,
+		Script: installWrapper(shell) + "; git-pour feature checkout x; " + echoPWD,
 	})
 
 	if res.ExitCode != 0 {
@@ -159,7 +159,7 @@ func assertWrapperKeepsMessageAndNavigates(t *testing.T, shell string) {
 		t.Fatalf("Expected both messages and the final directory in %q", res.Stdout)
 	}
 	if !(worktreeLine < cdLine && cdLine < pwdLine) {
-		t.Errorf("Expected git-flow's messages in its own order before the shell's, got %q", res.Stdout)
+		t.Errorf("Expected git-pour's messages in its own order before the shell's, got %q", res.Stdout)
 	}
 	if strings.Contains(res.Stdout, "Tip:") {
 		t.Errorf("Expected no shell-init tip while the wrapper supplies the channel, got %q", res.Stdout)
@@ -171,7 +171,7 @@ func assertWrapperKeepsMessageAndNavigates(t *testing.T, shell string) {
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
 // 2. Installs the emitted bash wrapper, runs the checkout and echoes the resulting directory
-// 3. Verifies git-flow's two messages appear in its own order, before the shell's echo
+// 3. Verifies git-pour's two messages appear in its own order, before the shell's echo
 // 4. Verifies the shell moved to the worktree and no shell-init tip was printed
 func TestShellInitBashWrapperKeepsMessageAndNavigates(t *testing.T) {
 	t.Parallel()
@@ -182,7 +182,7 @@ func TestShellInitBashWrapperKeepsMessageAndNavigates(t *testing.T) {
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
 // 2. Installs the emitted zsh wrapper, runs the checkout and echoes the resulting directory
-// 3. Verifies git-flow's two messages appear in its own order, before the shell's echo
+// 3. Verifies git-pour's two messages appear in its own order, before the shell's echo
 // 4. Verifies the shell moved to the worktree and no shell-init tip was printed
 func TestShellInitZshWrapperKeepsMessageAndNavigates(t *testing.T) {
 	t.Parallel()
@@ -193,7 +193,7 @@ func TestShellInitZshWrapperKeepsMessageAndNavigates(t *testing.T) {
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
 // 2. Installs the emitted fish wrapper, runs the checkout and echoes the resulting directory
-// 3. Verifies git-flow's two messages appear in its own order, before the shell's echo
+// 3. Verifies git-pour's two messages appear in its own order, before the shell's echo
 // 4. Verifies the shell moved to the worktree and no shell-init tip was printed
 func TestShellInitFishWrapperKeepsMessageAndNavigates(t *testing.T) {
 	t.Parallel()
@@ -219,9 +219,9 @@ func assertWrapperWithoutNavigationKeepsDirectory(t *testing.T, shell string) {
 		Shell: shell,
 		Dir:   dir,
 		Script: installWrapper(shell) +
-			"; git-flow worktree add feature/x" +
+			"; git-pour worktree add feature/x" +
 			fmt.Sprintf("; cd %q", start) +
-			"; git-flow version; pwd -P",
+			"; git-pour version; pwd -P",
 	})
 
 	if res.ExitCode != 0 {
@@ -230,7 +230,7 @@ func assertWrapperWithoutNavigationKeepsDirectory(t *testing.T, shell string) {
 	if got := lastLine(res.Stdout); got != start {
 		t.Errorf("Expected the shell to stay in %q, got %q", start, got)
 	}
-	if !strings.Contains(res.Stdout, "git-flow-next") {
+	if !strings.Contains(res.Stdout, "git-pour-now") {
 		t.Errorf("Expected the version output to reach the terminal, got %q", res.Stdout)
 	}
 	assertWrapperTempFiles(t, res, 2)
@@ -240,7 +240,7 @@ func assertWrapperWithoutNavigationKeepsDirectory(t *testing.T, shell string) {
 // Steps:
 // 1. Sets up a repository with feature/x
 // 2. Installs the emitted bash wrapper, creates a worktree (which navigates), then returns to the repository
-// 3. Runs 'git-flow version', a command that does not navigate
+// 3. Runs 'git-pour version', a command that does not navigate
 // 4. Verifies the working directory is unchanged, the version output is present and no temp file was left
 func TestShellInitBashWrapperWithoutNavigationKeepsDirectory(t *testing.T) {
 	t.Parallel()
@@ -251,7 +251,7 @@ func TestShellInitBashWrapperWithoutNavigationKeepsDirectory(t *testing.T) {
 // Steps:
 // 1. Sets up a repository with feature/x
 // 2. Installs the emitted zsh wrapper, creates a worktree (which navigates), then returns to the repository
-// 3. Runs 'git-flow version', a command that does not navigate
+// 3. Runs 'git-pour version', a command that does not navigate
 // 4. Verifies the working directory is unchanged, the version output is present and no temp file was left
 func TestShellInitZshWrapperWithoutNavigationKeepsDirectory(t *testing.T) {
 	t.Parallel()
@@ -262,7 +262,7 @@ func TestShellInitZshWrapperWithoutNavigationKeepsDirectory(t *testing.T) {
 // Steps:
 // 1. Sets up a repository with feature/x
 // 2. Installs the emitted fish wrapper, creates a worktree (which navigates), then returns to the repository
-// 3. Runs 'git-flow version', a command that does not navigate
+// 3. Runs 'git-pour version', a command that does not navigate
 // 4. Verifies the working directory is unchanged, the version output is present and no temp file was left
 func TestShellInitFishWrapperWithoutNavigationKeepsDirectory(t *testing.T) {
 	t.Parallel()
@@ -275,7 +275,7 @@ func TestShellInitFishWrapperWithoutNavigationKeepsDirectory(t *testing.T) {
 
 // assertWrapperPreservesFailureExitCode uses TWO runs, because no single script
 // can carry both halves: under a caller's `set -e` a wrapper that correctly
-// returns git-flow's nonzero status terminates the script AT the call, so
+// returns git-pour's nonzero status terminates the script AT the call, so
 // nothing after it runs (verified on bash 3.2.57 and zsh 5.9).
 //
 // Run A, without errexit, carries the observational assertions. Run B, with
@@ -292,7 +292,7 @@ func assertWrapperPreservesFailureExitCode(t *testing.T, shell string) {
 		Shell: shell,
 		Dir:   dir,
 		Script: installWrapper(shell) +
-			"; git-flow feature checkout nonexistent; " + captureStatus(shell, "rc") +
+			"; git-pour feature checkout nonexistent; " + captureStatus(shell, "rc") +
 			"; echo RC=$rc; pwd -P; exit $rc",
 	})
 
@@ -300,16 +300,16 @@ func assertWrapperPreservesFailureExitCode(t *testing.T, shell string) {
 		t.Errorf("Expected the shell to exit 5, got %d\nStderr: %s", runA.ExitCode, runA.Stderr)
 	}
 	if !strings.Contains(runA.Stdout, "RC=5") {
-		t.Errorf("Expected the wrapper to return git-flow's exit code, got %q", runA.Stdout)
+		t.Errorf("Expected the wrapper to return git-pour's exit code, got %q", runA.Stdout)
 	}
 	if got := lastLine(runA.Stdout); got != start {
 		t.Errorf("Expected the shell to stay in %q, got %q", start, got)
 	}
 	if !strings.Contains(runA.Stderr, "Error:") {
-		t.Errorf("Expected git-flow's error text on stderr, got %q", runA.Stderr)
+		t.Errorf("Expected git-pour's error text on stderr, got %q", runA.Stderr)
 	}
 	if strings.Contains(runA.Stdout, "Error:") {
-		t.Errorf("Expected git-flow's error text to stay off stdout, got %q", runA.Stdout)
+		t.Errorf("Expected git-pour's error text to stay off stdout, got %q", runA.Stdout)
 	}
 	assertWrapperTempFiles(t, runA, 1)
 
@@ -321,7 +321,7 @@ func assertWrapperPreservesFailureExitCode(t *testing.T, shell string) {
 	runB := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  shell,
 		Dir:    dir,
-		Script: "set -e; " + installWrapper(shell) + "; git-flow feature checkout nonexistent",
+		Script: "set -e; " + installWrapper(shell) + "; git-pour feature checkout nonexistent",
 	})
 
 	if runB.ExitCode != 5 {
@@ -332,10 +332,10 @@ func assertWrapperPreservesFailureExitCode(t *testing.T, shell string) {
 
 // TestShellInitBashWrapperPreservesFailureExitCode covers scenario 17 for bash.
 // Steps:
-// 1. Sets up a repository with git-flow initialized
+// 1. Sets up a repository with git-pour initialized
 // 2. Installs the emitted bash wrapper and runs a checkout of a branch that does not exist
 // 3. Verifies the wrapper returns exit code 5, the shell exits 5 and the directory is unchanged
-// 4. Verifies git-flow's error text went to stderr, not stdout
+// 4. Verifies git-pour's error text went to stderr, not stdout
 // 5. Repeats the failing command under 'set -e' and verifies the temp file was still removed
 func TestShellInitBashWrapperPreservesFailureExitCode(t *testing.T) {
 	t.Parallel()
@@ -344,10 +344,10 @@ func TestShellInitBashWrapperPreservesFailureExitCode(t *testing.T) {
 
 // TestShellInitZshWrapperPreservesFailureExitCode covers scenario 17 for zsh.
 // Steps:
-// 1. Sets up a repository with git-flow initialized
+// 1. Sets up a repository with git-pour initialized
 // 2. Installs the emitted zsh wrapper and runs a checkout of a branch that does not exist
 // 3. Verifies the wrapper returns exit code 5, the shell exits 5 and the directory is unchanged
-// 4. Verifies git-flow's error text went to stderr, not stdout
+// 4. Verifies git-pour's error text went to stderr, not stdout
 // 5. Repeats the failing command under 'set -e' and verifies the temp file was still removed
 func TestShellInitZshWrapperPreservesFailureExitCode(t *testing.T) {
 	t.Parallel()
@@ -357,13 +357,13 @@ func TestShellInitZshWrapperPreservesFailureExitCode(t *testing.T) {
 // TestShellInitFishWrapperPreservesFailureExitCode covers scenario 17 for fish.
 //
 // The status capture is the statement immediately after the command on purpose:
-// one statement in between would replace git-flow's status with its own, which
+// one statement in between would replace git-pour's status with its own, which
 // is the mistake this assertion exists to catch.
 // Steps:
-// 1. Sets up a repository with git-flow initialized
+// 1. Sets up a repository with git-pour initialized
 // 2. Installs the emitted fish wrapper and runs a checkout of a branch that does not exist
 // 3. Verifies the wrapper returns exit code 5, the shell exits 5 and the directory is unchanged
-// 4. Verifies git-flow's error text went to stderr, not stdout, and no temp file was left
+// 4. Verifies git-pour's error text went to stderr, not stdout, and no temp file was left
 func TestShellInitFishWrapperPreservesFailureExitCode(t *testing.T) {
 	t.Parallel()
 	assertWrapperPreservesFailureExitCode(t, "fish")
@@ -373,7 +373,7 @@ func TestShellInitFishWrapperPreservesFailureExitCode(t *testing.T) {
 // W5 — the caller's own channel is not clobbered
 // ---------------------------------------------------------------------------
 
-// assertWrapperDoesNotClobberCallerChannel seeds GIT_FLOW_CD_FILE before the
+// assertWrapperDoesNotClobberCallerChannel seeds GIT_POUR_CD_FILE before the
 // wrapper is installed. Starting from an absent variable would prove too little:
 // a wrapper that overwrote it globally and then unset it would pass while
 // destroying whatever the caller had set.
@@ -394,15 +394,15 @@ func assertWrapperDoesNotClobberCallerChannel(t *testing.T, shell string) {
 		t.Fatalf("Failed to create the sentinel channel file: %v", err)
 	}
 
-	echoLeak := `echo "LEAK=[${GIT_FLOW_CD_FILE-unset}]"`
+	echoLeak := `echo "LEAK=[${GIT_POUR_CD_FILE-unset}]"`
 	if shell == "fish" {
-		echoLeak = `echo "LEAK=[$GIT_FLOW_CD_FILE]"`
+		echoLeak = `echo "LEAK=[$GIT_POUR_CD_FILE]"`
 	}
 	res := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  shell,
 		Dir:    dir,
-		Env:    []string{"GIT_FLOW_CD_FILE=" + sentinel},
-		Script: installWrapper(shell) + "; git-flow worktree add feature/x; " + echoLeak,
+		Env:    []string{"GIT_POUR_CD_FILE=" + sentinel},
+		Script: installWrapper(shell) + "; git-pour worktree add feature/x; " + echoLeak,
 	})
 
 	if res.ExitCode != 0 {
@@ -416,17 +416,17 @@ func assertWrapperDoesNotClobberCallerChannel(t *testing.T, shell string) {
 		t.Fatalf("Failed to stat the sentinel channel file: %v", err)
 	}
 	if info.Size() != 0 {
-		t.Errorf("Expected git-flow to write to the wrapper's temp file, not the caller's channel")
+		t.Errorf("Expected git-pour to write to the wrapper's temp file, not the caller's channel")
 	}
 	assertWrapperTempFiles(t, res, 1)
 }
 
 // TestShellInitBashWrapperDoesNotClobberCallerChannel covers the wrapper contract for bash.
 // Steps:
-// 1. Creates an empty sentinel file and exports GIT_FLOW_CD_FILE at it before the wrapper is installed
-// 2. Installs the emitted bash wrapper and runs 'git-flow worktree add feature/x', a command that writes a destination
+// 1. Creates an empty sentinel file and exports GIT_POUR_CD_FILE at it before the wrapper is installed
+// 2. Installs the emitted bash wrapper and runs 'git-pour worktree add feature/x', a command that writes a destination
 // 3. Verifies the caller's value is restored byte-for-byte after the command
-// 4. Verifies the sentinel file is still zero-length, so git-flow wrote to the wrapper's temp file rather than the caller's
+// 4. Verifies the sentinel file is still zero-length, so git-pour wrote to the wrapper's temp file rather than the caller's
 func TestShellInitBashWrapperDoesNotClobberCallerChannel(t *testing.T) {
 	t.Parallel()
 	assertWrapperDoesNotClobberCallerChannel(t, "bash")
@@ -434,10 +434,10 @@ func TestShellInitBashWrapperDoesNotClobberCallerChannel(t *testing.T) {
 
 // TestShellInitZshWrapperDoesNotClobberCallerChannel covers the wrapper contract for zsh.
 // Steps:
-// 1. Creates an empty sentinel file and exports GIT_FLOW_CD_FILE at it before the wrapper is installed
-// 2. Installs the emitted zsh wrapper and runs 'git-flow worktree add feature/x', a command that writes a destination
+// 1. Creates an empty sentinel file and exports GIT_POUR_CD_FILE at it before the wrapper is installed
+// 2. Installs the emitted zsh wrapper and runs 'git-pour worktree add feature/x', a command that writes a destination
 // 3. Verifies the caller's value is restored byte-for-byte after the command
-// 4. Verifies the sentinel file is still zero-length, so git-flow wrote to the wrapper's temp file rather than the caller's
+// 4. Verifies the sentinel file is still zero-length, so git-pour wrote to the wrapper's temp file rather than the caller's
 func TestShellInitZshWrapperDoesNotClobberCallerChannel(t *testing.T) {
 	t.Parallel()
 	assertWrapperDoesNotClobberCallerChannel(t, "zsh")
@@ -445,10 +445,10 @@ func TestShellInitZshWrapperDoesNotClobberCallerChannel(t *testing.T) {
 
 // TestShellInitFishWrapperDoesNotClobberCallerChannel covers the wrapper contract for fish.
 // Steps:
-// 1. Creates an empty sentinel file and exports GIT_FLOW_CD_FILE at it before the wrapper is installed
-// 2. Installs the emitted fish wrapper and runs 'git-flow worktree add feature/x', a command that writes a destination
+// 1. Creates an empty sentinel file and exports GIT_POUR_CD_FILE at it before the wrapper is installed
+// 2. Installs the emitted fish wrapper and runs 'git-pour worktree add feature/x', a command that writes a destination
 // 3. Verifies the caller's value is restored byte-for-byte after the command
-// 4. Verifies the sentinel file is still zero-length, so git-flow wrote to the wrapper's temp file rather than the caller's
+// 4. Verifies the sentinel file is still zero-length, so git-pour wrote to the wrapper's temp file rather than the caller's
 func TestShellInitFishWrapperDoesNotClobberCallerChannel(t *testing.T) {
 	t.Parallel()
 	assertWrapperDoesNotClobberCallerChannel(t, "fish")
@@ -468,15 +468,15 @@ func assertWrapperHandlesPathWithSpaces(t *testing.T, shell string) {
 	// different one, which nothing else would ever remove.
 	spacedRoot := filepath.Join(filepath.Dir(testutil.EvalPath(t, dir)), filepath.Base(dir)+" work trees")
 	defer os.RemoveAll(spacedRoot)
-	if out, err := testutil.RunGit(t, dir, "config", "gitflow.worktreePath", "../{{ repo }} work trees/{{ branch }}"); err != nil {
-		t.Fatalf("Failed to set gitflow.worktreePath: %v\nOutput: %s", err, out)
+	if out, err := testutil.RunGit(t, dir, "config", "gitpour.worktreePath", "../{{ repo }} work trees/{{ branch }}"); err != nil {
+		t.Fatalf("Failed to set gitpour.worktreePath: %v\nOutput: %s", err, out)
 	}
 	createFreeBranch(t, dir, "feature/x")
 
 	res := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  shell,
 		Dir:    dir,
-		Script: installWrapper(shell) + "; git-flow feature checkout x --worktree; pwd -P",
+		Script: installWrapper(shell) + "; git-pour feature checkout x --worktree; pwd -P",
 	})
 
 	if res.ExitCode != 0 {
@@ -491,8 +491,8 @@ func assertWrapperHandlesPathWithSpaces(t *testing.T, shell string) {
 
 // TestShellInitBashWrapperHandlesPathWithSpaces covers the wrapper contract for bash.
 // Steps:
-// 1. Sets a gitflow.worktreePath template whose directory names contain spaces
-// 2. Installs the emitted bash wrapper and runs 'git-flow feature checkout x --worktree'
+// 1. Sets a gitpour.worktreePath template whose directory names contain spaces
+// 2. Installs the emitted bash wrapper and runs 'git-pour feature checkout x --worktree'
 // 3. Verifies the shell's working directory is the spaced path, unsplit
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitBashWrapperHandlesPathWithSpaces(t *testing.T) {
@@ -502,8 +502,8 @@ func TestShellInitBashWrapperHandlesPathWithSpaces(t *testing.T) {
 
 // TestShellInitZshWrapperHandlesPathWithSpaces covers the wrapper contract for zsh.
 // Steps:
-// 1. Sets a gitflow.worktreePath template whose directory names contain spaces
-// 2. Installs the emitted zsh wrapper and runs 'git-flow feature checkout x --worktree'
+// 1. Sets a gitpour.worktreePath template whose directory names contain spaces
+// 2. Installs the emitted zsh wrapper and runs 'git-pour feature checkout x --worktree'
 // 3. Verifies the shell's working directory is the spaced path, unsplit
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitZshWrapperHandlesPathWithSpaces(t *testing.T) {
@@ -513,8 +513,8 @@ func TestShellInitZshWrapperHandlesPathWithSpaces(t *testing.T) {
 
 // TestShellInitFishWrapperHandlesPathWithSpaces covers the wrapper contract for fish.
 // Steps:
-// 1. Sets a gitflow.worktreePath template whose directory names contain spaces
-// 2. Installs the emitted fish wrapper and runs 'git-flow feature checkout x --worktree'
+// 1. Sets a gitpour.worktreePath template whose directory names contain spaces
+// 2. Installs the emitted fish wrapper and runs 'git-pour feature checkout x --worktree'
 // 3. Verifies the shell's working directory is the spaced path, unsplit
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitFishWrapperHandlesPathWithSpaces(t *testing.T) {
@@ -523,14 +523,14 @@ func TestShellInitFishWrapperHandlesPathWithSpaces(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// W7 — the git wrapper intercepts 'git flow …'
+// W7 — the git wrapper intercepts 'git pour …'
 // ---------------------------------------------------------------------------
 
 // assertGitWrapperNavigates is the decisive test for SC-1, and the directory
-// assertion is what makes it decisive: 'git flow …' succeeds with NO wrapper
-// installed at all, because git dispatches an unknown subcommand to a git-flow
+// assertion is what makes it decisive: 'git pour …' succeeds with NO wrapper
+// installed at all, because git dispatches an unknown subcommand to a git-pour
 // binary on PATH. Only the shell's own working directory can prove the git()
-// function ran — git-flow as a subprocess cannot change it. Do not simplify this
+// function ran — git-pour as a subprocess cannot change it. Do not simplify this
 // to an output check.
 func assertGitWrapperNavigates(t *testing.T, shell string) {
 	t.Helper()
@@ -539,14 +539,14 @@ func assertGitWrapperNavigates(t *testing.T, shell string) {
 	res := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  shell,
 		Dir:    dir,
-		Script: installWrapper(shell) + "; git flow feature checkout x; pwd -P",
+		Script: installWrapper(shell) + "; git pour feature checkout x; pwd -P",
 	})
 
 	if res.ExitCode != 0 {
 		t.Fatalf("Expected exit code 0, got %d\nStderr: %s", res.ExitCode, res.Stderr)
 	}
 	if got := lastLine(res.Stdout); got != wtPath {
-		t.Errorf("Expected 'git flow …' to move the shell to %q, got %q", wtPath, got)
+		t.Errorf("Expected 'git pour …' to move the shell to %q, got %q", wtPath, got)
 	}
 	assertWrapperTempFiles(t, res, 1)
 }
@@ -554,7 +554,7 @@ func assertGitWrapperNavigates(t *testing.T, shell string) {
 // TestShellInitBashWrapperGitFormNavigates covers SC-1 for bash.
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
-// 2. Installs the emitted bash wrapper and runs 'git flow feature checkout x'
+// 2. Installs the emitted bash wrapper and runs 'git pour feature checkout x'
 // 3. Verifies the shell's own working directory is now the worktree, which only the git function can achieve
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitBashWrapperGitFormNavigates(t *testing.T) {
@@ -565,7 +565,7 @@ func TestShellInitBashWrapperGitFormNavigates(t *testing.T) {
 // TestShellInitZshWrapperGitFormNavigates covers SC-1 for zsh.
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
-// 2. Installs the emitted zsh wrapper and runs 'git flow feature checkout x'
+// 2. Installs the emitted zsh wrapper and runs 'git pour feature checkout x'
 // 3. Verifies the shell's own working directory is now the worktree, which only the git function can achieve
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitZshWrapperGitFormNavigates(t *testing.T) {
@@ -576,7 +576,7 @@ func TestShellInitZshWrapperGitFormNavigates(t *testing.T) {
 // TestShellInitFishWrapperGitFormNavigates covers SC-1 for fish.
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
-// 2. Installs the emitted fish wrapper and runs 'git flow feature checkout x'
+// 2. Installs the emitted fish wrapper and runs 'git pour feature checkout x'
 // 3. Verifies the shell's own working directory is now the worktree, which only the git function can achieve
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitFishWrapperGitFormNavigates(t *testing.T) {
@@ -692,7 +692,7 @@ func TestShellInitFishWrapperDelegatesOtherGitCommands(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// W9 — 'git flow …' preserves a failure exit code
+// W9 — 'git pour …' preserves a failure exit code
 // ---------------------------------------------------------------------------
 
 // assertGitWrapperPreservesFlowFailureExitCode covers the git() route, which
@@ -708,7 +708,7 @@ func assertGitWrapperPreservesFlowFailureExitCode(t *testing.T, shell string) {
 		Shell: shell,
 		Dir:   dir,
 		Script: installWrapper(shell) +
-			"; git flow feature checkout nonexistent; " + captureStatus(shell, "rc") +
+			"; git pour feature checkout nonexistent; " + captureStatus(shell, "rc") +
 			"; echo RC=$rc; exit $rc",
 	})
 
@@ -716,15 +716,15 @@ func assertGitWrapperPreservesFlowFailureExitCode(t *testing.T, shell string) {
 		t.Errorf("Expected the shell to exit 5, got %d\nStderr: %s", res.ExitCode, res.Stderr)
 	}
 	if !strings.Contains(res.Stdout, "RC=5") {
-		t.Errorf("Expected 'git flow …' to return git-flow's exit code, got %q", res.Stdout)
+		t.Errorf("Expected 'git pour …' to return git-pour's exit code, got %q", res.Stdout)
 	}
 	assertWrapperTempFiles(t, res, 1)
 }
 
 // TestShellInitBashWrapperGitFormPreservesFailureExitCode covers SC-1 and scenario 17 for bash.
 // Steps:
-// 1. Sets up a repository with git-flow initialized
-// 2. Installs the emitted bash wrapper and runs 'git flow feature checkout nonexistent'
+// 1. Sets up a repository with git-pour initialized
+// 2. Installs the emitted bash wrapper and runs 'git pour feature checkout nonexistent'
 // 3. Verifies the recorded status is 5 and the shell exits 5
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitBashWrapperGitFormPreservesFailureExitCode(t *testing.T) {
@@ -734,8 +734,8 @@ func TestShellInitBashWrapperGitFormPreservesFailureExitCode(t *testing.T) {
 
 // TestShellInitZshWrapperGitFormPreservesFailureExitCode covers SC-1 and scenario 17 for zsh.
 // Steps:
-// 1. Sets up a repository with git-flow initialized
-// 2. Installs the emitted zsh wrapper and runs 'git flow feature checkout nonexistent'
+// 1. Sets up a repository with git-pour initialized
+// 2. Installs the emitted zsh wrapper and runs 'git pour feature checkout nonexistent'
 // 3. Verifies the recorded status is 5 and the shell exits 5
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitZshWrapperGitFormPreservesFailureExitCode(t *testing.T) {
@@ -745,8 +745,8 @@ func TestShellInitZshWrapperGitFormPreservesFailureExitCode(t *testing.T) {
 
 // TestShellInitFishWrapperGitFormPreservesFailureExitCode covers SC-1 and scenario 17 for fish.
 // Steps:
-// 1. Sets up a repository with git-flow initialized
-// 2. Installs the emitted fish wrapper and runs 'git flow feature checkout nonexistent'
+// 1. Sets up a repository with git-pour initialized
+// 2. Installs the emitted fish wrapper and runs 'git pour feature checkout nonexistent'
 // 3. Verifies the recorded status is 5 and the shell exits 5, proving the git function's own return preserved it
 // 4. Verifies exactly one temporary file was created and none was left behind
 func TestShellInitFishWrapperGitFormPreservesFailureExitCode(t *testing.T) {
@@ -758,7 +758,7 @@ func TestShellInitFishWrapperGitFormPreservesFailureExitCode(t *testing.T) {
 // W10 — a destination that cannot be entered is reported, not masked
 // ---------------------------------------------------------------------------
 
-// failedCDStub is a git-flow stand-in that writes a destination which does not
+// failedCDStub is a git-pour stand-in that writes a destination which does not
 // exist and exits 0. The wrapper is the unit under test here, and a real
 // destination that vanishes between the write and the cd cannot be produced
 // deterministically. shell-init is delegated to the real binary so the wrapper
@@ -769,13 +769,13 @@ func failedCDStub(t *testing.T) string {
 if [ "$1" = "shell-init" ]; then
     exec %q "$@"
 fi
-printf '%%s\n' "/no/such/git-flow/destination" > "$GIT_FLOW_CD_FILE"
+printf '%%s\n' "/no/such/git-pour/destination" > "$GIT_POUR_CD_FILE"
 exit 0
 `, testutil.GitFlowPath())
 }
 
 // assertWrapperReportsFailedCDAndKeepsStatus covers SC-13: a failed cd is
-// reported on stderr while git-flow's own exit code survives.
+// reported on stderr while git-pour's own exit code survives.
 func assertWrapperReportsFailedCDAndKeepsStatus(t *testing.T, shell string) {
 	t.Helper()
 	dir := initWorktreeRepo(t)
@@ -787,20 +787,20 @@ func assertWrapperReportsFailedCDAndKeepsStatus(t *testing.T, shell string) {
 		Dir:         dir,
 		StubGitFlow: failedCDStub(t),
 		Script: installWrapper(shell) +
-			"; git-flow anything; " + captureStatus(shell, "rc") +
+			"; git-pour anything; " + captureStatus(shell, "rc") +
 			"; echo RC=$rc; pwd -P; exit $rc",
 	})
 
 	if res.ExitCode != 0 {
-		t.Errorf("Expected git-flow's own exit code 0 to survive a failed cd, got %d\nStderr: %s", res.ExitCode, res.Stderr)
+		t.Errorf("Expected git-pour's own exit code 0 to survive a failed cd, got %d\nStderr: %s", res.ExitCode, res.Stderr)
 	}
 	if !strings.Contains(res.Stdout, "RC=0") {
-		t.Errorf("Expected the wrapper not to mask git-flow's status with cd's, got %q", res.Stdout)
+		t.Errorf("Expected the wrapper not to mask git-pour's status with cd's, got %q", res.Stdout)
 	}
 	if got := lastLine(res.Stdout); got != start {
 		t.Errorf("Expected the shell to stay in %q, got %q", start, got)
 	}
-	if !strings.Contains(res.Stderr, "/no/such/git-flow/destination") {
+	if !strings.Contains(res.Stderr, "/no/such/git-pour/destination") {
 		t.Errorf("Expected stderr to name the destination it could not enter, got %q", res.Stderr)
 	}
 	assertWrapperTempFiles(t, res, 1)
@@ -808,9 +808,9 @@ func assertWrapperReportsFailedCDAndKeepsStatus(t *testing.T, shell string) {
 
 // TestShellInitBashWrapperReportsFailedCD covers SC-13 for bash.
 // Steps:
-// 1. Sets up a repository and a git-flow stub that writes a destination which does not exist
+// 1. Sets up a repository and a git-pour stub that writes a destination which does not exist
 // 2. Installs the emitted bash wrapper and runs a command through it
-// 3. Verifies the recorded status and the shell's exit code are both 0, git-flow's own
+// 3. Verifies the recorded status and the shell's exit code are both 0, git-pour's own
 // 4. Verifies the working directory is unchanged and stderr names the destination
 // 5. Verifies no temporary file was left behind
 func TestShellInitBashWrapperReportsFailedCD(t *testing.T) {
@@ -820,9 +820,9 @@ func TestShellInitBashWrapperReportsFailedCD(t *testing.T) {
 
 // TestShellInitZshWrapperReportsFailedCD covers SC-13 for zsh.
 // Steps:
-// 1. Sets up a repository and a git-flow stub that writes a destination which does not exist
+// 1. Sets up a repository and a git-pour stub that writes a destination which does not exist
 // 2. Installs the emitted zsh wrapper and runs a command through it
-// 3. Verifies the recorded status and the shell's exit code are both 0, git-flow's own
+// 3. Verifies the recorded status and the shell's exit code are both 0, git-pour's own
 // 4. Verifies the working directory is unchanged and stderr names the destination
 // 5. Verifies no temporary file was left behind
 func TestShellInitZshWrapperReportsFailedCD(t *testing.T) {
@@ -832,9 +832,9 @@ func TestShellInitZshWrapperReportsFailedCD(t *testing.T) {
 
 // TestShellInitFishWrapperReportsFailedCD covers SC-13 for fish.
 // Steps:
-// 1. Sets up a repository and a git-flow stub that writes a destination which does not exist
+// 1. Sets up a repository and a git-pour stub that writes a destination which does not exist
 // 2. Installs the emitted fish wrapper and runs a command through it
-// 3. Verifies the recorded status and the shell's exit code are both 0, git-flow's own
+// 3. Verifies the recorded status and the shell's exit code are both 0, git-pour's own
 // 4. Verifies the working directory is unchanged and stderr names the destination
 // 5. Verifies no temporary file was left behind
 func TestShellInitFishWrapperReportsFailedCD(t *testing.T) {
@@ -851,7 +851,7 @@ func TestShellInitFishWrapperReportsFailedCD(t *testing.T) {
 //
 // This is a cross-shell parity test. bash and zsh get it from "${TMPDIR:-/tmp}";
 // fish had "set -q TMPDIR", which is TRUE for a set-but-empty variable, so it
-// took the branch and ran mktemp against "/git-flow-cd.XXXXXX". That fails, the
+// took the branch and ran mktemp against "/git-pour-cd.XXXXXX". That fails, the
 // wrapper takes its no-temp-file path, and navigation is silently LOST while the
 // command itself still runs and still returns the right exit code — a failure no
 // exit-code or output assertion elsewhere would catch.
@@ -868,7 +868,7 @@ func assertWrapperNavigatesWithEmptyTMPDIR(t *testing.T, shell string) {
 		Shell:  shell,
 		Dir:    dir,
 		Env:    []string{"TMPDIR="},
-		Script: installWrapper(shell) + "; git-flow feature checkout x; pwd -P",
+		Script: installWrapper(shell) + "; git-pour feature checkout x; pwd -P",
 	})
 
 	if res.ExitCode != 0 {
@@ -890,7 +890,7 @@ func assertWrapperNavigatesWithEmptyTMPDIR(t *testing.T, shell string) {
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
 // 2. Installs the emitted bash wrapper with TMPDIR set to the empty string
-// 3. Runs 'git-flow feature checkout x' and verifies the shell reached the worktree
+// 3. Runs 'git-pour feature checkout x' and verifies the shell reached the worktree
 // 4. Verifies stderr carries no mktemp diagnostic and exactly one temp file was requested
 func TestShellInitBashWrapperNavigatesWithEmptyTMPDIR(t *testing.T) {
 	t.Parallel()
@@ -902,7 +902,7 @@ func TestShellInitBashWrapperNavigatesWithEmptyTMPDIR(t *testing.T) {
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
 // 2. Installs the emitted zsh wrapper with TMPDIR set to the empty string
-// 3. Runs 'git-flow feature checkout x' and verifies the shell reached the worktree
+// 3. Runs 'git-pour feature checkout x' and verifies the shell reached the worktree
 // 4. Verifies stderr carries no mktemp diagnostic and exactly one temp file was requested
 func TestShellInitZshWrapperNavigatesWithEmptyTMPDIR(t *testing.T) {
 	t.Parallel()
@@ -915,7 +915,7 @@ func TestShellInitZshWrapperNavigatesWithEmptyTMPDIR(t *testing.T) {
 // Steps:
 // 1. Sets up a repository with feature/x and a worktree for it
 // 2. Installs the emitted fish wrapper with TMPDIR set to the empty string
-// 3. Runs 'git-flow feature checkout x' and verifies the shell reached the worktree
+// 3. Runs 'git-pour feature checkout x' and verifies the shell reached the worktree
 // 4. Verifies stderr carries no mktemp diagnostic and exactly one temp file was requested
 func TestShellInitFishWrapperNavigatesWithEmptyTMPDIR(t *testing.T) {
 	t.Parallel()
@@ -932,7 +932,7 @@ func TestShellInitFishWrapperNavigatesWithEmptyTMPDIR(t *testing.T) {
 // if RunShell and the check looked at different directories, every wrapper test
 // would pass no matter how badly the wrapper leaked.
 // Steps:
-// 1. Runs a throwaway bash script that deliberately creates a git-flow-cd.XXXX file in its TMPDIR
+// 1. Runs a throwaway bash script that deliberately creates a git-pour-cd.XXXX file in its TMPDIR
 // 2. Reads the leftovers of that same run
 // 3. Verifies exactly the deliberately leaked file is reported
 func TestShellRunLeakDetectionCatchesLeftovers(t *testing.T) {
@@ -940,14 +940,14 @@ func TestShellRunLeakDetectionCatchesLeftovers(t *testing.T) {
 	res := testutil.RunShell(t, testutil.ShellRun{
 		Shell:  "bash",
 		Dir:    t.TempDir(),
-		Script: `: > "$TMPDIR/git-flow-cd.LEAKED"`,
+		Script: `: > "$TMPDIR/git-pour-cd.LEAKED"`,
 	})
 	if res.ExitCode != 0 {
 		t.Fatalf("Expected the throwaway script to succeed, got %d\nStderr: %s", res.ExitCode, res.Stderr)
 	}
 
 	leftovers := testutil.ShellTempFileLeftovers(t, res.TempDir)
-	if len(leftovers) != 1 || filepath.Base(leftovers[0]) != "git-flow-cd.LEAKED" {
+	if len(leftovers) != 1 || filepath.Base(leftovers[0]) != "git-pour-cd.LEAKED" {
 		t.Errorf("Expected the deliberate leak to be detected, got %v", leftovers)
 	}
 }

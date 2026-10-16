@@ -110,8 +110,8 @@ After acceptance, verify `spec.md` and any comment body against the
    - Attach the spec as a native GitHub sub-issue of the report (report is the
      parent, spec is the child):
      ```bash
-     SPEC_ID=$(gh api repos/gittower/git-flow-next/issues/<spec#> --jq '.id')
-     gh api repos/gittower/git-flow-next/issues/<report#>/sub_issues \
+     SPEC_ID=$(gh api repos/OnionRings-dev/git-pour-now/issues/<spec#> --jq '.id')
+     gh api repos/OnionRings-dev/git-pour-now/issues/<report#>/sub_issues \
        -F sub_issue_id="$SPEC_ID"
      ```
      `sub_issue_id` is the report child's REST database `id`, **not** the

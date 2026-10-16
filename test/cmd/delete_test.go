@@ -5,13 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/test/testutil"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/test/testutil"
 )
 
 // TestDeleteFeature tests the basic branch deletion functionality for feature branches.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds unmerged changes to the feature branch
 // 4. Attempts to delete without force flag (should fail)
@@ -23,10 +23,10 @@ func TestDeleteFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -66,7 +66,7 @@ func TestDeleteFeature(t *testing.T) {
 
 // TestDeleteCurrentFeature tests deleting a feature branch while it is checked out.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates and checks out a feature branch
 // 3. Deletes the current branch with force flag
 // 4. Verifies we're automatically switched to develop branch
@@ -77,10 +77,10 @@ func TestDeleteCurrentFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create and checkout a feature branch
@@ -109,7 +109,7 @@ func TestDeleteCurrentFeature(t *testing.T) {
 
 // TestDeleteNonExistentFeature tests the behavior when attempting to delete a branch that doesn't exist.
 // Steps:
-//  1. Sets up a test repository and initializes git-flow
+//  1. Sets up a test repository and initializes git-pour
 //  2. Attempts to delete a non-existent branch
 //  3. Verifies the operation fails with a branch-not-found error (exit code 5),
 //     not the "not initialized" error — proving the uninitialized gate does not
@@ -120,10 +120,10 @@ func TestDeleteNonExistentFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to delete non-existent branch
@@ -149,7 +149,7 @@ func TestDeleteNonExistentFeature(t *testing.T) {
 
 // TestDeleteMergedFeature tests the behavior when attempting to delete a branch that has already been merged.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds changes and commits them
 // 4. Finishes the feature branch (merges it)
@@ -161,10 +161,10 @@ func TestDeleteMergedFeature(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create a feature branch
@@ -199,7 +199,7 @@ func TestDeleteMergedFeature(t *testing.T) {
 
 // TestDeleteWithInvalidBranchType tests the behavior when attempting to delete a branch with an invalid branch type.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Attempts to delete a branch using an invalid branch type
 // 3. Verifies the operation fails with appropriate error
 func TestDeleteWithInvalidBranchType(t *testing.T) {
@@ -208,10 +208,10 @@ func TestDeleteWithInvalidBranchType(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Try to delete with invalid branch type
@@ -223,7 +223,7 @@ func TestDeleteWithInvalidBranchType(t *testing.T) {
 
 // TestDeleteFeatureWithRemote tests the basic remote deletion functionality using the --remote flag.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a remote repository and pushes the branch
 // 4. Verifies the branch exists on remote
@@ -235,10 +235,10 @@ func TestDeleteFeatureWithRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch
@@ -279,8 +279,8 @@ func TestDeleteFeatureWithRemote(t *testing.T) {
 
 // TestDeleteFeatureWithConfigEnabled tests remote deletion when enabled through configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Enables remote deletion in git-flow config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Enables remote deletion in git-pour config
 // 3. Creates a feature branch
 // 4. Adds a remote repository and pushes the branch
 // 5. Verifies the branch exists on remote
@@ -292,14 +292,14 @@ func TestDeleteFeatureWithConfigEnabled(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Enable remote deletion in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.deleteRemote", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.deleteRemote", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -342,8 +342,8 @@ func TestDeleteFeatureWithConfigEnabled(t *testing.T) {
 
 // TestDeleteFeatureWithConfigDisabled tests that remote deletion is disabled when configured.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Disables remote deletion in git-flow config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Disables remote deletion in git-pour config
 // 3. Creates a feature branch
 // 4. Adds a remote repository and pushes the branch
 // 5. Verifies the branch exists on remote
@@ -355,14 +355,14 @@ func TestDeleteFeatureWithConfigDisabled(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Disable remote deletion in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.deleteRemote", "false")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.deleteRemote", "false")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -405,8 +405,8 @@ func TestDeleteFeatureWithConfigDisabled(t *testing.T) {
 
 // TestDeleteFeatureWithCommandLineOverride tests that command line flag overrides configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Disables remote deletion in git-flow config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Disables remote deletion in git-pour config
 // 3. Creates a feature branch
 // 4. Adds a remote repository and pushes the branch
 // 5. Verifies the branch exists on remote
@@ -418,14 +418,14 @@ func TestDeleteFeatureWithCommandLineOverride(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Disable remote deletion in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.deleteRemote", "false")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.deleteRemote", "false")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -468,7 +468,7 @@ func TestDeleteFeatureWithCommandLineOverride(t *testing.T) {
 
 // TestDeleteFeatureWithNonExistentRemote tests the behavior when attempting to delete a remote branch that doesn't exist.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Creates a feature branch
 // 3. Adds a remote repository but doesn't push the branch
 // 4. Attempts to delete the branch with --remote flag
@@ -480,10 +480,10 @@ func TestDeleteFeatureWithNonExistentRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch
@@ -517,10 +517,10 @@ func TestDeleteFeatureWithNonExistentRemote(t *testing.T) {
 	}
 }
 
-// TestDeleteFeatureWithCustomRemote tests remote deletion using a custom remote name configured in git-flow config.
+// TestDeleteFeatureWithCustomRemote tests remote deletion using a custom remote name configured in git-pour config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Configures a custom remote name in git-flow config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Configures a custom remote name in git-pour config
 // 3. Creates a feature branch
 // 4. Adds a remote repository with the custom name and pushes the branch
 // 5. Verifies the branch exists on remote
@@ -532,15 +532,15 @@ func TestDeleteFeatureWithCustomRemote(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Configure custom remote name
 	customRemote := "upstream"
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.origin", customRemote)
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.origin", customRemote)
 	if err != nil {
 		t.Fatalf("Failed to set custom remote name: %v", err)
 	}
@@ -583,8 +583,8 @@ func TestDeleteFeatureWithCustomRemote(t *testing.T) {
 
 // TestDeleteFeatureWithNoRemoteOverride tests that the --no-remote flag overrides configuration.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Enables remote deletion in git-flow config
+// 1. Sets up a test repository and initializes git-pour
+// 2. Enables remote deletion in git-pour config
 // 3. Creates a feature branch
 // 4. Adds a remote repository and pushes the branch
 // 5. Verifies the branch exists on remote
@@ -596,14 +596,14 @@ func TestDeleteFeatureWithNoRemoteOverride(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow
+	// Initialize git-pour
 	_, err := testutil.RunGitFlow(t, dir, "init")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Enable remote deletion in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.branch.feature.deleteRemote", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.branch.feature.deleteRemote", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -646,7 +646,7 @@ func TestDeleteFeatureWithNoRemoteOverride(t *testing.T) {
 
 // TestDeleteCleansUpBaseBranchConfig tests that delete command cleans up base branch config.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch (which stores base config)
 // 3. Verifies base config exists
 // 4. Deletes the feature branch
@@ -657,10 +657,10 @@ func TestDeleteCleansUpBaseBranchConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch
@@ -670,7 +670,7 @@ func TestDeleteCleansUpBaseBranchConfig(t *testing.T) {
 	}
 
 	// Verify base config exists
-	_, err = testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/config-cleanup-test.base")
+	_, err = testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/config-cleanup-test.base")
 	if err != nil {
 		t.Fatalf("Expected base config to exist after start: %v", err)
 	}
@@ -682,7 +682,7 @@ func TestDeleteCleansUpBaseBranchConfig(t *testing.T) {
 	}
 
 	// Verify base config is cleaned up
-	_, err = testutil.RunGit(t, dir, "config", "--get", "gitflow.branch.feature/config-cleanup-test.base")
+	_, err = testutil.RunGit(t, dir, "config", "--get", "gitpour.branch.feature/config-cleanup-test.base")
 	if err == nil {
 		t.Error("Expected base config to be cleaned up after delete, but it still exists")
 	}
@@ -693,9 +693,9 @@ func TestDeleteCleansUpBaseBranchConfig(t *testing.T) {
 	}
 }
 
-// TestDeleteForceWithConfig tests that the gitflow.<type>.delete.force config enables force deletion.
+// TestDeleteForceWithConfig tests that the gitpour.<type>.delete.force config enables force deletion.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Enables force delete in config for feature branches
 // 3. Creates a feature branch with unmerged changes
 // 4. Deletes without --force flag (should succeed due to config)
@@ -706,14 +706,14 @@ func TestDeleteForceWithConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Enable force delete in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.delete.force", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.delete.force", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -749,7 +749,7 @@ func TestDeleteForceWithConfig(t *testing.T) {
 
 // TestDeleteNoForceOverridesConfig tests that --no-force overrides the config setting.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Enables force delete in config for feature branches
 // 3. Creates a feature branch with unmerged changes
 // 4. Deletes with --no-force flag (should fail despite config)
@@ -760,14 +760,14 @@ func TestDeleteNoForceOverridesConfig(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Enable force delete in config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.delete.force", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.delete.force", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -803,7 +803,7 @@ func TestDeleteNoForceOverridesConfig(t *testing.T) {
 
 // TestDeleteForceConfigAcrossBranchTypes tests that force config works for different branch types.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
+// 1. Sets up a test repository and initializes git-pour
 // 2. Enables force delete in config for release branches
 // 3. Creates a release branch with unmerged changes
 // 4. Deletes without --force flag (should succeed due to config)
@@ -814,14 +814,14 @@ func TestDeleteForceConfigAcrossBranchTypes(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Enable force delete in config for release branches
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.release.delete.force", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.release.delete.force", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -857,10 +857,10 @@ func TestDeleteForceConfigAcrossBranchTypes(t *testing.T) {
 
 // TestDeleteFeatureBranchRemoteNoRemoteError tests that delete --remote returns a clear error when no remote is configured.
 // Steps:
-// 1. Sets up a test repository (no remote) and initializes git-flow with defaults
-// 2. Creates a feature branch with 'git flow feature start test-feature'
+// 1. Sets up a test repository (no remote) and initializes git-pour with defaults
+// 2. Creates a feature branch with 'git pour feature start test-feature'
 // 3. Adds a commit to the feature branch
-// 4. Runs 'git flow feature delete test-feature --remote'
+// 4. Runs 'git pour feature delete test-feature --remote'
 // 5. Verifies the command fails with an error
 // 6. Verifies the error message mentions the missing remote (contains "No remote")
 // 7. Verifies the feature branch still exists locally (not deleted despite the error)
@@ -870,10 +870,10 @@ func TestDeleteFeatureBranchRemoteNoRemoteError(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch
@@ -921,7 +921,7 @@ func TestDeleteFeatureBranchRemoteNoRemoteError(t *testing.T) {
 // published branch instead of starting it) does not print a spurious base-config
 // cleanup warning.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch (which stores base config)
 // 3. Removes the base config to simulate a checked-out (not started) branch
 // 4. Deletes the feature branch
@@ -932,10 +932,10 @@ func TestDeleteWithMissingBaseConfigNoWarning(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores base config)
@@ -945,7 +945,7 @@ func TestDeleteWithMissingBaseConfigNoWarning(t *testing.T) {
 	}
 
 	// Remove the base config to simulate a checked-out (not started) branch
-	_, err = testutil.RunGit(t, dir, "config", "--unset", "gitflow.branch.feature/missing-base.base")
+	_, err = testutil.RunGit(t, dir, "config", "--unset", "gitpour.branch.feature/missing-base.base")
 	if err != nil {
 		t.Fatalf("Failed to unset base config: %v", err)
 	}
@@ -972,7 +972,7 @@ func TestDeleteWithMissingBaseConfigNoWarning(t *testing.T) {
 // because a multi-value key is a genuine failure that --unset cannot resolve and
 // must not be silently swallowed like a missing key.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
+// 1. Sets up a test repository and initializes git-pour with defaults
 // 2. Creates a feature branch (which stores base config)
 // 3. Adds a second value to the base config key
 // 4. Deletes the feature branch
@@ -983,10 +983,10 @@ func TestDeleteWithMultiValueBaseConfigWarns(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores base config)
@@ -996,7 +996,7 @@ func TestDeleteWithMultiValueBaseConfigWarns(t *testing.T) {
 	}
 
 	// Add a second value so the key becomes multi-value
-	_, err = testutil.RunGit(t, dir, "config", "--add", "gitflow.branch.feature/multi-base.base", "other-base")
+	_, err = testutil.RunGit(t, dir, "config", "--add", "gitpour.branch.feature/multi-base.base", "other-base")
 	if err != nil {
 		t.Fatalf("Failed to add second base config value: %v", err)
 	}
@@ -1026,7 +1026,7 @@ func TestDeleteWithMultiValueBaseConfigWarns(t *testing.T) {
 // fails to unset.
 // Steps:
 // 1. Isolates the global config to a temp file so the real global config is untouched
-// 2. Sets up a test repository and initializes git-flow with defaults
+// 2. Sets up a test repository and initializes git-pour with defaults
 // 3. Creates a feature branch (which stores the base config locally)
 // 4. Unsets the local base key to simulate a branch not started locally
 // 5. Adds the base key to the global scope only
@@ -1044,10 +1044,10 @@ func TestDeleteWithBaseConfigInNonLocalScopeNoWarning(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults")
+	// Initialize git-pour with defaults
+	output, err := runGitFlowWithEnv(t, dir, env, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
 	// Create feature branch (stores base config locally)
@@ -1057,13 +1057,13 @@ func TestDeleteWithBaseConfigInNonLocalScopeNoWarning(t *testing.T) {
 	}
 
 	// Remove the local base key to simulate a branch not started locally
-	_, err = testutil.RunGitWithEnv(t, dir, env, "config", "--local", "--unset", "gitflow.branch.feature/scoped-base.base")
+	_, err = testutil.RunGitWithEnv(t, dir, env, "config", "--local", "--unset", "gitpour.branch.feature/scoped-base.base")
 	if err != nil {
 		t.Fatalf("Failed to unset local base config: %v", err)
 	}
 
 	// Add the base key to the global scope only (lands in the isolated GIT_CONFIG_GLOBAL file)
-	_, err = testutil.RunGitWithEnv(t, dir, env, "config", "--global", "--add", "gitflow.branch.feature/scoped-base.base", "develop")
+	_, err = testutil.RunGitWithEnv(t, dir, env, "config", "--global", "--add", "gitpour.branch.feature/scoped-base.base", "develop")
 	if err != nil {
 		t.Fatalf("Failed to add global base config: %v", err)
 	}
@@ -1087,9 +1087,9 @@ func TestDeleteWithBaseConfigInNonLocalScopeNoWarning(t *testing.T) {
 
 // TestDeleteFeatureWithFetchFlag tests that the --fetch flag fetches before deleting.
 // Steps:
-// 1. Sets up a test repository with remote (includes git-flow init)
+// 1. Sets up a test repository with remote (includes git-pour init)
 // 2. Starts a feature branch
-// 3. Runs 'git flow feature delete my-feature --fetch'
+// 3. Runs 'git pour feature delete my-feature --fetch'
 // 4. Verifies output contains "Fetching from remote"
 // 5. Verifies branch is deleted
 func TestDeleteFeatureWithFetchFlag(t *testing.T) {
@@ -1122,12 +1122,12 @@ func TestDeleteFeatureWithFetchFlag(t *testing.T) {
 	}
 }
 
-// TestDeleteFeatureWithFetchConfig tests that gitflow.feature.delete.fetch config triggers fetch.
+// TestDeleteFeatureWithFetchConfig tests that gitpour.feature.delete.fetch config triggers fetch.
 // Steps:
-// 1. Sets up a test repository with remote (includes git-flow init)
+// 1. Sets up a test repository with remote (includes git-pour init)
 // 2. Starts a feature branch
-// 3. Sets gitflow.feature.delete.fetch to true
-// 4. Runs 'git flow feature delete my-feature' (no flag)
+// 3. Sets gitpour.feature.delete.fetch to true
+// 4. Runs 'git pour feature delete my-feature' (no flag)
 // 5. Verifies output contains "Fetching from remote"
 // 6. Verifies branch is deleted
 func TestDeleteFeatureWithFetchConfig(t *testing.T) {
@@ -1144,7 +1144,7 @@ func TestDeleteFeatureWithFetchConfig(t *testing.T) {
 	}
 
 	// Set fetch config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.delete.fetch", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.delete.fetch", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -1168,10 +1168,10 @@ func TestDeleteFeatureWithFetchConfig(t *testing.T) {
 
 // TestDeleteFeatureWithNoFetchOverridesConfig tests that --no-fetch overrides fetch config.
 // Steps:
-// 1. Sets up a test repository with remote (includes git-flow init)
+// 1. Sets up a test repository with remote (includes git-pour init)
 // 2. Starts a feature branch
-// 3. Sets gitflow.feature.delete.fetch to true
-// 4. Runs 'git flow feature delete my-feature --no-fetch'
+// 3. Sets gitpour.feature.delete.fetch to true
+// 4. Runs 'git pour feature delete my-feature --no-fetch'
 // 5. Verifies output does NOT contain "Fetching"
 // 6. Verifies branch is deleted
 func TestDeleteFeatureWithNoFetchOverridesConfig(t *testing.T) {
@@ -1188,7 +1188,7 @@ func TestDeleteFeatureWithNoFetchOverridesConfig(t *testing.T) {
 	}
 
 	// Set fetch config
-	_, err = testutil.RunGit(t, dir, "config", "gitflow.feature.delete.fetch", "true")
+	_, err = testutil.RunGit(t, dir, "config", "gitpour.feature.delete.fetch", "true")
 	if err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
@@ -1212,9 +1212,9 @@ func TestDeleteFeatureWithNoFetchOverridesConfig(t *testing.T) {
 
 // TestDeleteFeatureNoRemoteFetchSkipped tests that --fetch silently skips when no remote exists.
 // Steps:
-// 1. Sets up a test repository (no remote) and initializes git-flow with defaults
+// 1. Sets up a test repository (no remote) and initializes git-pour with defaults
 // 2. Starts a feature branch
-// 3. Runs 'git flow feature delete my-feature --fetch'
+// 3. Runs 'git pour feature delete my-feature --fetch'
 // 4. Verifies output does NOT contain "Fetching" (fetch skipped silently)
 // 5. Verifies no error about missing remote
 // 6. Verifies branch is deleted
@@ -1224,10 +1224,10 @@ func TestDeleteFeatureNoRemoteFetchSkipped(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Initialize git-flow with defaults
-	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	// Initialize git-pour with defaults
+	_, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
 	// Create a feature branch
@@ -1316,8 +1316,8 @@ func setupBehindDeleteRepo(t *testing.T, feature string) string {
 // finish).
 // Steps:
 // 1. Sets up a repo whose local feature branch is behind its remote
-// 2. Runs 'git flow feature delete --fetch' and expects an abort mentioning "behind"
-// 3. Confirms the error recommends 'git flow feature delete --force' and not 'finish --force'
+// 2. Runs 'git pour feature delete --fetch' and expects an abort mentioning "behind"
+// 3. Confirms the error recommends 'git pour feature delete --force' and not 'finish --force'
 // 4. Confirms the branch still exists
 func TestDeleteFeatureBehindRemoteAborts(t *testing.T) {
 	t.Parallel()
@@ -1332,8 +1332,8 @@ func TestDeleteFeatureBehindRemoteAborts(t *testing.T) {
 		t.Errorf("Expected abort message to mention 'behind'. Output: %s", output)
 	}
 	// The abort must recommend the delete command, not finish (#88 operation-aware message).
-	if !strings.Contains(output, "git flow feature delete --force") {
-		t.Errorf("Expected abort to recommend 'git flow feature delete --force'. Output: %s", output)
+	if !strings.Contains(output, "git pour feature delete --force") {
+		t.Errorf("Expected abort to recommend 'git pour feature delete --force'. Output: %s", output)
 	}
 	if strings.Contains(output, "finish --force") {
 		t.Errorf("Expected abort not to mention 'finish --force'. Output: %s", output)
@@ -1347,7 +1347,7 @@ func TestDeleteFeatureBehindRemoteAborts(t *testing.T) {
 // deletes a branch that is behind its remote.
 // Steps:
 // 1. Sets up a repo whose local feature branch is behind its remote
-// 2. Runs 'git flow feature delete --fetch --force' and expects it to succeed
+// 2. Runs 'git pour feature delete --fetch --force' and expects it to succeed
 // 3. Confirms the branch is deleted
 func TestDeleteFeatureBehindRemoteForceOverrides(t *testing.T) {
 	t.Parallel()
@@ -1367,14 +1367,14 @@ func TestDeleteFeatureBehindRemoteForceOverrides(t *testing.T) {
 // Steps:
 // 1. Sets up a repo whose local feature branch is behind its remote
 // 2. Runs a plain 'git fetch' so the remote-tracking ref reflects the behind state locally
-// 3. Runs 'git flow feature delete --no-fetch' and expects an abort mentioning "behind"
+// 3. Runs 'git pour feature delete --no-fetch' and expects an abort mentioning "behind"
 // 4. Confirms no "Fetching" line was printed (the fetch really was skipped)
 // 5. Confirms the branch still exists
 func TestDeleteFeatureNoFetchStillAbortsWhenBehind(t *testing.T) {
 	t.Parallel()
 	dir := setupBehindDeleteRepo(t, "no-fetch-behind")
 
-	// Update the remote-tracking ref locally without git-flow fetching, so the cached tracking
+	// Update the remote-tracking ref locally without git-pour fetching, so the cached tracking
 	// data already shows the branch is behind.
 	if _, err := testutil.RunGit(t, dir, "fetch", "origin"); err != nil {
 		t.Fatalf("Failed to fetch: %v", err)
@@ -1402,8 +1402,8 @@ func TestDeleteFeatureNoFetchStillAbortsWhenBehind(t *testing.T) {
 // 1. Sets up a repo with remote, starts a feature branch, commits, and pushes it with tracking
 // 2. In a second clone, advances the remote feature branch (remote gains a commit)
 // 3. Adds a different local commit so the branch diverges
-// 4. Runs 'git flow feature delete --fetch' and expects an abort mentioning "diverged"
-// 5. Confirms the error recommends 'git flow feature delete --force' and not 'finish --force'
+// 4. Runs 'git pour feature delete --fetch' and expects an abort mentioning "diverged"
+// 5. Confirms the error recommends 'git pour feature delete --force' and not 'finish --force'
 // 6. Confirms the branch still exists
 func TestDeleteFeatureDivergedRemoteAborts(t *testing.T) {
 	t.Parallel()
@@ -1469,8 +1469,8 @@ func TestDeleteFeatureDivergedRemoteAborts(t *testing.T) {
 	if !strings.Contains(output, "diverged") {
 		t.Errorf("Expected abort message to mention 'diverged'. Output: %s", output)
 	}
-	if !strings.Contains(output, "git flow feature delete --force") {
-		t.Errorf("Expected abort to recommend 'git flow feature delete --force'. Output: %s", output)
+	if !strings.Contains(output, "git pour feature delete --force") {
+		t.Errorf("Expected abort to recommend 'git pour feature delete --force'. Output: %s", output)
 	}
 	if strings.Contains(output, "finish --force") {
 		t.Errorf("Expected abort not to mention 'finish --force'. Output: %s", output)
@@ -1491,7 +1491,7 @@ func TestDeleteFeatureDivergedRemoteAborts(t *testing.T) {
 // Steps:
 //  1. Sets up a repo with remote, starts a feature branch, commits, and pushes it with tracking
 //  2. Adds a local commit that is not pushed, so the branch is ahead of its remote
-//  3. Runs 'git flow feature delete --fetch' and confirms the ahead state is tolerated (a note is
+//  3. Runs 'git pour feature delete --fetch' and confirms the ahead state is tolerated (a note is
 //     printed) and the sync gate does NOT abort (no delete/finish --force recommendation)
 func TestDeleteFeatureAheadRemoteTolerated(t *testing.T) {
 	t.Parallel()
@@ -1554,7 +1554,7 @@ func TestDeleteFeatureAheadRemoteTolerated(t *testing.T) {
 // Steps:
 // 1. Sets up a repo with remote, starts a feature branch, commits, and pushes it
 // 2. In a second clone, merges the feature into develop, pushes develop, deletes the remote feature
-// 3. Checks out the parent and runs 'git flow feature delete --fetch' (no --force)
+// 3. Checks out the parent and runs 'git pour feature delete --fetch' (no --force)
 // 4. The fetch fast-forwards develop so `git branch -d` recognizes the branch as merged
 func TestDeleteFeatureMergedRemotely(t *testing.T) {
 	t.Parallel()
@@ -1619,22 +1619,22 @@ func TestDeleteFeatureMergedRemotely(t *testing.T) {
 }
 
 // TestDeleteWithoutInitialization tests the delete command in a repository where
-// git-flow has not been initialized.
+// git-pour has not been initialized.
 // Steps:
-//  1. Sets up a plain Git repository without running git flow init
+//  1. Sets up a plain Git repository without running git pour init
 //  2. Attempts to delete a feature branch
 //  3. Verifies the command fails with the "not initialized" error and exit code,
 //     rather than a misleading "branch does not exist" error
 func TestDeleteWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
 	// Attempt to delete a feature branch without initialization
 	output, err := testutil.RunGitFlow(t, dir, "feature", "delete", "foo")
 	if err == nil {
-		t.Fatal("Expected delete to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected delete to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -1647,38 +1647,38 @@ func TestDeleteWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message is the "not initialized" message, not "does not exist"
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 	if strings.Contains(output, "does not exist") {
 		t.Errorf("Expected no misleading 'does not exist' error, got: %s", output)
 	}
 
-	// Verify no branch was created and git-flow is still not initialized
+	// Verify no branch was created and git-pour is still not initialized
 	if testutil.BranchExists(t, dir, "feature/foo") {
 		t.Error("Expected no branch to be created, but 'feature/foo' exists")
 	}
-	if _, err := testutil.RunGit(t, dir, "config", "--get", "gitflow.version"); err == nil {
-		t.Error("Expected git-flow to still not be initialized after failed command")
+	if _, err := testutil.RunGit(t, dir, "config", "--get", "gitpour.version"); err == nil {
+		t.Error("Expected git-pour to still not be initialized after failed command")
 	}
 }
 
-// TestDeleteHotfixWithoutInitialization tests that the delete command's
+// TestDeletePrereleaseWithoutInitialization tests that the delete command's
 // initialization gate is branch-type agnostic by exercising a non-feature type.
 // Steps:
-// 1. Sets up a plain Git repository without running git flow init
-// 2. Attempts to delete a hotfix branch
+// 1. Sets up a plain Git repository without running git pour init
+// 2. Attempts to delete a prerelease branch
 // 3. Verifies the command fails with the "not initialized" error and exit code
-func TestDeleteHotfixWithoutInitialization(t *testing.T) {
+func TestDeletePrereleaseWithoutInitialization(t *testing.T) {
 	t.Parallel()
-	// Setup: plain repo, git-flow NOT initialized
+	// Setup: plain repo, git-pour NOT initialized
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	// Attempt to delete a hotfix branch without initialization
-	output, err := testutil.RunGitFlow(t, dir, "hotfix", "delete", "x")
+	// Attempt to delete a prerelease branch without initialization
+	output, err := testutil.RunGitFlow(t, dir, "prerelease", "delete", "x")
 	if err == nil {
-		t.Fatal("Expected delete to fail without git-flow initialization, but it succeeded")
+		t.Fatal("Expected delete to fail without git-pour initialization, but it succeeded")
 	}
 
 	// Check exit code
@@ -1691,16 +1691,16 @@ func TestDeleteHotfixWithoutInitialization(t *testing.T) {
 	}
 
 	// Verify error message
-	if !strings.Contains(output, "Error: git flow is not initialized") {
+	if !strings.Contains(output, "Error: git pour is not initialized") {
 		t.Errorf("Expected 'not initialized' error, got: %s", output)
 	}
 }
 
-// TestDeleteForceConfigYesForceDeletes tests that gitflow.feature.delete.force=yes
+// TestDeleteForceConfigYesForceDeletes tests that gitpour.feature.delete.force=yes
 // enables force deletion, matching git-config's truthy "yes" spelling.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow with defaults
-// 2. Sets gitflow.feature.delete.force=yes
+// 1. Sets up a test repository and initializes git-pour with defaults
+// 2. Sets gitpour.feature.delete.force=yes
 // 3. Creates a feature branch with an unmerged commit
 // 4. Deletes without --force flag
 // 5. Verifies the branch is deleted
@@ -1709,12 +1709,12 @@ func TestDeleteForceConfigYesForceDeletes(t *testing.T) {
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
 
-	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults")
+	output, err := testutil.RunGitFlow(t, dir, "init", "--defaults", "--preset=classic")
 	if err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v\nOutput: %s", err, output)
+		t.Fatalf("Failed to initialize git-pour: %v\nOutput: %s", err, output)
 	}
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.delete.force", "yes"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.delete.force", "yes"); err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
@@ -1741,13 +1741,13 @@ func TestDeleteForceConfigYesForceDeletes(t *testing.T) {
 	}
 }
 
-// TestDeleteFetchConfigOnFetches tests that gitflow.feature.delete.fetch=on triggers
+// TestDeleteFetchConfigOnFetches tests that gitpour.feature.delete.fetch=on triggers
 // the fetch, matching git-config's truthy "on" spelling.
 // Steps:
-// 1. Sets up a test repository with remote (includes git-flow init)
+// 1. Sets up a test repository with remote (includes git-pour init)
 // 2. Starts a feature branch
-// 3. Sets gitflow.feature.delete.fetch to on
-// 4. Runs 'git flow feature delete test-fetch-on' (no flag)
+// 3. Sets gitpour.feature.delete.fetch to on
+// 4. Runs 'git pour feature delete test-fetch-on' (no flag)
 // 5. Verifies output contains "Fetching from remote"
 // 6. Verifies the branch is deleted
 func TestDeleteFetchConfigOnFetches(t *testing.T) {
@@ -1760,7 +1760,7 @@ func TestDeleteFetchConfigOnFetches(t *testing.T) {
 		t.Fatalf("Failed to create feature branch: %v", err)
 	}
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.feature.delete.fetch", "on"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.feature.delete.fetch", "on"); err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 
@@ -1777,11 +1777,11 @@ func TestDeleteFetchConfigOnFetches(t *testing.T) {
 	}
 }
 
-// TestDeleteRemoteConfigOneDeletesRemote tests that gitflow.branch.feature.deleteRemote=1
+// TestDeleteRemoteConfigOneDeletesRemote tests that gitpour.branch.feature.deleteRemote=1
 // enables remote deletion, matching git-config's truthy non-zero-integer spelling.
 // Steps:
-// 1. Sets up a test repository and initializes git-flow
-// 2. Sets gitflow.branch.feature.deleteRemote=1
+// 1. Sets up a test repository and initializes git-pour
+// 2. Sets gitpour.branch.feature.deleteRemote=1
 // 3. Creates a feature branch
 // 4. Adds a bare remote and pushes the branch, verifying it exists there
 // 5. Deletes the branch without --remote flag
@@ -1792,10 +1792,10 @@ func TestDeleteRemoteConfigOneDeletesRemote(t *testing.T) {
 	defer testutil.CleanupTestRepo(t, dir)
 
 	if _, err := testutil.RunGitFlow(t, dir, "init"); err != nil {
-		t.Fatalf("Failed to initialize git-flow: %v", err)
+		t.Fatalf("Failed to initialize git-pour: %v", err)
 	}
 
-	if _, err := testutil.RunGit(t, dir, "config", "gitflow.branch.feature.deleteRemote", "1"); err != nil {
+	if _, err := testutil.RunGit(t, dir, "config", "gitpour.branch.feature.deleteRemote", "1"); err != nil {
 		t.Fatalf("Failed to set config: %v", err)
 	}
 

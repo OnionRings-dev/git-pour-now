@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"github.com/gittower/git-flow-next/internal/config"
-	"github.com/gittower/git-flow-next/internal/errors"
-	"github.com/gittower/git-flow-next/internal/git"
-	"github.com/gittower/git-flow-next/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/internal/config"
+	"github.com/OnionRings-dev/git-pour-now/internal/errors"
+	"github.com/OnionRings-dev/git-pour-now/internal/git"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
 )
 
 // refuseIfForeignOperation enforces the issue #143 invariant: a resumable command
@@ -82,8 +82,8 @@ func refuseIfForeignOperation(repo *git.Repo, cfg *config.Config, currentCommand
 
 // topicTypeOrEmpty returns branchType when it names a configured topic branch
 // type, otherwise "". The owner-aware refusal message uses this to recommend the
-// topic-scoped command (git flow <type> update) only for real topic types, and
-// the base/top-level command (git flow update) for base branches.
+// topic-scoped command (git pour <type> update) only for real topic types, and
+// the base/top-level command (git pour update) for base branches.
 func topicTypeOrEmpty(cfg *config.Config, branchType string) string {
 	if bc, ok := cfg.Branches[branchType]; ok && bc.Type == string(config.BranchTypeTopic) {
 		return branchType

@@ -1,10 +1,10 @@
-// Package navigate implements the channel git-flow uses to hand a destination
+// Package navigate implements the channel git-pour uses to hand a destination
 // directory back to the calling shell.
 //
-// git-flow runs as a subprocess and cannot change its parent shell's working
+// git-pour runs as a subprocess and cannot change its parent shell's working
 // directory. A command that would move the user therefore writes its destination
-// to the file named by GIT_FLOW_CD_FILE, leaving the caller that set the variable
-// to read the file and change directory itself. The variable is an input git-flow
+// to the file named by GIT_POUR_CD_FILE, leaving the caller that set the variable
+// to read the file and change directory itself. The variable is an input git-pour
 // reads, never one it sets: it describes one invocation's calling environment,
 // not a repository preference, which is why it is not a git config key.
 package navigate
@@ -17,7 +17,7 @@ import (
 )
 
 // EnvVar names the environment variable holding the destination file.
-const EnvVar = "GIT_FLOW_CD_FILE"
+const EnvVar = "GIT_POUR_CD_FILE"
 
 // DestinationFile returns the absolute path of the file to write the destination
 // to, or "" when the channel is not in use.

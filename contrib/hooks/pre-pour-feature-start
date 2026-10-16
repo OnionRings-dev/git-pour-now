@@ -1,12 +1,12 @@
 #!/bin/sh
-# pre-flow-feature-start
+# pre-pour-feature-start
 #
 # This hook validates feature branch names before creation.
 # It enforces naming conventions to keep branch names consistent.
 #
 # Usage: Copy to .git/hooks/ and make executable:
-#   cp contrib/hooks/pre-flow-feature-start .git/hooks/
-#   chmod +x .git/hooks/pre-flow-feature-start
+#   cp contrib/hooks/pre-pour-feature-start .git/hooks/
+#   chmod +x .git/hooks/pre-pour-feature-start
 #
 # Environment variables:
 #   BRANCH_TYPE  - The branch type (feature)

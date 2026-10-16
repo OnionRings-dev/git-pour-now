@@ -26,7 +26,7 @@ use `/address-review`.
 
 ### Step 1: Fetch Prior Round State
 
-Fetch in parallel (owner `gittower`, repo `git-flow-next`):
+Fetch in parallel (owner `OnionRings-dev`, repo `git-pour-now`):
 
 - PR details: `mcp__github__get_pull_request` — current HEAD SHA, head branch, base
 - Reviews: `mcp__github__get_pull_request_reviews`

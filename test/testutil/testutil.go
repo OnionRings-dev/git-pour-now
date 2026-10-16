@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gittower/git-flow-next/internal/mergestate"
+	"github.com/OnionRings-dev/git-pour-now/internal/mergestate"
 )
 
 // ExitError represents an error with an exit code
@@ -45,7 +45,7 @@ func LoadMergeState(t *testing.T, dir string) (*mergestate.MergeState, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine git directory: %w", err)
 	}
-	stateFile := filepath.Join(gitDir, "gitflow", "state", "merge.json")
+	stateFile := filepath.Join(gitDir, "gitpour", "state", "merge.json")
 	data, err := os.ReadFile(stateFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read merge state file: %w", err)
@@ -87,14 +87,14 @@ func FileExists(t *testing.T, dir string, path string) bool {
 	return err == nil
 }
 
-// GitFlowMergeStateExists checks if the git-flow merge state file exists
+// GitFlowMergeStateExists checks if the git-pour merge state file exists
 func GitFlowMergeStateExists(t *testing.T, dir string) bool {
 	t.Helper()
 	gitDir, err := getGitDirForRepo(dir)
 	if err != nil {
 		t.Fatalf("Failed to determine git directory for repo %s: %v", dir, err)
 	}
-	stateFile := filepath.Join(gitDir, "gitflow", "state", "merge.json")
+	stateFile := filepath.Join(gitDir, "gitpour", "state", "merge.json")
 	_, err = os.Stat(stateFile)
 	if err == nil {
 		return true
@@ -102,20 +102,20 @@ func GitFlowMergeStateExists(t *testing.T, dir string) bool {
 	if os.IsNotExist(err) {
 		return false
 	}
-	t.Fatalf("Failed to stat git-flow merge state file %s: %v", stateFile, err)
+	t.Fatalf("Failed to stat git-pour merge state file %s: %v", stateFile, err)
 	return false
 }
 
 // WriteMergeState writes a merge state file directly to the test repository.
 // This is used for testing stale state detection without going through the
-// normal git-flow operations.
+// normal git-pour operations.
 func WriteMergeState(t *testing.T, dir string, state *mergestate.MergeState) {
 	t.Helper()
 	gitDir, err := getGitDirForRepo(dir)
 	if err != nil {
 		t.Fatalf("Failed to determine git directory: %v", err)
 	}
-	stateDir := filepath.Join(gitDir, "gitflow", "state")
+	stateDir := filepath.Join(gitDir, "gitpour", "state")
 	if err := os.MkdirAll(stateDir, 0755); err != nil {
 		t.Fatalf("Failed to create state directory: %v", err)
 	}

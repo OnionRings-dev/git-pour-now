@@ -1,16 +1,21 @@
-# GITFLOW-HOOKS(7)
+# GITPOUR-HOOKS(7)
+
+Examples using `develop`, release branches, or hotfix branches refer to the
+explicit `--preset=classic` compatibility workflow. The default workflow uses
+`main`, `feature/`, and temporary `prerelease/<version>` branches, with releases
+identified by SemVer tags.
 
 ## NAME
 
-gitflow-hooks - Git-flow hooks and filters for customizing workflow behavior
+gitpour-hooks - Git-pour hooks and filters for customizing workflow behavior
 
 ## SYNOPSIS
 
-Custom scripts to extend and customize git-flow operations, located in a configurable hooks directory.
+Custom scripts to extend and customize git-pour operations, located in a configurable hooks directory.
 
 ## DESCRIPTION
 
-Git-flow supports two types of extension points:
+Git-pour supports two types of extension points:
 
 **Filters** transform input/output values during operations (e.g., modifying version numbers or tag messages).
 
@@ -20,11 +25,11 @@ All scripts are located in the hooks directory following specific naming convent
 
 ## HOOKS DIRECTORY
 
-By default, git-flow looks for hook and filter scripts in `.git/hooks/`. This can be overridden using configuration, following a three-level precedence:
+By default, git-pour looks for hook and filter scripts in `.git/hooks/`. This can be overridden using configuration, following a three-level precedence:
 
-1. **gitflow.path.hooks** — git-flow-specific override. Set this to use a dedicated directory for git-flow hooks, independent of Git's own hooks. Compatible with git-flow-avh.
+1. **gitpour.path.hooks** — git-pour-specific override. Set this to use a dedicated directory for git-pour hooks, independent of Git's own hooks. Compatible with git-flow-avh.
 
-2. **core.hooksPath** — Git's native hooks path configuration. If set and `gitflow.path.hooks` is not, git-flow respects this setting.
+2. **core.hooksPath** — Git's native hooks path configuration. If set and `gitpour.path.hooks` is not, git-pour respects this setting.
 
 3. **.git/hooks** — Default location when neither configuration is set. Worktree-aware: in a git worktree, hooks are resolved from the main repository's `.git/hooks` directory.
 
@@ -33,51 +38,51 @@ Both absolute and relative paths are supported. Relative paths are resolved from
 ### Examples
 
 ```bash
-# Use a tracked directory for git-flow hooks (absolute)
-git config gitflow.path.hooks /shared/team-hooks
+# Use a tracked directory for git-pour hooks (absolute)
+git config gitpour.path.hooks /shared/team-hooks
 
-# Use a tracked directory for git-flow hooks (relative to repo root)
-git config gitflow.path.hooks .githooks
+# Use a tracked directory for git-pour hooks (relative to repo root)
+git config gitpour.path.hooks .githooks
 
-# Use Git's native hooks path (also respected by git-flow)
+# Use Git's native hooks path (also respected by git-pour)
 git config core.hooksPath .githooks
 ```
 
 ## FILTERS
 
-Filters transform values passed to git-flow commands. They receive input as arguments or via environment variables and output the transformed value to stdout.
+Filters transform values passed to git-pour commands. They receive input as arguments or via environment variables and output the transformed value to stdout.
 
 ### Filter Naming Convention
 
 ```
-filter-flow-{type}-{action}-{target}
+filter-pour-{type}-{action}-{target}
 ```
 
 Where:
 - `{type}` is the branch type (release, hotfix)
-- `{action}` is the git-flow action (start, finish)
+- `{action}` is the git-pour action (start, finish)
 - `{target}` is what is being filtered (version, tag-message)
 
 ### Available Filters
 
 | Filter Name | Command | Purpose |
 |-------------|---------|---------|
-| `filter-flow-release-start-version` | `git flow release start` | Modify version number |
-| `filter-flow-hotfix-start-version` | `git flow hotfix start` | Modify version number |
-| `filter-flow-release-finish-tag-message` | `git flow release finish` | Customize tag message |
-| `filter-flow-hotfix-finish-tag-message` | `git flow hotfix finish` | Customize tag message |
+| `filter-pour-release-start-version` | `git pour release start` | Modify version number |
+| `filter-pour-hotfix-start-version` | `git pour hotfix start` | Modify version number |
+| `filter-pour-release-finish-tag-message` | `git pour release finish` | Customize tag message |
+| `filter-pour-hotfix-finish-tag-message` | `git pour hotfix finish` | Customize tag message |
 
 ### Version Filters
 
 Version filters receive the version as the first argument (`$1`) and should output the modified version to stdout.
 
-When `git flow <type> start` is run without a name argument, the version filter still fires — with an empty `$1` — and its trimmed output becomes the branch name. This lets a filter derive the version itself (for example from the latest tag). If no version filter is configured, or the filter produces no output, the command fails with `branch name cannot be empty`.
+When `git pour <type> start` is run without a name argument, the version filter still fires — with an empty `$1` — and its trimmed output becomes the branch name. This lets a filter derive the version itself (for example from the latest tag). If no version filter is configured, or the filter produces no output, the command fails with `branch name cannot be empty`.
 
 **Example: Add 'v' prefix to versions**
 
 ```bash
 #!/bin/sh
-# .git/hooks/filter-flow-release-start-version
+# .git/hooks/filter-pour-release-start-version
 VERSION="$1"
 if [ "${VERSION#v}" = "$VERSION" ]; then
     echo "v$VERSION"
@@ -90,7 +95,7 @@ fi
 
 ```bash
 #!/bin/sh
-# .git/hooks/filter-flow-release-start-version
+# .git/hooks/filter-pour-release-start-version
 VERSION="$1"
 
 # Validate semver format
@@ -118,7 +123,7 @@ Environment variables:
 
 ```bash
 #!/bin/sh
-# .git/hooks/filter-flow-release-finish-tag-message
+# .git/hooks/filter-pour-release-finish-tag-message
 VERSION="$1"
 MESSAGE="$2"
 
@@ -146,27 +151,27 @@ ${CHANGELOG}"
 
 ## HOOKS
 
-Hooks are scripts that execute before (pre) or after (post) git-flow operations. Pre-hooks can prevent operations from proceeding.
+Hooks are scripts that execute before (pre) or after (post) git-pour operations. Pre-hooks can prevent operations from proceeding.
 
 ### Hook Naming Convention
 
 ```
-{pre,post}-flow-{type}-{action}
+{pre,post}-pour-{type}-{action}
 ```
 
 Where:
 - `{pre,post}` indicates when the hook runs
 - `{type}` is the branch type (feature, release, hotfix, support)
-- `{action}` is the git-flow action (start, finish, publish, track, delete, update)
+- `{action}` is the git-pour action (start, finish, publish, track, delete, update)
 
 ### Available Hooks
 
 | Hook Pattern | Operations |
 |--------------|------------|
-| `{pre,post}-flow-feature-{action}` | start, finish, publish, track, delete, update |
-| `{pre,post}-flow-release-{action}` | start, finish, publish, track, delete, update |
-| `{pre,post}-flow-hotfix-{action}` | start, finish, publish, delete, update |
-| `{pre,post}-flow-support-{action}` | start, finish, publish, delete, update |
+| `{pre,post}-pour-feature-{action}` | start, finish, publish, track, delete, update |
+| `{pre,post}-pour-release-{action}` | start, finish, publish, track, delete, update |
+| `{pre,post}-pour-hotfix-{action}` | start, finish, publish, delete, update |
+| `{pre,post}-pour-support-{action}` | start, finish, publish, delete, update |
 
 ### Hook Input
 
@@ -191,7 +196,7 @@ Where:
 - `branch` - Full branch name (e.g., `feature/my-feature`)
 - `base` - Parent/base branch (e.g., `develop`)
 
-**Note:** The `update` action is a git-flow-next extension and follows the same pattern as `start`.
+**Note:** The `update` action is a git-pour-now extension and follows the same pattern as `start`.
 
 #### Environment Variables
 
@@ -219,7 +224,7 @@ Pre-hooks run before the operation. If a pre-hook exits with a non-zero status, 
 
 ```bash
 #!/bin/sh
-# .git/hooks/pre-flow-release-start
+# .git/hooks/pre-pour-release-start
 
 if command -v gh &> /dev/null; then
     STATUS=$(gh run list --branch "${BASE_BRANCH:-develop}" --limit 1 --json conclusion -q '.[0].conclusion')
@@ -236,7 +241,7 @@ exit 0
 
 ```bash
 #!/bin/sh
-# .git/hooks/pre-flow-feature-start
+# .git/hooks/pre-pour-feature-start
 
 if ! git diff-index --quiet HEAD --; then
     echo "Error: You have uncommitted changes. Please commit or stash them first."
@@ -254,7 +259,7 @@ Post-hooks run after the operation completes, regardless of success or failure. 
 
 ```bash
 #!/bin/sh
-# .git/hooks/post-flow-release-finish
+# .git/hooks/post-pour-release-finish
 
 if [ "$EXIT_CODE" -eq 0 ]; then
     echo "Release $VERSION completed successfully!"
@@ -266,7 +271,7 @@ fi
 
 ```bash
 #!/bin/sh
-# .git/hooks/post-flow-feature-finish
+# .git/hooks/post-pour-feature-finish
 
 if [ "$EXIT_CODE" -eq 0 ]; then
     echo "Feature $BRANCH_NAME merged. Consider updating documentation."
@@ -277,7 +282,7 @@ fi
 
 ```bash
 #!/bin/sh
-# .git/hooks/post-flow-feature-update
+# .git/hooks/post-pour-feature-update
 
 if [ "$EXIT_CODE" -eq 0 ]; then
     echo "Branch $BRANCH updated from $BASE_BRANCH. Running tests..."
@@ -313,17 +318,17 @@ fi
 
 Since `.git/hooks/` is not tracked by Git, consider these approaches for sharing hooks:
 
-### Using gitflow.path.hooks (recommended)
+### Using gitpour.path.hooks (recommended)
 
 ```bash
 # Store hooks in a tracked directory
 mkdir .githooks
 
-# Configure git-flow to use this directory
-git config gitflow.path.hooks .githooks
+# Configure git-pour to use this directory
+git config gitpour.path.hooks .githooks
 ```
 
-This only affects git-flow hooks and filters, leaving Git's own hooks unaffected.
+This only affects git-pour hooks and filters, leaving Git's own hooks unaffected.
 
 ### Using core.hooksPath
 
@@ -331,7 +336,7 @@ This only affects git-flow hooks and filters, leaving Git's own hooks unaffected
 # Store hooks in a tracked directory
 mkdir .githooks
 
-# Configure Git (and git-flow) to use this directory
+# Configure Git (and git-pour) to use this directory
 git config core.hooksPath .githooks
 ```
 
@@ -341,17 +346,17 @@ Note: This also affects Git's own hooks (pre-commit, commit-msg, etc.).
 
 ```bash
 # Set a shared hooks directory for all repositories (user-wide)
-git config --global gitflow.path.hooks /shared/team-hooks
+git config --global gitpour.path.hooks /shared/team-hooks
 
 # Set a shared hooks directory system-wide
-sudo git config --system gitflow.path.hooks /etc/git-flow-hooks
+sudo git config --system gitpour.path.hooks /etc/git-pour-hooks
 ```
 
 ### Using symbolic links
 
 ```bash
 # Create symbolic links in .git/hooks/
-ln -s ../../.githooks/pre-flow-release-start .git/hooks/
+ln -s ../../.githooks/pre-pour-release-start .git/hooks/
 ```
 
 ## EXAMPLES
@@ -360,7 +365,7 @@ ln -s ../../.githooks/pre-flow-release-start .git/hooks/
 
 ```bash
 #!/bin/sh
-# .git/hooks/filter-flow-release-start-version
+# .git/hooks/filter-pour-release-start-version
 # Validates and normalizes version numbers
 
 VERSION="$1"
@@ -382,7 +387,7 @@ echo "v$CLEAN_VERSION"
 
 ```bash
 #!/bin/sh
-# .git/hooks/pre-flow-feature-start
+# .git/hooks/pre-pour-feature-start
 # Ensures feature names follow conventions
 # Compatible with git-flow-avh
 
@@ -412,9 +417,9 @@ exit 0
 
 ```bash
 #!/bin/sh
-# .git/hooks/pre-flow-feature-start
+# .git/hooks/pre-pour-feature-start
 # Ensures feature names follow conventions
-# Uses environment variables (git-flow-next style)
+# Uses environment variables (git-pour-now style)
 
 # Check for valid characters
 if ! echo "$BRANCH_NAME" | grep -qE '^[a-z0-9-]+$'; then
@@ -434,9 +439,9 @@ exit 0
 
 ## SEE ALSO
 
-**git-flow**(1), **git-flow-start**(1), **git-flow-finish**(1), **gitflow-config**(5), **githooks**(5)
+**git-pour**(1), **git-pour-start**(1), **git-pour-finish**(1), **gitpour-config**(5), **githooks**(5)
 
 ## REFERENCES
 
-- [git-flow-avh Hooks and Filters](https://github.com/petervanderdoes/gitflow-avh/wiki/Reference:-Hooks-and-Filters)
+- [git-flow-avh Hooks and Filters](https://github.com/petervanderdoes/gitpour-avh/wiki/Reference:-Hooks-and-Filters)
 - [Git Hooks Documentation](https://git-scm.com/docs/githooks)

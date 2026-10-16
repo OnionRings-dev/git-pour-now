@@ -118,7 +118,7 @@ see /implement.>
 
 ## Documentation Updates
 - [ ] `docs/<command>.1.md` - <changes needed>
-- [ ] `docs/gitflow-config.5.md` - <if config changes>
+- [ ] `docs/gitpour-config.5.md` - <if config changes>
 - [ ] Command help text updates
 
 ## Checkpoints
