@@ -1284,6 +1284,10 @@ func TestFinishPushAVHRepoConfigEnablesPush(t *testing.T) {
 		t.Fatalf("Failed to configure push: %v", err)
 	}
 
+	if out, err := testutil.RunGitFlowWithInput(t, dir, "yes\nno\n", "init"); err != nil {
+		t.Fatalf("Failed to import legacy config: %s: %v", out, err)
+	}
+
 	createTopicCommit(t, dir, "feature", "login", "login.txt", "login content")
 
 	output, err := testutil.RunGitFlow(t, dir, "feature", "finish", "login", "--no-fetch")

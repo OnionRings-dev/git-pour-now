@@ -505,3 +505,56 @@ func (r *Repo) GetBaseBranch(branchName string) (string, error) {
 func (r *Repo) SetBaseBranch(branchName, baseBranch string) error {
 	return r.SetConfig(BaseBranchKey(branchName), baseBranch)
 }
+
+// CopyConfigValuesWithScope preserves every source value, including empty values
+// and multi-valued push options, when migrating a key into a selected scope.
+func (r *Repo) CopyConfigValuesWithScope(source, target string, scope ConfigScope, filePath string) error {
+	output, err := r.gitCmd("config", "--null", "--get-all", source).Output()
+	if err != nil {
+		return fmt.Errorf("read configuration %s: %w", source, err)
+	}
+	args := []string{"config"}
+	switch scope {
+	case ConfigScopeLocal:
+		args = append(args, "--local")
+	case ConfigScopeGlobal:
+		args = append(args, "--global")
+	case ConfigScopeSystem:
+		args = append(args, "--system")
+	case ConfigScopeFile:
+		args = append(args, "--file", filePath)
+	}
+	for i, value := range strings.Split(strings.TrimSuffix(string(output), "\x00"), "\x00") {
+		operation := "--add"
+		if i == 0 {
+			operation = "--replace-all"
+		}
+		if _, err := r.gitCmd(append(args, operation, target, value)...).Output(); err != nil {
+			return fmt.Errorf("write configuration %s: %w", target, err)
+		}
+	}
+	return nil
+}
+
+// RemoveLegacyConfigLocal removes only repository-local gitflow keys. Inherited
+// global/system configuration and included files are never modified.
+func (r *Repo) RemoveLegacyConfigLocal() error {
+	output, err := r.gitCmd("config", "--local", "--no-includes", "--name-only", "--get-regexp", "^gitflow\\.").Output()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return nil
+		}
+		return fmt.Errorf("list local gitflow configuration: %w", err)
+	}
+	seen := make(map[string]bool)
+	for _, key := range strings.Split(strings.TrimSuffix(string(output), "\n"), "\n") {
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		if _, err := r.gitCmd("config", "--local", "--unset-all", key).Output(); err != nil {
+			return fmt.Errorf("remove local configuration %s: %w", key, err)
+		}
+	}
+	return nil
+}

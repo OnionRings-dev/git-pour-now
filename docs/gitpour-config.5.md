@@ -739,19 +739,20 @@ Combine all branch commits into single commit.
 
 ## GIT-POUR-AVH COMPATIBILITY
 
-git-pour-now automatically translates git-flow-avh configuration:
+After confirmation in **git pour init**, git-pour-now translates git-flow-avh configuration:
 
 | AVH Configuration | git-pour-now Equivalent |
 |-------------------|---------------------------|
-| gitpour.branch.master | gitpour.branch.main.* |
-| gitpour.branch.develop | gitpour.branch.develop.* |
-| gitpour.prefix.feature | gitpour.branch.feature.prefix |
-| gitpour.prefix.release | gitpour.branch.release.prefix |
-| gitpour.prefix.hotfix | gitpour.branch.hotfix.prefix |
-| gitpour.prefix.support | gitpour.branch.support.prefix |
-| gitpour.prefix.versiontag | gitpour.branch.*.tagprefix |
+| gitflow.branch.master | gitpour.branch.main.* |
+| gitflow.branch.develop | gitpour.branch.develop.* |
+| gitflow.prefix.feature | gitpour.branch.feature.prefix |
+| gitflow.prefix.release | gitpour.branch.release.prefix |
+| gitflow.prefix.hotfix | gitpour.branch.hotfix.prefix |
+| gitflow.prefix.support | gitpour.branch.support.prefix |
+| gitflow.prefix.versiontag | gitpour.branch.*.tagprefix |
 
-Translation happens at runtime without modifying existing configuration.
+Translation occurs only after confirmation in **git pour init** and is saved
+under **gitpour.***. Legacy keys are removed only after separate confirmation.
 
 ## VALIDATION RULES
 
@@ -800,7 +801,13 @@ Final merge strategy: **squash** (Layer 3 CLI flag always wins)
 
 ### From git-flow-avh
 
-git-pour-now automatically imports AVH configuration. No manual migration needed.
+Run **git pour init** and confirm the import. Branch definitions and operational
+settings are saved under **gitpour.***. After successful initialization, a separate
+prompt offers to delete the previous repository-local **gitflow.*** keys. Empty
+answers and end of input decline both actions. Global/system settings and included
+files remain untouched. Other commands do not import legacy configuration.
+Explicit workflow options such as **--defaults** skip migration.
+Git-flow-next branch definitions can also be imported through these prompts.
 
 ### Manual Migration
 
@@ -808,10 +815,10 @@ To migrate manually:
 
 ```bash
 # Export AVH config
-git config --get-regexp '^gitpour\.' > avh-config.txt
+git config --get-regexp '^gitflow\.' > avh-config.txt
 
 # Remove AVH config (optional)
-git config --remove-section gitpour
+git config --remove-section gitflow
 
 # Initialize git-pour-now
 git pour init --custom
@@ -904,7 +911,7 @@ These keys are read from local/global/system config (not from **.gitpour**) and 
 
 ### First-run activation
 
-When a repository is otherwise unconfigured (no **gitpour.version** and no valid git-pour/git-flow-avh branch configuration, ignoring **gitpour.shared.*** keys) and a valid **.gitpour** (one that declares **gitpour.version**) is present, the next git-pour command activates it:
+When a repository is otherwise unconfigured (no **gitpour.version** and no git-pour branch configuration, ignoring **gitpour.shared.*** keys) and a valid **.gitpour** (one that declares **gitpour.version**) is present, the next git-pour command activates it:
 
 - **Interactive terminal** — prompts to initialize from **.gitpour**; declining leaves the repository unconfigured.
 - **gitpour.shared.autoInit=true** — copies automatically with a one-line notice (refusing if an untrusted hook path is present).

@@ -218,10 +218,6 @@ func Load(repo *git.Repo) (*Config, error) {
 	// Get git-pour version
 	version, err := repo.GetConfig("gitpour.version")
 	if err != nil {
-		// If no version is set but AVH config exists, import AVH config
-		if CheckGitFlowAVHConfig(repo) {
-			return ImportGitFlowAVHConfig(repo)
-		}
 		// If no version is set, assume it's not initialized properly
 		return DefaultConfig(), nil
 	}
@@ -348,16 +344,11 @@ func ParseBranchConfigLines(branchLines []string) map[string]BranchConfig {
 }
 
 // IsInitialized checks if git-pour is initialized in the repository
-// This includes both git-pour-now and git-flow-avh configurations
+// Legacy gitflow configuration requires explicit import through init.
 func IsInitialized(repo *git.Repo) (bool, error) {
 	// Check for our own gitpour.version config
 	version, err := repo.GetConfig("gitpour.version")
 	if err == nil && version != "" {
-		return true, nil
-	}
-
-	// Check for git-flow-avh configuration
-	if CheckGitFlowAVHConfig(repo) {
 		return true, nil
 	}
 
@@ -423,14 +414,15 @@ func CheckGitFlowAVHConfig(repo *git.Repo) bool {
 	return false
 }
 
-// ImportGitFlowAVHConfig imports git-flow-avh configuration
+// ImportGitFlowAVHConfig translates git-flow-avh or git-flow-next configuration.
+// Callers must obtain consent before persisting the result.
 func ImportGitFlowAVHConfig(repo *git.Repo) (*Config, error) {
 	config := ClassicConfig()
 
 	// Translate legacy gitflow.* command settings into the fork namespace so
 	// settings like gitflow.release.finish.push are honoured even
 	// when the repo was initialised with git-flow-avh.
-	allGitflowConfig, err := repo.GetAllConfig("gitflow\\.")
+	allGitflowConfig, err := repo.GetAllConfig("^gitflow\\.")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load gitpour config: %w", err)
 	}
@@ -442,6 +434,23 @@ func ImportGitFlowAVHConfig(repo *git.Repo) (*Config, error) {
 	remote, ok := allGitflowConfig["gitflow.origin"]
 	if ok && remote != "" {
 		config.Remote = remote
+	}
+
+	// git-flow-next stores branch definitions in the same format as git-pour.
+	// Keep those definitions rather than substituting the classic preset.
+	lines, err := repo.GetConfigRegexpLines("^gitflow\\.branch\\.")
+	if err != nil {
+		return nil, err
+	}
+	for i, line := range lines {
+		lines[i] = strings.Replace(line, "gitflow.", "gitpour.", 1)
+	}
+	branches := ParseBranchConfigLines(lines)
+	for _, branch := range branches {
+		if branch.Type == string(BranchTypeBase) {
+			config.Branches = branches
+			return config, nil
+		}
 	}
 
 	// Map of git-flow-avh config keys to our branch names

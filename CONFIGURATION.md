@@ -321,23 +321,23 @@ When `gitpour.shared.trustHooks` is unset, the `gitpour.path.hooks` key is not c
 
 ### Git-Flow-AVH Compatibility
 
-git-pour-now automatically imports configuration from git-flow-avh installations:
+git-pour-now offers to import git-flow-avh configuration during `git pour init`, after explicit confirmation:
 
 | AVH Key | git-pour-now Equivalent | Description |
 |---------|--------------------------|-------------|
-| `gitpour.branch.master` | `gitpour.branch.main` | Main branch name |
-| `gitpour.branch.develop` | `gitpour.branch.develop` | Develop branch name |
-| `gitpour.prefix.feature` | `gitpour.branch.feature.prefix` | Feature prefix |
-| `gitpour.prefix.release` | `gitpour.branch.release.prefix` | Release prefix |
-| `gitpour.prefix.hotfix` | `gitpour.branch.hotfix.prefix` | Hotfix prefix |
-| `gitpour.prefix.support` | `gitpour.branch.support.prefix` | Support prefix |
-| `gitpour.prefix.versiontag` | `gitpour.branch.*.tagprefix` | Tag prefix |
+| `gitflow.branch.master` | `gitpour.branch.main` | Main branch name |
+| `gitflow.branch.develop` | `gitpour.branch.develop` | Develop branch name |
+| `gitflow.prefix.feature` | `gitpour.branch.feature.prefix` | Feature prefix |
+| `gitflow.prefix.release` | `gitpour.branch.release.prefix` | Release prefix |
+| `gitflow.prefix.hotfix` | `gitpour.branch.hotfix.prefix` | Hotfix prefix |
+| `gitflow.prefix.support` | `gitpour.branch.support.prefix` | Support prefix |
+| `gitflow.prefix.versiontag` | `gitpour.branch.*.tagprefix` | Tag prefix |
 
 ### Migration from git-flow-avh
 
-1. **Automatic Import**: Run `git pour init` to automatically import existing configuration
+1. **Confirmed Import**: Run `git pour init` and answer yes to import existing configuration, including operational preferences. After a successful import, a separate prompt offers to remove the previous repository-local `gitflow.*` keys. Both prompts default to no; global/system and included settings are preserved.
 2. **Manual Migration**: Use the mapping table above to convert AVH config to git-pour-now format
-3. **Verification**: Run `git pour overview` to verify imported configuration
+3. **Verification**: Run `git pour overview` to verify imported configuration. Ordinary commands do not import legacy settings; explicit initialization options such as `--defaults` skip migration.
 
 ## Configuration Examples
 

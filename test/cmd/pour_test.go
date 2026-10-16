@@ -192,3 +192,17 @@ func TestPourReleaseUsesCustomTrunk(t *testing.T) {
 		t.Fatal("custom trunk created develop")
 	}
 }
+
+func TestPourReleaseRejectsHiddenUntrackedFiles(t *testing.T) {
+	dir := initPour(t)
+	if out, err := testutil.RunGit(t, dir, "config", "status.showUntrackedFiles", "no"); err != nil {
+		t.Fatalf("configure status: %s: %v", out, err)
+	}
+	testutil.WriteFile(t, dir, "untracked.txt", "pending")
+	if out, err := testutil.RunGitFlow(t, dir, "release", "1.0.0"); err == nil {
+		t.Fatalf("released dirty tree: %s", out)
+	}
+	if out, err := testutil.RunGit(t, dir, "tag", "--list", "v1.0.0"); err != nil || strings.TrimSpace(out) != "" {
+		t.Fatalf("unexpected release tag: %s: %v", out, err)
+	}
+}

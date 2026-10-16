@@ -134,7 +134,19 @@ Answers are trimmed of surrounding whitespace and then stored verbatim. No separ
 
 An answer that is empty after trimming leaves the default in place.
 
-If a git-flow-avh configuration is already present, **git-pour init** imports it instead of prompting.
+If **gitflow.*** configuration is present, **git-pour init** first asks whether
+to import it. Both git-flow-avh and git-flow-next branch definitions are supported.
+Importing also saves operational preferences, such as feature finish retention
+and the configured remote, under **gitpour.***.
+
+After the import has been saved and base branches have been created successfully,
+a second prompt offers to delete the previous repository-local **gitflow.*** keys.
+Global/system settings and included configuration files are preserved. Both prompts
+default to **no** on an empty answer or end of input. Declining import continues
+with normal initialization; other commands never import legacy configuration.
+
+Explicit workflow choices (**--defaults**, **--preset**, **--custom**, or branch
+configuration flags) skip the import prompts and leave the legacy settings intact.
 
 ## CUSTOM MODE
 

@@ -536,36 +536,28 @@ func TestLoadConfigUninitializedReturnsDefaults(t *testing.T) {
 	}
 }
 
-// TestLoadConfigImportsAvhOffCwd verifies config.Load imports git-flow-avh
-// configuration from the target repository when no gitpour.version is present.
-// Steps:
-// 1. Sets up a test repository B with distinctive git-flow-avh keys and no version
-// 2. Loads config through a git.Repo handle for B
-// 3. Verifies the AVH master rename ('production') is imported and 'main' is gone
-// 4. Verifies the imported feature prefix is 'feat/'
-func TestLoadConfigImportsAvhOffCwd(t *testing.T) {
+// TestLoadConfigDoesNotImportLegacy verifies ordinary reads require explicit
+// initialization even when legacy configuration exists in the target repo.
+func TestLoadConfigDoesNotImportLegacy(t *testing.T) {
 	t.Parallel()
 	dir := testutil.SetupTestRepo(t)
 	defer testutil.CleanupTestRepo(t, dir)
-
-	// git-flow-avh keys with distinctive non-default values, no gitpour.version.
 	setConfig(t, dir, "gitflow.branch.master", "production")
 	setConfig(t, dir, "gitflow.prefix.feature", "feat/")
-	setConfig(t, dir, "gitflow.prefix.hotfix", "hf/")
-
-	cfg, err := config.Load(openRepo(t, dir))
+	repo := openRepo(t, dir)
+	initialized, err := config.IsInitialized(repo)
+	if err != nil || initialized {
+		t.Fatalf("legacy config must not initialize git-pour: %v, %v", initialized, err)
+	}
+	cfg, err := config.Load(repo)
 	if err != nil {
-		t.Fatalf("Failed to load config: %v", err)
+		t.Fatal(err)
 	}
-
-	if _, exists := cfg.Branches["production"]; !exists {
-		t.Errorf("Expected AVH master 'production' imported; branches: %v", keysOf(cfg.Branches))
+	if _, exists := cfg.Branches["production"]; exists {
+		t.Fatal("legacy trunk was imported without consent")
 	}
-	if _, exists := cfg.Branches["main"]; exists {
-		t.Errorf("Did not expect default 'main' after AVH import renamed it to 'production'")
-	}
-	if got := cfg.Branches["feature"].Prefix; got != "feat/" {
-		t.Errorf("Expected imported feature prefix 'feat/', got %q", got)
+	if cfg.Branches["feature"].Prefix != "feature/" {
+		t.Fatal("legacy prefix was imported without consent")
 	}
 }
 

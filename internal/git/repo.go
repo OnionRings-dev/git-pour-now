@@ -971,7 +971,7 @@ func (r *Repo) DeleteRemoteTrackingRef(remote, branch string) error {
 
 // RequireCleanReleaseTree rejects pending changes and unfinished integrations.
 func (r *Repo) RequireCleanReleaseTree() error {
-	output, err := r.gitCmd("status", "--porcelain").Output()
+	output, err := r.gitCmd("status", "--porcelain", "--untracked-files=all").Output()
 	if err != nil {
 		return fmt.Errorf("check working tree: %w", err)
 	}

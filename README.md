@@ -98,10 +98,11 @@ Settings live under `gitpour.*`; shared configuration lives in `.gitpour`.
 Shell integration uses `GIT_POUR_*` environment variables. Hooks use names such
 as `pre-pour-feature-start` and `filter-pour-feature-start-version`; rename any
 existing hook scripts when opting into the fork.
-This fork does not automatically rewrite an existing git-flow-next configuration;
-initialize it with `git pour init --defaults` to opt into the new workflow.
-Legacy git-flow-avh configuration can still be imported and its historical
-`gitflow.*` keys are read only by the compatibility importer.
+Run `git pour init --defaults` to opt into the new workflow without importing
+legacy settings. Plain `git pour init` detects existing `gitflow.*` configuration
+and asks whether to import it, then separately whether to remove the previous
+repository-local keys. Both answers default to no. Git-flow-avh and git-flow-next
+configurations are supported; ordinary commands never import them automatically.
 
 The explicit `--preset=classic`, `--preset=github`, and `--preset=gitlab`
 compatibility presets and custom topic types remain available. With a configured

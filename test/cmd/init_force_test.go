@@ -350,13 +350,13 @@ func TestAVHConfigDoesNotRequireForce(t *testing.T) {
 	}
 
 	// Run git-pour init without --force - should work since only AVH config exists
-	output, err := runGitFlow(t, dir, "init")
+	output, err := testutil.RunGitFlowWithInput(t, dir, "yes\nno\n", "init")
 	if err != nil {
 		t.Fatalf("Expected git-pour init to succeed with AVH-only config, but it failed: %v\nOutput: %s", err, output)
 	}
 
 	// Check that AVH import message was shown
-	if !strings.Contains(output, "Found existing git-flow-avh configuration, importing") {
+	if !strings.Contains(output, "Successfully imported gitflow configuration") {
 		t.Errorf("Expected output to contain AVH import message, got: %s", output)
 	}
 

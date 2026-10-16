@@ -498,11 +498,11 @@ func TestInitImportsFlatAVHFeaturePrefix(t *testing.T) {
 		t.Fatalf("Failed to set gitpour.prefix.feature: %v\nOutput: %s", err, out)
 	}
 
-	output, err := testutil.RunGitFlow(t, dir, "init")
+	output, err := testutil.RunGitFlowWithInput(t, dir, "yes\nno\n", "init")
 	if err != nil {
 		t.Fatalf("Failed to run git-pour init: %v\nOutput: %s", err, output)
 	}
-	if !strings.Contains(output, "Found existing git-flow-avh configuration, importing") {
+	if !strings.Contains(output, "Successfully imported gitflow configuration") {
 		t.Errorf("Expected the avh import path to run, got: %s", output)
 	}
 

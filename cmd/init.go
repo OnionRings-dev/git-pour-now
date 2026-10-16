@@ -41,7 +41,8 @@ non-interactive run fails. The created repository's initial branch is the
 resolved git-pour trunk.
 
 Use --custom for interactive custom configuration.
-If git-flow-avh configuration exists, it will be imported.`,
+If gitflow configuration exists, you can confirm its import, then optionally
+remove the previous repository-local keys. Neither action is automatic.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		useDefaults, _ := cmd.Flags().GetBool("defaults")
 		noCreateBranches, _ := cmd.Flags().GetBool("no-create-branches")
@@ -246,23 +247,23 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 	// Check if any configuration options are provided
 	hasConfigFlags := mainBranch != "" || developBranch != "" || featurePrefix != "" || bugfixPrefix != "" || releasePrefix != "" || hotfixPrefix != "" || supportPrefix != "" || tagPrefix != ""
 
-	// Check if git-flow-avh config exists and no explicit options are provided.
-	//
-	// AVH detection needs a repository handle, and on the --init path there is no
-	// repository yet (it cannot be created until configuration resolution has
-	// determined the trunk). Skipping it is correct rather than merely pragmatic: a
-	// brand-new repository has no local config, so the only AVH keys it could ever
-	// see would come from global/system config, which is not a repository being
-	// migrated from git-flow-avh.
-	if repo != nil && config.CheckGitFlowAVHConfig(repo) && preset == "" && !custom && !useDefaults && !hasConfigFlags {
-		fmt.Println("Found existing git-flow-avh configuration, importing...")
-		var err error
-		cfg, err = config.ImportGitFlowAVHConfig(repo)
+	// Explicit workflow options bypass migration. Otherwise ask before reading
+	// legacy configuration; an empty answer or EOF declines the import.
+	imported := false
+	if repo != nil && preset == "" && !custom && !useDefaults && !hasConfigFlags {
+		legacy, err := repo.GetAllConfig("^gitflow\\.")
 		if err != nil {
-			return &errors.GitError{Operation: "import git-flow-avh configuration", Err: err}
+			return err
 		}
-		fmt.Println("Successfully imported git-flow-avh configuration")
-	} else {
+		if len(legacy) > 0 && confirmLegacyConfig("Found existing gitflow configuration. Import it? [y/N]: ") {
+			cfg, err = config.ImportGitFlowAVHConfig(repo)
+			if err != nil {
+				return &errors.GitError{Operation: "import gitflow configuration", Err: err}
+			}
+			imported = true
+		}
+	}
+	if !imported {
 		// Determine configuration method
 		if preset != "" {
 			// Use preset configuration
@@ -377,6 +378,26 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 	// committable <toplevel>/.gitpour file and then copies gitpour.* into local
 	// .git/config so every read site (including the direct git-config readers)
 	// sees the shared settings.
+	saveConfig := func(targetScope git.ConfigScope, targetFile string) error {
+		if err := config.SaveConfigWithScope(cfg, targetScope, targetFile); err != nil {
+			return err
+		}
+		if !imported {
+			return nil
+		}
+		// Branch definitions were saved above. AVH identity keys (branch.master,
+		// prefix.*, etc.) must not become spurious git-pour branch definitions.
+		for key := range cfg.CommandConfig {
+			if strings.HasPrefix(key, "gitpour.branch.") || strings.HasPrefix(key, "gitpour.prefix.") || key == "gitpour.version" || key == "gitpour.initialized" {
+				continue
+			}
+			legacyKey := strings.Replace(key, "gitpour.", "gitflow.", 1)
+			if err := repo.CopyConfigValuesWithScope(legacyKey, key, targetScope, targetFile); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 	if sharedScope {
 		sharedPath := config.SharedConfigPath(repo)
 		// A forced re-init removes any existing .gitpour first so the rewrite
@@ -388,7 +409,7 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 				}
 			}
 		}
-		if err := config.SaveConfigWithScope(cfg, git.ConfigScopeFile, sharedPath); err != nil {
+		if err := saveConfig(git.ConfigScopeFile, sharedPath); err != nil {
 			return &errors.GitError{Operation: "save shared configuration", Err: err}
 		}
 		if err := config.MarkRepoInitializedWithScope(git.ConfigScopeFile, sharedPath); err != nil {
@@ -398,7 +419,7 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 			return &errors.GitError{Operation: "copy shared configuration into local config", Err: err}
 		}
 	} else {
-		if err := config.SaveConfigWithScope(cfg, scope, scopeFile); err != nil {
+		if err := saveConfig(scope, scopeFile); err != nil {
 			return &errors.GitError{Operation: "save configuration", Err: err}
 		}
 		if err := config.MarkRepoInitializedWithScope(scope, scopeFile); err != nil {
@@ -413,6 +434,14 @@ func initFlow(useDefaults, createBranches, force bool, preset string, custom boo
 		}
 	}
 
+	if imported {
+		fmt.Println("Successfully imported gitflow configuration")
+		if confirmLegacyConfig("Delete the previous gitflow.* configuration from this repository's local config? [y/N]: ") {
+			if err := repo.RemoveLegacyConfigLocal(); err != nil {
+				return &errors.GitError{Operation: "remove previous gitflow configuration", Err: err}
+			}
+		}
+	}
 	fmt.Println("Git pour has been initialized")
 	return nil
 }
@@ -592,4 +621,12 @@ func interactivePourConfig() config.ConfigOverrides {
 	fmt.Print("Feature branch prefix [feature/]: ")
 	feature, _ := reader.ReadString('\n')
 	return config.ConfigOverrides{MainBranch: strings.TrimSpace(main), FeaturePrefix: strings.TrimSpace(feature)}
+}
+
+// Scan one answer without buffering input intended for subsequent prompts.
+func confirmLegacyConfig(prompt string) bool {
+	fmt.Print(prompt)
+	var response string
+	fmt.Scanln(&response)
+	return strings.EqualFold(response, "y") || strings.EqualFold(response, "yes")
 }

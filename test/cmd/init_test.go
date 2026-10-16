@@ -239,14 +239,14 @@ func TestInitWithAVHConfig(t *testing.T) {
 	}
 
 	// Run git-pour init
-	output, err := runGitFlow(t, dir, "init")
+	output, err := testutil.RunGitFlowWithInput(t, dir, "yes\nno\n", "init")
 	if err != nil {
 		t.Fatalf("Failed to run git-pour init: %v\nOutput: %s", err, output)
 	}
 
 	// Check if the output contains the expected message
-	if !strings.Contains(output, "Found existing git-flow-avh configuration, importing") {
-		t.Errorf("Expected output to contain 'Found existing git-flow-avh configuration, importing', got: %s", output)
+	if !strings.Contains(output, "Successfully imported gitflow configuration") {
+		t.Errorf("Expected output to contain 'Successfully imported gitflow configuration', got: %s", output)
 	}
 
 	// Check if the configuration was saved correctly

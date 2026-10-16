@@ -335,15 +335,12 @@ func equalStringSlice(a, b []string) bool {
 // git-pour configuration, deliberately ignoring gitpour.shared.* control keys.
 //
 // The repo counts as configured (returns false) if merged git config has a
-// non-empty gitpour.version, valid git-flow-avh config, or any git-pour-now
+// non-empty gitpour.version or any git-pour-now
 // branch *definition* (a gitpour.branch.<name>.type key). A stray command key
 // (e.g. gitpour.feature.start.fetch) or a shared-control key alone does not count
 // as configuration, so the repo still reads as unconfigured (returns true).
 func IsUnconfiguredIgnoringShared(repo *git.Repo) (bool, error) {
 	if v, err := repo.GetConfig("gitpour.version"); err == nil && v != "" {
-		return false, nil
-	}
-	if CheckGitFlowAVHConfig(repo) {
 		return false, nil
 	}
 	lines, err := repo.GetConfigRegexpLines("^gitpour\\.branch\\.")

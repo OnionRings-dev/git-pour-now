@@ -282,6 +282,10 @@ func TestOverviewWithAVHConfig(t *testing.T) {
 		t.Fatalf("Failed to create feature branch: %v", err)
 	}
 
+	if out, err := testutil.RunGitFlowWithInput(t, dir, "yes\nno\n", "init"); err != nil {
+		t.Fatalf("Failed to import legacy config: %s: %v", out, err)
+	}
+
 	// Run git-pour overview
 	output, err := testutil.RunGitFlow(t, dir, "overview")
 	if err != nil {

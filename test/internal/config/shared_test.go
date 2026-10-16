@@ -258,7 +258,7 @@ func TestIsUnconfiguredAfterGitFlowInit(t *testing.T) {
 // Steps:
 // 1. Sets git-flow-avh style keys (gitpour.branch.master, gitpour.prefix.feature) and no version
 // 2. Calls config.IsUnconfiguredIgnoringShared
-// 3. Verifies it reports configured (AVH branch config counts as configuration)
+// 3. Verifies legacy config alone does not initialize git-pour
 func TestIsUnconfiguredAvhOnlyNoVersion(t *testing.T) {
 	t.Parallel()
 	dir := setupTestRepo(t)
@@ -272,8 +272,8 @@ func TestIsUnconfiguredAvhOnlyNoVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("IsUnconfiguredIgnoringShared failed: %v", err)
 	}
-	if unconfigured {
-		t.Error("expected AVH-only repo to read as configured")
+	if !unconfigured {
+		t.Error("expected AVH-only repo to require explicit initialization")
 	}
 }
 

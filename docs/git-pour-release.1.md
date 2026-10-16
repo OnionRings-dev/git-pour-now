@@ -16,6 +16,7 @@ optionally prefixed by **v**. Stable versions require the configured trunk
 **prerelease/<MAJOR.MINOR.PATCH>** branch. Build metadata does not select a branch.
 
 The repository must be initialized, with no pending changes or integration.
+Untracked files block release even when **status.showUntrackedFiles** hides them.
 The version must have greater SemVer precedence than every existing local
 SemVer tag. Unrelated tag names are ignored. Existing tags are never moved.
 Fetch tags from the remote before releasing in a shared repository.

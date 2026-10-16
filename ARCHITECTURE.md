@@ -618,7 +618,7 @@ The flexible configuration system enables easy integration with modern CI/CD pip
 git-pour-now maintains compatibility with existing git-flow-avh configurations while providing migration tools for enhanced features:
 
 ```bash
-# Existing git-flow-avh configuration is imported automatically on init
+# Confirm import of existing gitflow configuration, then optionally remove local legacy keys
 # (when AVH config is present and no explicit options are given)
 git pour init
 ```
