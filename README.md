@@ -4,6 +4,16 @@ A personal fork of [git-flow-next](https://github.com/gittower/git-flow-next),
 maintained by OnionRings-dev. Keep development on `main`, work in short-lived
 `feature/` branches, and identify releases exclusively with Git tags.
 
+## Disclaimer
+
+This project started as an inside joke within OnionRings-dev. We do not recommend
+taking it seriously or using this tool in your professional workflow. It is simply
+our own project, made for our own amusement.
+
+We deeply appreciate the work of the people who build and maintain serious
+solutions in this space, including the upstream project. Nothing here is intended
+to mock or disrespect them or their efforts.
+
 ## Installation
 
 Requires Go 1.23.6 or newer and Git.
