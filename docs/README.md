@@ -22,6 +22,7 @@ This directory contains comprehensive manpage-style documentation for all git-po
 - **git-pour-overview.1.md** - Repository workflow overview
 - **git-pour-completion.1.md** - Shell completion script generation
 - **git-pour-shell-init.1.md** - Shell integration script for directory switching
+- **git-pour-self-update.1.md** - Check for updates and update the CLI executable
 
 ### Configuration Documentation (Section 5)
 - **gitpour-config.5.md** - Complete configuration reference and examples

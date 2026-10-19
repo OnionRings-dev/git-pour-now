@@ -55,6 +55,9 @@ This implementation maintains compatibility with existing git-pour repositories 
 **version**
 : Show version information. Prints `<version> (git-pour-now)`, so tooling that parses the first whitespace-separated token reads a bare version number.
 
+**self-update** [**--check**|**-c**]
+: Check for a newer Go module version or update the CLI executable. See **git-pour-self-update**(1).
+
 ### Topic Branch Commands
 
 Topic branch commands are dynamically generated based on your configuration. Default types include **feature**, **release**, **hotfix**, **support**, plus any custom types you define.

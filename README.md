@@ -16,19 +16,60 @@ to mock or disrespect them or their efforts.
 
 ## Installation
 
-Requires Go 1.23.6 or newer and Git.
+Requires Go 1.23.6 or newer and Git. The installer also requires `curl`.
+
+On macOS or Linux, paste this command into bash or zsh:
 
 ```sh
-go install github.com/OnionRings-dev/git-pour-now@latest
+curl -fsSL https://raw.githubusercontent.com/OnionRings-dev/git-pour-now/main/scripts/install.sh | sh
 ```
 
-`go install` names the executable after the module (`git-pour-now`). Rename it to
-`git-pour` in your PATH to enable `git pour`, or build it with the correct name:
+The [installer](scripts/install.sh) builds the latest Go module, installs it as
+`~/.local/bin/git-pour`, and adds that directory to your shell configuration for
+future terminals. It supports zsh (including `ZDOTDIR`), bash (interactive and
+login shells), and sh-compatible login shells. Other shells need manual PATH
+setup. No `sudo` is needed. Running the installer again updates the binary
+without adding duplicate PATH lines.
+
+Open a new terminal, then verify the installation:
+
+```sh
+git pour version
+```
+
+Check for updates or update the installed CLI directly:
+
+```sh
+git pour self-update --check
+git pour self-update
+```
+
+Both commands require Go and network access and use the same `@latest` module
+version as the installer. Updates replace the current executable on macOS and
+Linux without changing shell configuration. See
+[self-update](docs/git-pour-self-update.1.md) for development build behavior and
+platform requirements. The existing `git pour update` command updates branches.
+
+Alternatively, from a cloned repository:
 
 ```sh
 go build -o git-pour main.go
-# Copy git-pour to a directory in your PATH.
+./git-pour version
+mkdir -p "$HOME/.local/bin"
+install -m 755 git-pour "$HOME/.local/bin/git-pour"
+export PATH="$HOME/.local/bin:$PATH"
+git pour version
 ```
+
+The build creates `git-pour` in the current directory; run it as `./git-pour`
+until it is installed on your PATH. Both `git-pour` and `git pour` work once the
+executable is named `git-pour` and its directory is on your PATH.
+For manual builds, also add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc`
+or `~/.bashrc` to keep it available in new terminals.
+
+If using `go install github.com/OnionRings-dev/git-pour-now@latest` directly,
+Go names the binary `git-pour-now`; rename it to `git-pour` in a directory on
+your PATH to enable `git pour`.
 
 Release archives contain the `git-pour` executable (`git-pour.exe` on Windows).
 
